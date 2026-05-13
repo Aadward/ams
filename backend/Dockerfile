@@ -1,26 +1,20 @@
-FROM eclipse-temurin:21-jdk-alpine AS build
-
+# ===== 阶段1：依赖下载 =====
+FROM eclipse-temurin:21-jdk-alpine AS deps
 WORKDIR /app
+COPY pom.xml .
+RUN apk add --no-cache maven
+RUN mvn dependency:go-offline -B
 
+# ===== 阶段2：构建 =====
+FROM eclipse-temurin:21-jdk-alpine AS build
+WORKDIR /app
+COPY --from=deps /root/.m2 /root/.m2
 COPY pom.xml .
 COPY src ./src
+RUN mvn package -DskipTests -B
 
-RUN apk add --no-cache maven && \
-    mvn package -DskipTests && \
-    mv target/*.jar app.jar
-
+# ===== 阶段3：运行 =====
 FROM eclipse-temurin:21-jre-alpine
-
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
 WORKDIR /app
-
-COPY --from=build /app/app.jar app.jar
-
-RUN chown -R appuser:appgroup /app
-
-USER appuser
-
-EXPOSE 8080
-
+COPY --from=build /app/target/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

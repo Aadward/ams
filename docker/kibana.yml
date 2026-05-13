@@ -1,0 +1,16 @@
+# 彻底禁用 Fleet 和所有相关功能
+xpack.fleet.enabled: false
+xpack.fleet.standalone: true
+xpack.fleet.agentMode: false
+
+# 禁用 APM（依赖安全和 Fleet）
+observability.apm.enabled: false
+
+# 禁用其他需要安全的组件
+monitoring.ui.enabled: false
+management.enabled: false
+
+# 基础配置
+server.name: kibana
+server.host: "0.0.0.0"
+elasticsearch.hosts: ["http://elasticsearch:9200"]

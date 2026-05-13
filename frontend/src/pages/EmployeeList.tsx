@@ -1,17 +1,21 @@
-import { Table, Button, Space, Input } from 'antd';
+import { Table, Button, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { useEmployeeList } from '../api/employee';
 
 export default function EmployeeList() {
   const navigate = useNavigate();
+  const { data, isLoading } = useEmployeeList();
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <Space>
-        <Input.Search placeholder="搜索姓名/部门" style={{ width: 240 }} />
         <Button type="primary" onClick={() => navigate('/employees/new')}>新建员工</Button>
       </Space>
       <Table
+        loading={isLoading}
+        dataSource={data?.content}
         rowKey="id"
+        pagination={{ total: data?.totalElements, defaultPageSize: 10 }}
         onRow={(record) => ({
           onClick: () => navigate(`/employees/${record.id}`),
           style: { cursor: 'pointer' },
@@ -21,6 +25,14 @@ export default function EmployeeList() {
           { title: '部门', dataIndex: 'dept' },
           { title: '邮箱', dataIndex: 'email' },
           { title: '电话', dataIndex: 'phone' },
+          {
+            title: '操作',
+            render: (_: unknown, record: { id: number }) => (
+              <Button size="small" onClick={(e) => { e.stopPropagation(); navigate(`/employees/${record.id}`); }}>
+                查看
+              </Button>
+            ),
+          },
         ]}
       />
     </Space>

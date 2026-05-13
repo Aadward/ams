@@ -1,0 +1,74 @@
+import { Form, Input, Button, Card, Space, message } from 'antd';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useEmployee, useCreateEmployee, useUpdateEmployee } from '../api/employee';
+
+export default function EmployeeForm() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [form] = Form.useForm();
+  const isEdit = !!id;
+  const numericId = Number(id);
+
+  const { data: employee, isLoading } = useEmployee(numericId);
+  const createMutation = useCreateEmployee();
+  const updateMutation = useUpdateEmployee(numericId);
+
+  useEffect(() => {
+    if (isEdit && employee) {
+      form.setFieldsValue({
+        name: employee.name,
+        dept: employee.dept,
+        email: employee.email,
+        phone: employee.phone,
+      });
+    }
+  }, [isEdit, employee, form]);
+
+  const handleSubmit = async (values: Record<string, unknown>) => {
+    try {
+      if (isEdit) {
+        await updateMutation.mutateAsync(values);
+        message.success('更新成功');
+      } else {
+        await createMutation.mutateAsync(values);
+        message.success('创建成功');
+      }
+      navigate('/employees');
+    } catch {
+      message.error('操作失败');
+    }
+  };
+
+  return (
+    <Card title={isEdit ? '编辑员工' : '新建员工'} loading={isEdit && isLoading}>
+      <Form
+        form={form}
+        layout="vertical"
+        style={{ maxWidth: 600 }}
+        onFinish={handleSubmit}
+      >
+        <Form.Item label="姓名" name="name" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item label="部门" name="dept">
+          <Input />
+        </Form.Item>
+        <Form.Item label="邮箱" name="email">
+          <Input type="email" />
+        </Form.Item>
+        <Form.Item label="电话" name="phone">
+          <Input />
+        </Form.Item>
+        <Form.Item>
+          <Space>
+            <Button type="primary" htmlType="submit" loading={createMutation.isPending || updateMutation.isPending}>
+              {isEdit ? '保存' : '创建'}
+            </Button>
+            <Button onClick={() => navigate('/employees')}>取消</Button>
+          </Space>
+        </Form.Item>
+      </Form>
+    </Card>
+  );
+}

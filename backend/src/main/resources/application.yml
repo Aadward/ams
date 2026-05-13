@@ -1,0 +1,57 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ams-backend
+
+  datasource:
+    url: jdbc:mysql://${AMS_DB_HOST:localhost}:${AMS_DB_PORT:3306}/${AMS_DB_NAME:ams_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8mb4
+    username: ${AMS_DB_USER:root}
+    password: ${AMS_DB_PASSWORD:root123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  elasticsearch:
+    uris: ${AMS_ES_URI:http://localhost:9200}
+    connection-timeout: 5s
+    socket-timeout: 30s
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.ams: INFO
+    org.springframework.data.elasticsearch: WARN

@@ -6,7 +6,7 @@ spring:
     name: ams-backend
 
   datasource:
-    url: jdbc:mysql://${AMS_DB_HOST:localhost}:${AMS_DB_PORT:3306}/${AMS_DB_NAME:ams_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8mb4
+    url: jdbc:mysql://${AMS_DB_HOST:localhost}:${AMS_DB_PORT:3306}/${AMS_DB_NAME:ams_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
     username: ${AMS_DB_USER:root}
     password: ${AMS_DB_PASSWORD:root123}
     driver-class-name: com.mysql.cj.jdbc.Driver

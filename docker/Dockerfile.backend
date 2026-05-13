@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jre-alpine
+FROM docker.1ms.run/eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY backend/app.jar app.jar
+COPY docker/backend/app.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

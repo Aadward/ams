@@ -80,7 +80,7 @@ public class EmployeeService {
                 .orElseThrow(() -> new RuntimeException("员工不存在"));
         employeeRepository.delete(employee);
 
-        saveLog(null, AssetAction.DELETE, "删除员工: " + employee.getName());
+        saveLog(null, AssetAction.UNASSIGN, "删除员工: " + employee.getName());
     }
 
     private EmployeeResponse toResponse(Employee employee) {

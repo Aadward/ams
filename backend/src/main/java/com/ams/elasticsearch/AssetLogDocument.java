@@ -34,5 +34,5 @@ public class AssetLogDocument {
     private Instant createdAt;
 
     @Field(type = FieldType.Date, format = DateFormat.date_time)
-    private Instant @timestamp;
+    private Instant timestamp;
 }

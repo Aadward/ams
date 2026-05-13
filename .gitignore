@@ -22,3 +22,5 @@ logs/
 
 # docker
 .docker/
+docker/backend/
+docker/frontend/

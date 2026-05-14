@@ -17,9 +17,12 @@ import java.util.Optional;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final NotificationPushService notificationPushService;
 
-    public NotificationService(NotificationRepository notificationRepository) {
+    public NotificationService(NotificationRepository notificationRepository,
+                               NotificationPushService notificationPushService) {
         this.notificationRepository = notificationRepository;
+        this.notificationPushService = notificationPushService;
     }
 
     @Transactional
@@ -32,7 +35,10 @@ public class NotificationService {
                 .type(type)
                 .isRead(false)
                 .build();
-        return notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+        // Push to WebSocket subscribers in real-time
+        notificationPushService.pushToUser(userId, saved);
+        return saved;
     }
 
     public Page<Notification> getUserNotifications(Long userId, Pageable pageable) {

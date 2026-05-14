@@ -15,6 +15,10 @@ export default function Dashboard() {
     ? Object.values(data.categoryStats).reduce((sum, val) => sum + val, 0)
     : 0;
 
+  const maxTrend = data?.monthlyTrend && data.monthlyTrend.length > 0
+    ? Math.max(...data.monthlyTrend.map(m => m.count))
+    : 1;
+
   return (
     <div>
       <h2>仪表盘</h2>
@@ -48,7 +52,7 @@ export default function Dashboard() {
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col span={24}>
+        <Col span={12}>
           <Card title="分类统计" loading={isLoading}>
             {data?.categoryStats && totalCategoryCount > 0 ? (
               Object.entries(data.categoryStats).map(([key, value]) => (
@@ -61,6 +65,38 @@ export default function Dashboard() {
                   />
                 </div>
               ))
+            ) : (
+              <span>暂无数据</span>
+            )}
+          </Card>
+        </Col>
+        <Col span={12}>
+          <Card title="月度活动趋势" loading={isLoading}>
+            {data?.monthlyTrend && data.monthlyTrend.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {data.monthlyTrend.map((entry) => (
+                  <div key={entry.month} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 60, fontSize: 12, color: '#666' }}>{entry.month}</span>
+                    <div style={{ flex: 1, background: '#f0f0f0', borderRadius: 4, height: 20 }}>
+                      <div
+                        style={{
+                          width: `${Math.max(2, (entry.count / maxTrend) * 100)}%`,
+                          background: '#1677ff',
+                          borderRadius: 4,
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          paddingLeft: 6,
+                          color: '#fff',
+                          fontSize: 11,
+                        }}
+                      >
+                        {entry.count}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : (
               <span>暂无数据</span>
             )}

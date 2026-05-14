@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,17 @@ public class DashboardService {
                 .map(this::toResponse)
                 .collect(Collectors.toList());
 
+        // Monthly activity trend (last 6 months)
+        LocalDateTime sixMonthsAgo = LocalDateTime.now().minusMonths(6);
+        List<DashboardStatsResponse.MonthlyTrendEntry> monthlyTrend = assetLogRepository
+                .countByMonth(sixMonthsAgo)
+                .stream()
+                .map(row -> DashboardStatsResponse.MonthlyTrendEntry.builder()
+                        .month((String) row[0])
+                        .count(((Number) row[1]).longValue())
+                        .build())
+                .collect(Collectors.toList());
+
         return DashboardStatsResponse.builder()
                 .totalAssets(totalAssets)
                 .inStock(inStock)
@@ -52,6 +64,7 @@ public class DashboardService {
                 .retired(retired)
                 .categoryBreakdown(categoryBreakdown)
                 .recentActivity(recentActivity)
+                .monthlyTrend(monthlyTrend)
                 .build();
     }
 

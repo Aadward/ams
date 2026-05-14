@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import NotificationList from './pages/NotificationList';
 import ApprovalList from './pages/ApprovalList';
 import AppMenu from './components/AppMenu';
+import NotificationBell from './components/NotificationBell';
 
 const { Header, Sider, Content } = Layout;
 
@@ -24,8 +25,9 @@ export default function App() {
         <AppMenu />
       </Sider>
       <Layout>
-        <Header style={{ display: 'flex', alignItems: 'center', color: '#fff', fontSize: 18, paddingLeft: 24 }}>
+        <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff', fontSize: 18, paddingLeft: 24, paddingRight: 24 }}>
           <span>AMS 资产管理系统</span>
+          <NotificationBell userId={1} />
         </Header>
         <Content style={{ padding: '24px 48px' }}>
           <Routes>

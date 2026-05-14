@@ -95,6 +95,9 @@ public class SecurityConfig {
                         // Actuator health - public
                         .requestMatchers("/actuator/**").permitAll()
 
+                        // WebSocket endpoints - public (auth is handled at message level)
+                        .requestMatchers("/ws/**").permitAll()
+
                         // Swagger docs - public
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll()
 

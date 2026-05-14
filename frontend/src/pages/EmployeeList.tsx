@@ -4,7 +4,7 @@ import { useEmployeeList, useUpdateEmployeeRole } from '../api/employee';
 
 export default function EmployeeList() {
   const navigate = useNavigate();
-  const { data, isLoading, refetch } = useEmployeeList();
+  const { data, isLoading } = useEmployeeList();
   const updateRoleMutation = useUpdateEmployeeRole();
 
   const handleRoleChange = async (employeeId: number, newRole: string) => {

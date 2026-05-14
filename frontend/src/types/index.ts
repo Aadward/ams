@@ -60,6 +60,7 @@ export interface DashboardStats {
   inMaintenance: number;
   retired: number;
   categoryStats: Record<string, number>;
+  monthlyTrend?: { month: string; count: number }[];
 }
 
 export interface PageResult<T> {

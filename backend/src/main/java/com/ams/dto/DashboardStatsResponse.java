@@ -16,4 +16,14 @@ public class DashboardStatsResponse {
     private long retired;
     private Map<String, Long> categoryBreakdown;
     private List<AssetLogResponse> recentActivity;
+    private List<MonthlyTrendEntry> monthlyTrend;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class MonthlyTrendEntry {
+        private String month;
+        private long count;
+    }
 }

@@ -1,8 +1,11 @@
-import { Row, Col, Card, Statistic, Progress, Tag } from 'antd';
-import { useDashboardStats } from '../api/asset';
+import { Row, Col, Card, Statistic, Progress, Tag, Segmented } from 'antd';
+import { useState } from 'react';
+import { useDashboardStats, useExpiringWarranty } from '../api/asset';
 
 export default function Dashboard() {
   const { data, isLoading } = useDashboardStats();
+  const [warrantyDays, setWarrantyDays] = useState<number>(30);
+  const { data: expiringAssets } = useExpiringWarranty(warrantyDays);
 
   const categoryLabels: Record<string, string> = {
     HARDWARE: '硬件设备',
@@ -18,6 +21,22 @@ export default function Dashboard() {
   const maxTrend = data?.monthlyTrend && data.monthlyTrend.length > 0
     ? Math.max(...data.monthlyTrend.map(m => m.count))
     : 1;
+
+  const getDaysRemaining = (warrantyEnd: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const end = new Date(warrantyEnd);
+    end.setHours(0, 0, 0, 0);
+    const diff = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return diff;
+  };
+
+  const getDaysTagColor = (days: number) => {
+    if (days <= 7) return 'red';
+    if (days <= 15) return 'orange';
+    if (days <= 30) return 'gold';
+    return 'green';
+  };
 
   return (
     <div>
@@ -98,7 +117,78 @@ export default function Dashboard() {
                 ))}
               </div>
             ) : (
-              <span>暂无数据</span>
+              <div>暂无数据</div>
+            )}
+          </Card>
+        </Col>
+      </Row>
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col span={24}>
+          <Card
+            title={
+              <span>
+                维保即将到期
+                {expiringAssets && expiringAssets.length > 0 && (
+                  <Tag color="red" style={{ marginLeft: 8 }}>{expiringAssets.length}</Tag>
+                )}
+              </span>
+            }
+            extra={
+              <Segmented
+                value={warrantyDays}
+                onChange={(val) => setWarrantyDays(val as number)}
+                options={[
+                  { label: '7天', value: 7 },
+                  { label: '15天', value: 15 },
+                  { label: '30天', value: 30 },
+                  { label: '60天', value: 60 },
+                ]}
+              />
+            }
+            loading={isLoading}
+          >
+            {expiringAssets && expiringAssets.length > 0 ? (
+              <>
+                <div style={{ maxHeight: 240, overflow: 'auto' }}>
+                  {expiringAssets.slice(0, 5).map((asset) => {
+                    const daysRemaining = getDaysRemaining(asset.warrantyEnd);
+                    return (
+                      <div
+                        key={asset.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 0',
+                          borderBottom: '1px solid #f0f0f0',
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontWeight: 500 }}>{asset.name}</div>
+                          <div style={{ fontSize: 12, color: '#666' }}>
+                            {asset.assetCode} · {categoryLabels[asset.category] || asset.category}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: 12, color: '#666' }}>到期：{asset.warrantyEnd}</div>
+                          <Tag color={getDaysTagColor(daysRemaining)} style={{ marginTop: 2 }}>
+                            剩余{daysRemaining}天
+                          </Tag>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {expiringAssets.length > 5 && (
+                  <div style={{ marginTop: 8, textAlign: 'center', color: '#666' }}>
+                    还有 {expiringAssets.length - 5} 条...
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', color: '#666', padding: '24px 0' }}>
+                暂无即将到期的维保资产
+              </div>
             )}
           </Card>
         </Col>

@@ -93,3 +93,12 @@ export const consumableCategoryColors: Record<string, string> = {
   ELECTRONIC_PARTS: 'green',
   PRODUCTION_CONSUMABLES: 'orange',
 };
+
+// Warranty notification types
+export interface ExpiringWarranty {
+  id: number;
+  assetCode: string;
+  name: string;
+  category: string;
+  warrantyEnd: string;
+}

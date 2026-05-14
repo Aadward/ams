@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import http from './http';
-import type { Asset, DashboardStats, MaintenanceRecord, PageResult } from '../types';
+import type { Asset, DashboardStats, MaintenanceRecord, PageResult, ExpiringWarranty } from '../types';
 
 export function useAssetList(params?: {
   category?: string;
@@ -34,6 +34,16 @@ export function useDashboardStats() {
     queryKey: ['dashboard', 'stats'],
     queryFn: async () => {
       const { data } = await http.get<DashboardStats>('/dashboard/stats');
+      return data;
+    },
+  });
+}
+
+export function useExpiringWarranty(days: number = 30) {
+  return useQuery({
+    queryKey: ['dashboard', 'expiring-warranty', days],
+    queryFn: async () => {
+      const { data } = await http.get<ExpiringWarranty[]>('/dashboard/expiring-warranty', { params: { days } });
       return data;
     },
   });

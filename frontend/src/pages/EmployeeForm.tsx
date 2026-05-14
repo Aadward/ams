@@ -12,7 +12,7 @@ export default function EmployeeForm() {
   const numericId = Number(id);
 
   const { data: employee, isLoading } = useEmployee(numericId);
-  const { data: departments } = useDepartmentList();
+  useDepartmentList();
   const createMutation = useCreateEmployee();
   const updateMutation = useUpdateEmployee(numericId);
 

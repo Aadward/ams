@@ -7,7 +7,7 @@ export default function DepartmentList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDept, setEditingDept] = useState<Department | null>(null);
   const [form] = Form.useForm();
-  const { data: deptList, isLoading } = useDepartmentList();
+  const { data: deptList } = useDepartmentList();
   const createDept = useCreateDepartment();
   const updateDept = useUpdateDepartment(editingDept?.id || 0);
   const deleteDept = useDeleteDepartment();
@@ -49,7 +49,7 @@ export default function DepartmentList() {
   };
 
   // Convert flat list to tree data for Ant Design Tree
-  const convertToTreeData = (depts: Department[]): { key: number; title: string; children: { key: number; title: string }[] }[] => {
+  const convertToTreeData = (depts: Department[]): { key: number; title: React.ReactNode; children: { key: number; title: React.ReactNode }[] }[] => {
     return depts.map(dept => ({
       key: dept.id,
       title: (
@@ -72,7 +72,6 @@ export default function DepartmentList() {
       {deptList && deptList.length > 0 ? (
         <Tree
           treeData={convertToTreeData(deptList)}
-          loading={isLoading}
           defaultExpandAll
         />
       ) : (

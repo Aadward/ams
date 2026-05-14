@@ -51,7 +51,15 @@ management:
     health:
       show-details: always
 
+jwt:
+  secret: ${JWT_SECRET:ams-jwt-secret-key-for-signing-tokens-must-be-at-least-256-bits-long}
+
 logging:
   level:
     com.ams: INFO
     org.springframework.data.elasticsearch: WARN
+
+app:
+  backup:
+    directory: ${AMS_BACKUP_DIR:/tmp/ams-backups}
+    command: ${AMS_BACKUP_SCRIPT:scripts/backup-db.sh}

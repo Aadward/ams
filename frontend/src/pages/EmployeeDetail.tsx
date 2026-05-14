@@ -19,7 +19,7 @@ export default function EmployeeDetail() {
     >
       <Descriptions column={2} bordered>
         <Descriptions.Item label="姓名">{employee?.name}</Descriptions.Item>
-        <Descriptions.Item label="部门">{employee?.dept ?? '-'}</Descriptions.Item>
+        <Descriptions.Item label="部门">{employee?.deptName ?? '-'}</Descriptions.Item>
         <Descriptions.Item label="邮箱">{employee?.email ?? '-'}</Descriptions.Item>
         <Descriptions.Item label="电话">{employee?.phone ?? '-'}</Descriptions.Item>
         <Descriptions.Item label="创建时间">{employee?.createdAt}</Descriptions.Item>

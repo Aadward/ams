@@ -1,6 +1,7 @@
 # java
 backend/*.class
 backend/target/
+backend/*.jar
 
 # node
 frontend/node_modules/

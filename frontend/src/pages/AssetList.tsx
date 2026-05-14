@@ -6,7 +6,6 @@ import { useEmployeeList } from '../api/employee';
 import http from '../api/http';
 
 const { Option } = Select;
-const { TextArea } = Input;
 
 const categoryBadgeColor: Record<string, string> = {
   HARDWARE: 'blue',

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Badge, Popover, List, Button, Tag, Space } from 'antd';
 import { BellOutlined } from '@ant-design/icons';
+import { Client, IFrame } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 import { notificationApi, Notification } from '../api/notification';
 
 interface NotificationBellProps {
@@ -11,54 +13,44 @@ export default function NotificationBell({ userId = 1 }: NotificationBellProps) 
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null);
+  const stompClientRef = useRef<Client | null>(null);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   const connectWebSocket = () => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) return;
+    const existing = stompClientRef.current;
+    if (existing && existing.connected) return;
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const client = new Client({
+      webSocketFactory: () => new SockJS(`${window.location.protocol}//${window.location.host}/ws`),
+      connectHeaders: {},
+      reconnectDelay: 0,
+    });
 
-    try {
-      const sock = new WebSocket(wsUrl);
-      sock.binaryType = 'arraybuffer';
-
-      sock.onopen = () => {
-        console.log('[WS] Connected to', wsUrl);
-        // Subscribe to user notifications via STOMP over SockJS
-        if (sock.readyState === WebSocket.OPEN) {
-          sock.send(JSON.stringify({ type: 'CONNECT' }));
-        }
-      };
-
-      sock.onmessage = (event) => {
+    client.onConnect = () => {
+      console.log('[STOMP] Connected');
+      client.subscribe(`/topic/notifications/${userId}`, (message: { body: string }) => {
         try {
-          const data = JSON.parse(event.data);
-          if (data.command === 'MESSAGE' && data.headers?.destination === `/topic/notifications/${userId}`) {
-            const notification: Notification = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
-            setNotifications(prev => [notification, ...prev.slice(0, 19)]);
-            setUnreadCount(prev => prev + 1);
-          }
+          const notification: Notification = JSON.parse(message.body);
+          setNotifications(prev => [notification, ...prev.slice(0, 19)]);
+          setUnreadCount(prev => prev + 1);
         } catch {
-          // Ignore non-JSON or non-STOMP messages (e.g., SockJS heartbeat)
+          console.warn('[STOMP] Failed to parse notification message');
         }
-      };
+      });
+    };
 
-      sock.onclose = () => {
-        console.log('[WS] Disconnected, reconnecting in 5s...');
-        reconnectTimerRef.current = setTimeout(connectWebSocket, 5000);
-      };
+    client.onStompError = (frame: IFrame) => {
+      console.error('[STOMP] Error:', frame.headers?.message);
+      client.deactivate();
+    };
 
-      sock.onerror = () => {
-        sock.close();
-      };
-
-      wsRef.current = sock;
-    } catch (e) {
-      console.warn('[WS] WebSocket connection failed, will retry:', e);
+    client.onWebSocketClose = () => {
+      console.log('[STOMP] Disconnected, reconnecting in 5s...');
       reconnectTimerRef.current = setTimeout(connectWebSocket, 5000);
-    }
+    };
+
+    client.activate();
+    stompClientRef.current = client;
   };
 
   useEffect(() => {
@@ -68,7 +60,7 @@ export default function NotificationBell({ userId = 1 }: NotificationBellProps) 
 
     return () => {
       if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
-      wsRef.current?.close();
+      stompClientRef.current?.deactivate();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
@@ -106,17 +98,23 @@ export default function NotificationBell({ userId = 1 }: NotificationBellProps) 
 
   const typeLabels: Record<string, string> = {
     ASSET_APPROVAL: '审批',
+    APPROVAL_REQUIRED: '审批',
     ASSET_ASSIGNED: '已领用',
     ASSET_RETURNED: '已归还',
     MAINTENANCE_DUE: '维保',
+    REPAIR_SUBMITTED: '维修提交',
+    REPAIR_COMPLETED: '维修完成',
     SYSTEM: '系统',
   };
 
   const typeColors: Record<string, string> = {
     ASSET_APPROVAL: 'blue',
+    APPROVAL_REQUIRED: 'blue',
     ASSET_ASSIGNED: 'green',
     ASSET_RETURNED: 'orange',
     MAINTENANCE_DUE: 'red',
+    REPAIR_SUBMITTED: 'orange',
+    REPAIR_COMPLETED: 'green',
     SYSTEM: 'purple',
   };
 

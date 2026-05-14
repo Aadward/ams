@@ -13,6 +13,7 @@ import com.ams.repository.AssetLogRepository;
 import com.ams.repository.AssetRepository;
 import com.ams.repository.MaintenanceRecordRepository;
 import com.ams.repository.EmployeeRepository;
+import com.ams.enums.ApprovalType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class MaintenanceService {
     private final AssetLogRepository assetLogRepository;
     private final NotificationService notificationService;
     private final EmployeeRepository employeeRepository;
+    private final ApprovalService approvalService;
 
     private static final String OPERATOR = "system";
 
@@ -45,13 +47,6 @@ public class MaintenanceService {
         Asset asset = assetRepository.findByIdAndDeletedFalse(assetId)
                 .orElseThrow(() -> new RuntimeException("资产不存在"));
 
-        boolean wasNotInMaintenance = asset.getStatus() != AssetStatus.MAINTENANCE;
-
-        if (wasNotInMaintenance) {
-            asset.setStatus(AssetStatus.MAINTENANCE);
-            assetRepository.save(asset);
-        }
-
         MaintenanceRecord record = MaintenanceRecord.builder()
                 .asset(asset)
                 .requestorId(request.getRequestorId())
@@ -66,12 +61,13 @@ public class MaintenanceService {
 
         saveLog(asset, AssetAction.MAINTENANCE, "维修类型: " + request.getType() + ", 描述: " + request.getDescription());
 
-        // Notify all ADMIN role employees about new repair request
-        notifyAdmins(
-                "新的维修申请",
-                "资产「" + asset.getName() + "」（编号：" + asset.getAssetCode() + "）提交了维修申请",
-                NotificationType.REPAIR_SUBMITTED,
-                request.getRequestorId()
+        // Create an approval request for the maintenance — do NOT set asset to MAINTENANCE until approved
+        approvalService.createRequest(
+                request.getRequestorId(),
+                asset.getId(),
+                1L,
+                ApprovalType.MAINTENANCE,
+                request.getDescription()
         );
 
         return toResponse(record);

@@ -16,11 +16,17 @@ import com.ams.repository.AssetRepository;
 import com.ams.repository.MaintenanceRecordRepository;
 import com.ams.repository.EmployeeRepository;
 import com.ams.enums.ApprovalType;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +43,42 @@ public class MaintenanceService {
     private final ApprovalService approvalService;
 
     private static final String OPERATOR = "system";
+
+    @Transactional(readOnly = true)
+    public Page<MaintenanceRecordResponse> listAllMaintenanceRecords(
+            Long assetId, String status, String type,
+            String dateFrom, String dateTo, Pageable pageable) {
+
+        Specification<MaintenanceRecord> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (assetId != null) {
+                predicates.add(cb.equal(root.get("asset").get("id"), assetId));
+            }
+            if (status != null && !status.isBlank()) {
+                predicates.add(cb.equal(root.get("status"), MaintenanceStatus.valueOf(status)));
+            }
+            if (type != null && !type.isBlank()) {
+                predicates.add(cb.equal(root.get("type"), MaintenanceType.valueOf(type)));
+            }
+            if (dateFrom != null && !dateFrom.isBlank()) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("startDate"), LocalDate.parse(dateFrom)));
+            }
+            if (dateTo != null && !dateTo.isBlank()) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("startDate"), LocalDate.parse(dateTo)));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return maintenanceRecordRepository.findAll(spec, pageable)
+                .map(this::toResponse);
+    }
+
+    @Transactional
+    public void deleteMaintenanceRecord(Long id) {
+        MaintenanceRecord record = maintenanceRecordRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("维修记录不存在"));
+        maintenanceRecordRepository.delete(record);
+    }
 
     @Transactional(readOnly = true)
     public List<MaintenanceRecordResponse> getMaintenanceRecords(Long assetId) {

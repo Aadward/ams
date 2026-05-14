@@ -4,6 +4,9 @@ import com.ams.dto.MaintenanceRecordRequest;
 import com.ams.dto.MaintenanceRecordResponse;
 import com.ams.service.MaintenanceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +18,40 @@ import java.util.Map;
 public class MaintenanceController {
 
     private final MaintenanceService maintenanceService;
+
+    @GetMapping("/api/maintenance-records")
+    public ResponseEntity<?> listAllMaintenanceRecords(
+            @RequestParam(required = false) Long assetId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String dateFrom,
+            @RequestParam(required = false) String dateTo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<MaintenanceRecordResponse> result = maintenanceService.listAllMaintenanceRecords(
+                    assetId, status, type, dateFrom, dateTo, pageable);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/api/maintenance-records/{id}")
+    public ResponseEntity<?> deleteMaintenanceRecord(@PathVariable Long id) {
+        try {
+            maintenanceService.deleteMaintenanceRecord(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("不存在")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 
     @GetMapping("/api/assets/{assetId}/maintenance-records")
     public ResponseEntity<?> listMaintenanceRecords(@PathVariable Long assetId) {

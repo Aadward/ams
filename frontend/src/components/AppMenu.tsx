@@ -1,6 +1,6 @@
 import { Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined, CloudUploadOutlined } from '@ant-design/icons';
+import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined, CloudUploadOutlined, ToolOutlined } from '@ant-design/icons';
 
 export default function AppMenu() {
   const navigate = useNavigate();
@@ -39,6 +39,11 @@ export default function AppMenu() {
       key: '/approvals',
       icon: <FileTextOutlined />,
       label: '审批请求',
+    },
+    {
+      key: '/maintenance',
+      icon: <ToolOutlined />,
+      label: '维修记录',
     },
     {
       key: '/notifications',

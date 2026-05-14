@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import NotificationList from './pages/NotificationList';
 import ApprovalList from './pages/ApprovalList';
 import BackupList from './pages/BackupList';
+import MaintenanceList from './pages/MaintenanceList';
 import AppMenu from './components/AppMenu';
 import NotificationBell from './components/NotificationBell';
 
@@ -44,6 +45,7 @@ export default function App() {
             <Route path="/departments" element={<DepartmentList />} />
             <Route path="/notifications" element={<NotificationList />} />
             <Route path="/approvals" element={<ApprovalList />} />
+            <Route path="/maintenance" element={<MaintenanceList />} />
             <Route path="/backup" element={<BackupList />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

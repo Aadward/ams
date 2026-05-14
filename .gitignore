@@ -5,6 +5,7 @@ docs/decisions/
 backend/*.class
 backend/target/
 backend/app.jar
+app.jar
 
 # node
 frontend/node_modules/

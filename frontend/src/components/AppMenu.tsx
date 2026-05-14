@@ -1,6 +1,6 @@
 import { Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined } from '@ant-design/icons';
+import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined } from '@ant-design/icons';
 
 export default function AppMenu() {
   const navigate = useNavigate();
@@ -34,6 +34,16 @@ export default function AppMenu() {
       key: '/departments',
       icon: <ClusterOutlined />,
       label: '部门管理',
+    },
+    {
+      key: '/approvals',
+      icon: <FileTextOutlined />,
+      label: '审批请求',
+    },
+    {
+      key: '/notifications',
+      icon: <BellOutlined />,
+      label: '通知中心',
     },
   ];
 

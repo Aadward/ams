@@ -8,6 +8,8 @@ import EmployeeDetail from './pages/EmployeeDetail';
 import EmployeeForm from './pages/EmployeeForm';
 import DepartmentList from './pages/DepartmentList';
 import Dashboard from './pages/Dashboard';
+import NotificationList from './pages/NotificationList';
+import ApprovalList from './pages/ApprovalList';
 import AppMenu from './components/AppMenu';
 
 const { Header, Sider, Content } = Layout;
@@ -37,6 +39,8 @@ export default function App() {
             <Route path="/employees/:id" element={<EmployeeDetail />} />
             <Route path="/employees/:id/edit" element={<EmployeeForm />} />
             <Route path="/departments" element={<DepartmentList />} />
+            <Route path="/notifications" element={<NotificationList />} />
+            <Route path="/approvals" element={<ApprovalList />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Content>

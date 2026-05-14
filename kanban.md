@@ -48,14 +48,14 @@
   - 后端：BorrowRecord/BorrowService/BorrowController（API: GET /api/borrows, POST /api/borrows/apply, POST /api/borrows/{id}/return, GET /api/borrows/pending, GET /api/borrows/overdue）
   - 前端：BorrowList.tsx（借用列表/审批Tab）/ BorrowApply.tsx（借用申请表单）
   - QA验证：页面正常加载，API 返回正确数据结构，菜单入口存在，types 与 DTO 对齐
-
-## completed
-
 - [x] 折旧计算：支持直线法折旧，自动计算资产当前净值；折旧台账页面展示每项资产的折旧明细（购置日期、原值、折旧年限、已提折旧、账面净值）；折旧汇总报表，按资产分类或部门汇总；对接报废流程——折旧完的资产提示可申请报废
   - 后端：DepreciationController（GET /api/depreciation/ledger, GET /api/depreciation/summary/by-category, GET /api/depreciation/summary/by-department）
   - 后端：DepreciationSummaryResponse DTO + AssetService 汇总计算
   - 前端：DepreciationLedger.tsx（3个Tab：折旧台账/分类汇总/部门汇总）
-  - 验证：mvn compile ✓，npm run build ✓，API 测试通过（按分类/部门汇总数据正确）
+  - QA验证：3个Tab正常渲染，API 返回正确数据，mvn compile ✓，npm run build ✓
+
+## completed
+
 
 
 ## in_progress
@@ -63,4 +63,4 @@
 
 
 ## todo
-- [ ] 折旧计算：支持直线法折旧，自动计算资产当前净值；折旧台账页面展示每项资产的折旧明细（购置日期、原值、折旧年限、已提折旧、账面净值）；折旧汇总报表，按资产分类或部门汇总；对接报废流程——折旧完的资产提示可申请报废 [DEV] 2026-05-15T02:04
+

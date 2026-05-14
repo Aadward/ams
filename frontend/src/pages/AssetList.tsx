@@ -149,6 +149,23 @@ export default function AssetList() {
           },
           { title: '购入日期', dataIndex: 'purchaseDate' },
           { title: '价格', dataIndex: 'purchasePrice' },
+          { title: '折旧年限', dataIndex: 'depreciationYears', render: (v: number) => v ? `${v} 年` : '-' },
+          { 
+            title: '账面净值', 
+            dataIndex: 'currentNetValue', 
+            render: (_: unknown, record: Record<string, unknown>) => {
+              const purchasePrice = record.purchasePrice as number | undefined;
+              const depreciationYears = record.depreciationYears as number | undefined;
+              const purchaseDate = record.purchaseDate as string | undefined;
+              if (!purchasePrice || !depreciationYears) return '-';
+              const purchaseDateObj = purchaseDate ? new Date(purchaseDate) : null;
+              const yearsUsed = purchaseDateObj ? Math.floor((Date.now() - purchaseDateObj.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : 0;
+              const annualDepreciation = purchasePrice / depreciationYears;
+              const accumulated = Math.min(annualDepreciation * yearsUsed, purchasePrice);
+              const netValue = Math.max(purchasePrice - accumulated, 0);
+              return `¥${netValue.toFixed(2)}`;
+            }
+          },
           { title: '位置', dataIndex: 'location' },
           {
             title: '操作',

@@ -1,6 +1,6 @@
 import { Descriptions, Card, Button, Space, Tag, Table, Modal, InputNumber, message, Input } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   useAsset,
   useMaintenanceRecords,
@@ -9,6 +9,8 @@ import {
   useRetireAsset,
 } from '../api/asset';
 import { approvalApi } from '../api/approval';
+import { depreciationApi } from '../api/depreciation';
+import type { DepreciationRecord } from '../api/report';
 import { PrinterOutlined, SettingOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
@@ -68,10 +70,23 @@ export default function AssetDetail() {
   const [barcode, setBarcode] = useState('');
   const [fetchingTag, setFetchingTag] = useState(false);
 
+  const [depreciation, setDepreciation] = useState<DepreciationRecord | null>(null);
+  const [depreciationLoading, setDepreciationLoading] = useState(false);
+
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
   const [tempCompanyName, setTempCompanyName] = useState(localStorage.getItem('labelCompanyName') || '');
 
   const currentEmployeeId = getCurrentEmployeeId();
+
+  useEffect(() => {
+    if (asset?.id) {
+      setDepreciationLoading(true);
+      depreciationApi.getAsset(asset.id)
+        .then(res => setDepreciation(res.data))
+        .catch(() => setDepreciation(null))
+        .finally(() => setDepreciationLoading(false));
+    }
+  }, [asset?.id]);
 
   const handleAssign = async () => {
     if (!assigneeId) {
@@ -200,6 +215,20 @@ export default function AssetDetail() {
           <Descriptions.Item label="供应商">{asset?.supplier}</Descriptions.Item>
           <Descriptions.Item label="领用人">{asset?.assigneeName ?? '-'}</Descriptions.Item>
           <Descriptions.Item label="创建时间">{asset?.createdAt}</Descriptions.Item>
+        </Descriptions>
+      </Card>
+
+      <Card title="折旧信息" loading={depreciationLoading}>
+        <Descriptions column={2} bordered size="small">
+          <Descriptions.Item label="原值">{depreciation?.originalValue != null ? `¥${Number(depreciation.originalValue).toFixed(2)}` : '-'}</Descriptions.Item>
+          <Descriptions.Item label="折旧年限">{depreciation?.depreciationYears ?? '-'} 年</Descriptions.Item>
+          <Descriptions.Item label="年折旧额">{depreciation?.annualDepreciation != null ? `¥${Number(depreciation.annualDepreciation).toFixed(2)}` : '-'}</Descriptions.Item>
+          <Descriptions.Item label="已提折旧">{depreciation?.accumulatedDepreciation != null ? `¥${Number(depreciation.accumulatedDepreciation).toFixed(2)}` : '-'}</Descriptions.Item>
+          <Descriptions.Item label="账面净值">{depreciation?.currentNetValue != null ? `¥${Number(depreciation.currentNetValue).toFixed(2)}` : '-'}</Descriptions.Item>
+          <Descriptions.Item label="已用年限">{depreciation?.yearsUsed ?? 0} 年</Descriptions.Item>
+          <Descriptions.Item label="折旧状态">
+            {depreciation?.fullyDepreciated ? <Tag color="red">已折旧完</Tag> : <Tag color="green">折旧中</Tag>}
+          </Descriptions.Item>
         </Descriptions>
       </Card>
 

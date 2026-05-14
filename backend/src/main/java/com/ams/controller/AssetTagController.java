@@ -17,7 +17,7 @@ public class AssetTagController {
     @GetMapping("/{id}/tag")
     public ResponseEntity<?> getAssetTag(@PathVariable Long id) {
         try {
-            AssetTagResponse response = assetTagService.generateQRCode(id);
+            AssetTagResponse response = assetTagService.generateQRCode(id, null);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             if (e.getMessage().contains("不存在")) {
@@ -32,7 +32,7 @@ public class AssetTagController {
     @GetMapping("/{id}/tag/print")
     public ResponseEntity<?> printAssetTag(@PathVariable Long id) {
         try {
-            AssetTagResponse response = assetTagService.generateQRCode(id);
+            AssetTagResponse response = assetTagService.generateQRCode(id, null);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(response);

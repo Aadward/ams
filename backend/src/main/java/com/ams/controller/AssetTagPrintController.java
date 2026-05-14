@@ -27,7 +27,7 @@ public class AssetTagPrintController {
     private final AssetRepository assetRepository;
 
     @GetMapping(value = "/{id}/print", produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<?> printAssetTag(@PathVariable Long id) {
+    public ResponseEntity<?> printAssetTag(@PathVariable Long id, @RequestParam(required = false) String companyName) {
         try {
             Asset asset = assetRepository.findByIdAndDeletedFalse(id)
                     .orElseThrow(() -> new RuntimeException("Asset not found"));
@@ -35,7 +35,7 @@ public class AssetTagPrintController {
             String qrCodeBase64 = generateQRCodeBase64(String.valueOf(asset.getId()), 120, 120);
             String barcodeBase64 = generateBarcodeBase64(asset.getAssetCode(), 200, 50);
 
-            String html = buildPrintHtml(asset, qrCodeBase64, barcodeBase64);
+            String html = buildPrintHtml(asset, qrCodeBase64, barcodeBase64, companyName);
             return ResponseEntity.ok(html);
         } catch (RuntimeException e) {
             if (e.getMessage().contains("not found")) {
@@ -63,7 +63,8 @@ public class AssetTagPrintController {
         return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
 
-    private String buildPrintHtml(Asset asset, String qrBase64, String barcodeBase64) {
+    private String buildPrintHtml(Asset asset, String qrBase64, String barcodeBase64, String companyName) {
+        String companyDisplay = companyName != null && !companyName.isBlank() ? escapeHtml(companyName) : "AMS Asset Management";
         String statusDisplay = asset.getStatus().name().replace("_", " ");
         String categoryDisplay = asset.getCategory() != null ? asset.getCategory().name() : "N/A";
         String assigneeDisplay = asset.getAssignee() != null ? escapeHtml(asset.getAssignee().getName()) : "Unassigned";
@@ -97,7 +98,7 @@ public class AssetTagPrintController {
 "  <div class=\"tag-card\">\n" +
 "    <div class=\"header\">\n" +
 "      <div>\n" +
-"        <div class=\"logo\">AMS Asset Management</div>\n" +
+"        <div class=\"logo\">" + companyDisplay + "</div>\n" +
 "        <div class=\"asset-name\">" + escapeHtml(asset.getName()) + "</div>\n" +
 "        <div class=\"asset-code\">Code: " + escapeHtml(asset.getAssetCode()) + "</div>\n" +
 "        <div class=\"status-badge\">" + statusDisplay + "</div>\n" +

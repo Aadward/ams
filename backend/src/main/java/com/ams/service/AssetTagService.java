@@ -31,7 +31,7 @@ public class AssetTagService {
     private static final int BARCODE_HEIGHT = 80;
 
     @Transactional(readOnly = true)
-    public AssetTagResponse generateQRCode(Long assetId) {
+    public AssetTagResponse generateQRCode(Long assetId, String companyName) {
         Asset asset = assetRepository.findByIdAndDeletedFalse(assetId)
                 .orElseThrow(() -> new RuntimeException("资产不存在"));
 

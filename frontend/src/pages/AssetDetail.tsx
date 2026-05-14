@@ -9,6 +9,7 @@ import {
   useRetireAsset,
 } from '../api/asset';
 import { approvalApi } from '../api/approval';
+import { PrinterOutlined, SettingOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
@@ -25,6 +26,19 @@ const categoryLabel: Record<string, string> = {
   PERIPHERAL: '配件耗材',
   SOFTWARE_LICENSE: '软件许可证',
 };
+
+interface AssetTagResponse {
+  assetId: number;
+  assetCode: string;
+  assetName: string;
+  category: string;
+  status: string;
+  location: string;
+  purchaseDate: string;
+  warrantyEnd: string;
+  qrCodeBase64: string;
+  barcodeBase64: string;
+}
 
 const getCurrentEmployeeId = (): number | null => {
   const stored = localStorage.getItem('currentEmployeeId');
@@ -44,9 +58,18 @@ export default function AssetDetail() {
 
   const [assignModalVisible, setAssignModalVisible] = useState(false);
   const [applyModalVisible, setApplyModalVisible] = useState(false);
-  const [applyType, setApplyType] = useState<'ASSIGNMENT' | 'MAINTENANCE'>('ASSIGNMENT');
+  const [applyType, setApplyType] = useState<'ASSET_ASSIGNMENT' | 'MAINTENANCE'>('ASSET_ASSIGNMENT');
   const [assigneeId, setAssigneeId] = useState<number>();
   const [applyReason, setApplyReason] = useState('');
+
+  const [printModalVisible, setPrintModalVisible] = useState(false);
+  const [companyName, setCompanyName] = useState(localStorage.getItem('labelCompanyName') || '');
+  const [qrCode, setQrCode] = useState('');
+  const [barcode, setBarcode] = useState('');
+  const [fetchingTag, setFetchingTag] = useState(false);
+
+  const [settingsModalVisible, setSettingsModalVisible] = useState(false);
+  const [tempCompanyName, setTempCompanyName] = useState(localStorage.getItem('labelCompanyName') || '');
 
   const currentEmployeeId = getCurrentEmployeeId();
 
@@ -79,7 +102,7 @@ export default function AssetDetail() {
     });
   };
 
-  const openApplyModal = (type: 'ASSIGNMENT' | 'MAINTENANCE') => {
+  const openApplyModal = (type: 'ASSET_ASSIGNMENT' | 'MAINTENANCE') => {
     if (!currentEmployeeId) {
       message.warning('请先在员工列表选择当前登录员工（localStorage currentEmployeeId）');
       return;
@@ -102,15 +125,52 @@ export default function AssetDetail() {
       await approvalApi.create({
         requesterId: currentEmployeeId,
         assetId: numericId,
-        departmentId: 1, // default department
+        departmentId: 1,
         type: applyType,
         reason: applyReason,
       });
-      message.success(applyType === 'ASSIGNMENT' ? '领用申请已提交' : '维修申请已提交');
+      message.success(applyType === 'ASSET_ASSIGNMENT' ? '领用申请已提交' : '维修申请已提交');
       setApplyModalVisible(false);
     } catch (e: unknown) {
       message.error('提交申请失败');
     }
+  };
+
+  const handleOpenPrintModal = async () => {
+    setPrintModalVisible(true);
+    setFetchingTag(true);
+    try {
+      const response = await fetch(`/api/assets/${numericId}/tag`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch asset tag');
+      }
+      const data: AssetTagResponse = await response.json();
+      setQrCode(data.qrCodeBase64);
+      setBarcode(data.barcodeBase64 || '');
+      setCompanyName(localStorage.getItem('labelCompanyName') || '');
+    } catch (error) {
+      message.error('获取标签信息失败');
+      setPrintModalVisible(false);
+    } finally {
+      setFetchingTag(false);
+    }
+  };
+
+  const handlePrint = () => {
+    const encodedCompany = encodeURIComponent(companyName);
+    window.open(`/api/asset-tags/${numericId}/print?companyName=${encodedCompany}`, '_blank');
+  };
+
+  const handleSaveCompanyName = () => {
+    localStorage.setItem('labelCompanyName', tempCompanyName);
+    setCompanyName(tempCompanyName);
+    setSettingsModalVisible(false);
+    message.success('公司名称已保存');
+  };
+
+  const handleOpenSettings = () => {
+    setTempCompanyName(localStorage.getItem('labelCompanyName') || '');
+    setSettingsModalVisible(true);
   };
 
   return (
@@ -120,6 +180,7 @@ export default function AssetDetail() {
         title={`资产详情 - ${asset?.assetCode ?? ''}`}
         extra={
           <Space>
+            <Button type="text" icon={<SettingOutlined />} onClick={handleOpenSettings} />
             <Button onClick={() => navigate('/assets')}>返回列表</Button>
           </Space>
         }
@@ -152,8 +213,9 @@ export default function AssetDetail() {
           )}
           <Button onClick={handleRetire}>报废</Button>
           <Button onClick={() => navigate('/maintenance/new', { state: { assetId: numericId } })}>送修</Button>
-          <Button onClick={() => openApplyModal('ASSIGNMENT')}>申请领用</Button>
+          <Button onClick={() => openApplyModal('ASSET_ASSIGNMENT')}>申请领用</Button>
           <Button onClick={() => openApplyModal('MAINTENANCE')}>申请维修</Button>
+          <Button icon={<PrinterOutlined />} onClick={handleOpenPrintModal}>打印标签</Button>
         </Space>
       </Card>
 
@@ -195,7 +257,7 @@ export default function AssetDetail() {
       </Modal>
 
       <Modal
-        title={applyType === 'ASSIGNMENT' ? '申请领用' : '申请维修'}
+        title={applyType === 'ASSET_ASSIGNMENT' ? '申请领用' : '申请维修'}
         open={applyModalVisible}
         onOk={handleApply}
         onCancel={() => setApplyModalVisible(false)}
@@ -208,6 +270,75 @@ export default function AssetDetail() {
             placeholder="请输入申请原因"
             value={applyReason}
             onChange={(e) => setApplyReason(e.target.value)}
+          />
+        </Space>
+      </Modal>
+
+      <Modal
+        title="打印标签"
+        open={printModalVisible}
+        onCancel={() => setPrintModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setPrintModalVisible(false)}>取消</Button>,
+          <Button key="print" type="primary" icon={<PrinterOutlined />} onClick={handlePrint}>打印</Button>,
+        ]}
+        width={500}
+      >
+        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+          <div>
+            <span>公司名称：</span>
+            <Input
+              placeholder="请输入公司名称"
+              value={companyName}
+              onChange={(e) => {
+                setCompanyName(e.target.value);
+                localStorage.setItem('labelCompanyName', e.target.value);
+              }}
+              style={{ marginTop: 8 }}
+            />
+          </div>
+          {fetchingTag ? (
+            <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
+          ) : (
+            <div style={{ border: '1px solid #d9d9d9', padding: 16, backgroundColor: '#fff' }}>
+              <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                <strong style={{ fontSize: 18 }}>{companyName}</strong>
+              </div>
+              <div style={{ textAlign: 'center', marginBottom: 12 }}>
+                <strong>{asset?.name}</strong>
+              </div>
+              <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                <span>{asset?.assetCode}</span>
+              </div>
+              {qrCode && (
+                <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                  <img src={`data:image/png;base64,${qrCode}`} alt="QR Code" style={{ width: 120, height: 120 }} />
+                </div>
+              )}
+              {barcode && (
+                <div style={{ textAlign: 'center' }}>
+                  <img src={`data:image/png;base64,${barcode}`} alt="Barcode" style={{ height: 50 }} />
+                </div>
+              )}
+            </div>
+          )}
+        </Space>
+      </Modal>
+
+      <Modal
+        title="标签设置"
+        open={settingsModalVisible}
+        onOk={handleSaveCompanyName}
+        onCancel={() => setSettingsModalVisible(false)}
+        okText="保存"
+        cancelText="取消"
+      >
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <span>默认公司名称：</span>
+          <Input
+            placeholder="请输入默认公司名称"
+            value={tempCompanyName}
+            onChange={(e) => setTempCompanyName(e.target.value)}
           />
         </Space>
       </Modal>

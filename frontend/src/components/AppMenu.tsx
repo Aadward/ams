@@ -1,6 +1,6 @@
 import { Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PieChartOutlined, DesktopOutlined, TeamOutlined } from '@ant-design/icons';
+import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined } from '@ant-design/icons';
 
 export default function AppMenu() {
   const navigate = useNavigate();
@@ -29,6 +29,11 @@ export default function AppMenu() {
         { key: '/employees', label: '员工列表' },
         { key: '/employees/new', label: '新建员工' },
       ],
+    },
+    {
+      key: '/departments',
+      icon: <ClusterOutlined />,
+      label: '部门管理',
     },
   ];
 

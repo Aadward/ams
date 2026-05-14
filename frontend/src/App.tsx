@@ -6,6 +6,7 @@ import AssetForm from './pages/AssetForm';
 import EmployeeList from './pages/EmployeeList';
 import EmployeeDetail from './pages/EmployeeDetail';
 import EmployeeForm from './pages/EmployeeForm';
+import DepartmentList from './pages/DepartmentList';
 import Dashboard from './pages/Dashboard';
 import AppMenu from './components/AppMenu';
 
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="/employees/new" element={<EmployeeForm />} />
             <Route path="/employees/:id" element={<EmployeeDetail />} />
             <Route path="/employees/:id/edit" element={<EmployeeForm />} />
+            <Route path="/departments" element={<DepartmentList />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Content>

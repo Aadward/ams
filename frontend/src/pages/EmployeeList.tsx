@@ -22,7 +22,7 @@ export default function EmployeeList() {
         })}
         columns={[
           { title: '姓名', dataIndex: 'name' },
-          { title: '部门', dataIndex: 'dept' },
+          { title: '部门', dataIndex: 'deptName' },
           { title: '邮箱', dataIndex: 'email' },
           { title: '电话', dataIndex: 'phone' },
           {

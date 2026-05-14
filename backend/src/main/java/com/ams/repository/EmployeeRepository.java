@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     List<Employee> findByNameContainingIgnoreCase(String name);
-    List<Employee> findByDept(String dept);
+    List<Employee> findByDepartmentId(Long departmentId);
 }

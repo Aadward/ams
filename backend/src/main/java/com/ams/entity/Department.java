@@ -3,15 +3,17 @@ package com.ams.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "employee")
+@Table(name = "department")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Employee {
+public class Department {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,17 +23,15 @@ public class Employee {
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dept_id")
-    private Department department;
+    @JoinColumn(name = "parent_id")
+    private Department parent;
 
-    @Column(name = "dept_name", length = 100)
-    private String deptName;
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Department> children = new ArrayList<>();
 
-    @Column(length = 255)
-    private String email;
-
-    @Column(length = 50)
-    private String phone;
+    @Column(length = 500)
+    private String description;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

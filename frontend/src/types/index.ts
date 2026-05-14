@@ -20,9 +20,21 @@ export interface Asset {
 export interface Employee {
   id: number;
   name: string;
-  dept?: string;
+  deptId?: number;
+  deptName?: string;
   email?: string;
   phone?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Department {
+  id: number;
+  name: string;
+  parentId?: number;
+  parentName?: string;
+  description?: string;
+  children?: Department[];
   createdAt: string;
   updatedAt: string;
 }

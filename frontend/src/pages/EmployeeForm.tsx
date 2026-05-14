@@ -2,6 +2,7 @@ import { Form, Input, Button, Card, Space, message } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useEmployee, useCreateEmployee, useUpdateEmployee } from '../api/employee';
+import { useDepartmentList } from '../api/department';
 
 export default function EmployeeForm() {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +12,7 @@ export default function EmployeeForm() {
   const numericId = Number(id);
 
   const { data: employee, isLoading } = useEmployee(numericId);
+  const { data: departments } = useDepartmentList();
   const createMutation = useCreateEmployee();
   const updateMutation = useUpdateEmployee(numericId);
 
@@ -18,7 +20,8 @@ export default function EmployeeForm() {
     if (isEdit && employee) {
       form.setFieldsValue({
         name: employee.name,
-        dept: employee.dept,
+        deptId: employee.deptId,
+        deptName: employee.deptName,
         email: employee.email,
         phone: employee.phone,
       });
@@ -51,8 +54,11 @@ export default function EmployeeForm() {
         <Form.Item label="姓名" name="name" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
-        <Form.Item label="部门" name="dept">
-          <Input />
+        <Form.Item label="部门" name="deptId">
+          <Input type="number" placeholder="部门 ID" />
+        </Form.Item>
+        <Form.Item label="部门名称" name="deptName">
+          <Input placeholder="部门名称（冗余字段）" />
         </Form.Item>
         <Form.Item label="邮箱" name="email">
           <Input type="email" />

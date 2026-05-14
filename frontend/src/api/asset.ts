@@ -104,3 +104,47 @@ export function useUpdateAsset(id: number) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['assets'] }),
   });
 }
+
+export function useBatchAssign() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ assetIds, assigneeId }: { assetIds: number[]; assigneeId: number }) => {
+      const { data } = await http.post<{ success: boolean; count: number }>('/assets/batch/assign', { assetIds, assigneeId });
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['assets'] }),
+  });
+}
+
+export function useBatchUnassign() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (assetIds: number[]) => {
+      const { data } = await http.post<{ success: boolean; count: number }>('/assets/batch/unassign', { assetIds });
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['assets'] }),
+  });
+}
+
+export function useBatchRetire() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (assetIds: number[]) => {
+      const { data } = await http.post<{ success: boolean; count: number }>('/assets/batch/retire', { assetIds });
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['assets'] }),
+  });
+}
+
+export function useBatchUpdateLocation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ assetIds, location }: { assetIds: number[]; location: string }) => {
+      const { data } = await http.post<{ success: boolean; count: number }>('/assets/batch/location', { assetIds, location });
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['assets'] }),
+  });
+}

@@ -13,8 +13,10 @@ public class EmployeeRequest {
     @Size(max = 100)
     private String name;
 
+    private Long deptId;
+
     @Size(max = 100)
-    private String dept;
+    private String deptName;
 
     @Email(message = "邮箱格式不正确")
     @Size(max = 255)

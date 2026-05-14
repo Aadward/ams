@@ -301,15 +301,104 @@ docker-compose.yml 包含：
 8. ES 日志查询页面
 
 **Phase 3（企业级功能）：**
-9. 权限管理（RBAC）— 角色、权限、菜单权限控制
-10. 部门管理 — 部门树形结构、部门资产统计
-11. 批量操作 — 批量领用/归还/报废/转移
-12. 导入/导出 Excel — 资产批量导入、报表导出
-13. 标签打印 — 条码/二维码生成与打印
-14. 审批流程 — 领用审批、维修审批、报废审批
-15. 消息通知 — 审批结果通知、维保到期提醒
-16. 数据备份 — 数据库定期备份策略
-17. 高级报表 — 资产履历、成本分析、分布统计
+9. 权限管理（RBAC）— 角色、权限、菜单权限控制 ⬜ 进行中
+10. ~~部门管理 — 部门树形结构、部门资产统计~~ ✅ 已完成
+11. ~~批量操作 — 批量领用/归还/报废/转移~~ ✅ 已完成
+12. ~~导入/导出 Excel — 资产批量导入、报表导出~~ ✅ 已完成
+13. 标签打印 — 条码/二维码生成与打印 ⬜ 待开发
+14. 审批流程 — 领用审批、维修审批、报废审批 ⬜ 待开发
+15. 消息通知 — 审批结果通知、维保到期提醒 ⬜ 待开发
+16. 数据备份 — 数据库定期备份策略 ⬜ 待开发
+17. 高级报表 — 资产履历、成本分析、分布统计 ⬜ 待开发
+
+---
+
+## 6.1 RBAC 权限模型设计（详细）
+
+### 6.1.1 数据模型
+
+```
+Role（角色）
+├── id              Long, PK
+├── code            String, 唯一编码（如 "ADMIN", "ASSET_MANAGER", "VIEWER"）
+├── name            String, 显示名称（如 "管理员", "资产管理员"）
+├── description     String, 描述
+├── createdAt       DateTime
+└── updatedAt       DateTime
+
+Permission（权限）
+├── id              Long, PK
+├── code            String, 唯一编码（如 "ASSET_CREATE", "ASSET_DELETE"）
+├── name            String, 显示名称
+├── resource        String, 资源类型（如 "ASSET", "EMPLOYEE"）
+├── action          String, 操作（如 "CREATE", "READ", "UPDATE", "DELETE"）
+└── description     String
+
+RolePermission（角色-权限关联）
+├── id              Long, PK
+├── roleId          Long, FK → Role
+└── permissionId    Long, FK → Permission
+
+UserRole（用户-角色关联）
+├── id              Long, PK
+├── userId          Long, FK → Employee（复用 Employee 表作为用户）
+└── roleId          Long, FK → Role
+```
+
+### 6.1.2 预定义角色
+
+| 角色 | 代码 | 权限描述 |
+|------|------|---------|
+| 管理员 | ADMIN | 全部权限 |
+| 资产管理员 | ASSET_MANAGER | 资产管理（CRUD）、批量操作、导入导出 |
+| 维修员 | MAINTENANCE_STAFF | 维修记录管理、资产查看 |
+| 普通员工 | EMPLOYEE | 查看自己名下资产、申请领用 |
+| 只读用户 | VIEWER | 全部只读 |
+
+### 6.1.3 权限清单
+
+| 权限代码 | 资源 | 操作 |
+|----------|------|------|
+| ASSET_CREATE | ASSET | CREATE |
+| ASSET_READ | ASSET | READ |
+| ASSET_UPDATE | ASSET | UPDATE |
+| ASSET_DELETE | ASSET | DELETE |
+| ASSET_ASSIGN | ASSET | ASSIGN |
+| ASSET_IMPORT_EXPORT | ASSET | IMPORT_EXPORT |
+| EMPLOYEE_CREATE | EMPLOYEE | CREATE |
+| EMPLOYEE_READ | EMPLOYEE | READ |
+| EMPLOYEE_UPDATE | EMPLOYEE | UPDATE |
+| EMPLOYEE_DELETE | EMPLOYEE | DELETE |
+| DEPARTMENT_CREATE | DEPARTMENT | CREATE |
+| DEPARTMENT_READ | DEPARTMENT | READ |
+| DEPARTMENT_UPDATE | DEPARTMENT | UPDATE |
+| DEPARTMENT_DELETE | DEPARTMENT | DELETE |
+| MAINTENANCE_CREATE | MAINTENANCE | CREATE |
+| MAINTENANCE_READ | MAINTENANCE | READ |
+| MAINTENANCE_UPDATE | MAINTENANCE | UPDATE |
+| MAINTENANCE_APPROVE | MAINTENANCE | APPROVE |
+| DASHBOARD_VIEW | DASHBOARD | READ |
+
+### 6.1.4 API 层权限控制
+
+- JWT Token 认证（登录后获取）
+- 后端使用 Spring Security + Method Security
+- 注解方式：`@PreAuthorize("hasAuthority('ASSET_CREATE')")`
+- 前端路由守卫：根据用户角色显示/隐藏菜单项
+
+### 6.1.5 实施计划
+
+Phase 3.1（RBAC 基础）：
+1. 创建 Role、Permission、RolePermission 实体和表
+2. 实现登录认证 API（JWT）
+3. 实现角色管理 CRUD
+4. 在现有 API 上添加权限注解
+
+Phase 3.2（前端权限）：
+5. 前端登录页面
+6. 路由守卫
+7. 菜单动态显示
+8. 按钮级别权限控制
 
 ---
 

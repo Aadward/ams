@@ -18,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AssetService {
@@ -148,6 +150,78 @@ public class AssetService {
         saveLog(asset, AssetAction.RETIRE, "报废资产");
 
         return toResponse(asset);
+    }
+
+    // ========== Batch Operations ==========
+
+    @Transactional
+    public int batchAssign(List<Long> assetIds, Long assigneeId) {
+        Employee employee = employeeRepository.findById(assigneeId)
+                .orElseThrow(() -> new RuntimeException("员工不存在"));
+        int count = 0;
+        for (Long assetId : assetIds) {
+            try {
+                Asset asset = assetRepository.findByIdAndDeletedFalse(assetId).orElse(null);
+                if (asset == null) continue;
+                asset.setAssignee(employee);
+                asset.setStatus(AssetStatus.IN_USE);
+                assetRepository.save(asset);
+                saveLog(asset, AssetAction.ASSIGN, "批量领用,领用人: " + employee.getName());
+                count++;
+            } catch (Exception ignored) {}
+        }
+        return count;
+    }
+
+    @Transactional
+    public int batchUnassign(List<Long> assetIds) {
+        int count = 0;
+        for (Long assetId : assetIds) {
+            try {
+                Asset asset = assetRepository.findByIdAndDeletedFalse(assetId).orElse(null);
+                if (asset == null) continue;
+                String assigneeName = asset.getAssignee() != null ? asset.getAssignee().getName() : "无";
+                asset.setAssignee(null);
+                asset.setStatus(AssetStatus.IN_STOCK);
+                assetRepository.save(asset);
+                saveLog(asset, AssetAction.UNASSIGN, "批量归还,原领用人: " + assigneeName);
+                count++;
+            } catch (Exception ignored) {}
+        }
+        return count;
+    }
+
+    @Transactional
+    public int batchRetire(List<Long> assetIds) {
+        int count = 0;
+        for (Long assetId : assetIds) {
+            try {
+                Asset asset = assetRepository.findByIdAndDeletedFalse(assetId).orElse(null);
+                if (asset == null) continue;
+                asset.setStatus(AssetStatus.RETIRED);
+                asset.setAssignee(null);
+                assetRepository.save(asset);
+                saveLog(asset, AssetAction.RETIRE, "批量报废");
+                count++;
+            } catch (Exception ignored) {}
+        }
+        return count;
+    }
+
+    @Transactional
+    public int batchUpdateLocation(List<Long> assetIds, String location) {
+        int count = 0;
+        for (Long assetId : assetIds) {
+            try {
+                Asset asset = assetRepository.findByIdAndDeletedFalse(assetId).orElse(null);
+                if (asset == null) continue;
+                asset.setLocation(location);
+                assetRepository.save(asset);
+                saveLog(asset, AssetAction.UPDATE, "批量更新位置: " + location);
+                count++;
+            } catch (Exception ignored) {}
+        }
+        return count;
     }
 
     @Transactional(readOnly = true)

@@ -4,6 +4,9 @@ import com.ams.dto.AssetAssignRequest;
 import com.ams.dto.AssetCreateRequest;
 import com.ams.dto.AssetResponse;
 import com.ams.dto.AssetUpdateRequest;
+import com.ams.dto.BatchAssignRequest;
+import com.ams.dto.BatchLocationRequest;
+import com.ams.dto.BatchRequest;
 import com.ams.service.AssetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,6 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/assets")
@@ -109,6 +114,47 @@ public class AssetController {
             return ResponseEntity.ok(assetService.retireAsset(id));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // Batch endpoints
+    @PostMapping("/batch/assign")
+    public ResponseEntity<?> batchAssign(@RequestBody BatchAssignRequest request) {
+        try {
+            int count = assetService.batchAssign(request.getAssetIds(), request.getAssigneeId());
+            return ResponseEntity.ok(Map.of("success", true, "count", count));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/batch/unassign")
+    public ResponseEntity<?> batchUnassign(@RequestBody BatchRequest request) {
+        try {
+            int count = assetService.batchUnassign(request.getAssetIds());
+            return ResponseEntity.ok(Map.of("success", true, "count", count));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/batch/retire")
+    public ResponseEntity<?> batchRetire(@RequestBody BatchRequest request) {
+        try {
+            int count = assetService.batchRetire(request.getAssetIds());
+            return ResponseEntity.ok(Map.of("success", true, "count", count));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/batch/location")
+    public ResponseEntity<?> batchUpdateLocation(@RequestBody BatchLocationRequest request) {
+        try {
+            int count = assetService.batchUpdateLocation(request.getAssetIds(), request.getLocation());
+            return ResponseEntity.ok(Map.of("success", true, "count", count));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

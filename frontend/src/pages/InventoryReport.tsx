@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Row, Col, Table, Tag, Tabs, Statistic } from 'antd';
+import { Card, Row, Col, Table, Tag, Tabs, Statistic, Button, message } from 'antd';
 import { inventoryRecordApi } from '../api/inventory';
 
 const resultColors: Record<string, string> = {
@@ -44,6 +44,24 @@ export default function InventoryReport() {
   const filteredRecords = activeTab === 'all' ? records
     : records.filter(r => r.result === activeTab.toUpperCase());
 
+  const handleExport = async () => {
+    if (!planId) return;
+    try {
+      const blob = await inventoryRecordApi.export(Number(planId));
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `inventory_report_${planId}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      message.success('导出成功');
+    } catch {
+      message.error('导出失败');
+    }
+  };
+
   const columns = [
     { title: '资产编码', dataIndex: 'assetCode' },
     { title: '资产名称', dataIndex: 'assetName' },
@@ -62,6 +80,12 @@ export default function InventoryReport() {
 
   return (
     <div>
+      <Row gutter={16} style={{ marginBottom: 16, justifyContent: 'flex-end' }}>
+        <Col>
+          <Button type="primary" onClick={handleExport}>导出Excel</Button>
+        </Col>
+      </Row>
+
       <Row gutter={16} style={{ marginBottom: 24 }}>
         <Col span={4}>
           <Card><Statistic title="应盘资产" value={report.totalAssets} /></Card>

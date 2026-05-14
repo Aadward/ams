@@ -18,6 +18,9 @@ import ConsumableForm from './pages/ConsumableForm';
 import ConsumableStockIn from './pages/ConsumableStockIn';
 import ConsumableStockOut from './pages/ConsumableStockOut';
 import ConsumableReport from './pages/ConsumableReport';
+import InventoryPlanList from './pages/InventoryPlanList';
+import InventoryTaskList from './pages/InventoryTaskList';
+import InventoryReport from './pages/InventoryReport';
 import AppMenu from './components/AppMenu';
 import NotificationBell from './components/NotificationBell';
 
@@ -60,6 +63,9 @@ export default function App() {
             <Route path="/consumables/stock-in" element={<ConsumableStockIn />} />
             <Route path="/consumables/stock-out" element={<ConsumableStockOut />} />
             <Route path="/consumables/report" element={<ConsumableReport />} />
+            <Route path="/inventory-plan" element={<InventoryPlanList />} />
+            <Route path="/inventory-task" element={<InventoryTaskList />} />
+            <Route path="/inventory-report/:planId" element={<InventoryReport />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Content>

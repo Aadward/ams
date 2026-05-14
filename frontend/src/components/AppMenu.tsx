@@ -1,6 +1,6 @@
 import { Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined, CloudUploadOutlined, ToolOutlined, BarChartOutlined, InboxOutlined } from '@ant-design/icons';
+import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined, CloudUploadOutlined, ToolOutlined, BarChartOutlined, InboxOutlined, AuditOutlined } from '@ant-design/icons';
 
 export default function AppMenu() {
   const navigate = useNavigate();
@@ -69,6 +69,15 @@ export default function AppMenu() {
         { key: '/consumables/stock-in', label: '入库管理' },
         { key: '/consumables/stock-out', label: '出库管理' },
         { key: '/consumables/report', label: '消耗报表' },
+      ],
+    },
+    {
+      key: '/inventory-plan',
+      icon: <AuditOutlined />,
+      label: '定期盘点',
+      children: [
+        { key: '/inventory-plan', label: '盘点计划' },
+        { key: '/inventory-task', label: '盘点任务' },
       ],
     },
   ];

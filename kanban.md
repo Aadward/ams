@@ -33,28 +33,29 @@
   - QA验证：6项测试全部通过（Hash路由、跨模块导航、后端health、nginx配置）
   - 修复：frontend/src/main.tsx BrowserRouter → HashRouter，nginx.conf 移除 try_files，index.html 添加 build comment
   - 验证：npm run build ✓，docker compose build frontend ✓，docker compose up -d ✓，curl localhost:80 → 200，backend health → 200
-
-
-## completed
-
 - [x] 维保到期提醒：完整实现（后端 API + 前端仪表盘卡片 + 通知类型映射）
   - 后端：WarrantyNotificationService（@Scheduled 每日8点，ASSET_EXPIRING_WARRANTY 通知）
   - 后端：DashboardController GET /api/dashboard/expiring-warranty?days=30
   - 前端：ExpiringWarranty 类型 + useExpiringWarranty hook + 仪表盘卡片（7/15/30/60天筛选）
   - 修复：NotificationBell.tsx / NotificationList.tsx 补全 ASSET_EXPIRING_WARRANTY 标签和颜色
   - 修复：InventoryPlanList/InventoryReport/InventoryTaskList 清理未使用导入（解除构建阻塞）
-  - 验证：npm run build ✓，mvn compile ✓，docker compose build frontend ✓，git push ✓
-
+  - QA验证：仪表盘卡片存在且筛选正常（7/15/30/60天），API 返回正确数据结构，前端通知类型映射完整
 - [x] 定期盘点：盘点计划（按部门/按资产分类），生成盘点任务；支持移动端扫码确认盘点结果；盘点差异报告
   - 后端：InventoryPlan/InventoryTask/InventoryRecord 实体 + Repository + Service + Controller
   - 前端：InventoryPlanList / InventoryTaskList / InventoryReport 页面，AppMenu 菜单
-  - 验证：mvn compile ✓，npm run build ✓，API 测试通过
+  - QA验证：4个页面全部正常（盘点计划/盘点任务/盘点报告），3个API端点正常（/api/inventory-plans, /api/inventory-tasks, /api/inventory-records）
+- [x] 资产借用管理：新增"借用申请/审批"流程（独立于永久领用），支持设置计划归还日期；超期未还自动发送通知；借用中的资产状态为"IN_USE"但标记为"借用中"；归还时走独立归还流程
+  - 后端：BorrowRecord/BorrowService/BorrowController（API: GET /api/borrows, POST /api/borrows/apply, POST /api/borrows/{id}/return, GET /api/borrows/pending, GET /api/borrows/overdue）
+  - 前端：BorrowList.tsx（借用列表/审批Tab）/ BorrowApply.tsx（借用申请表单）
+  - QA验证：页面正常加载，API 返回正确数据结构，菜单入口存在，types 与 DTO 对齐
+
+## completed
+
 
 
 ## in_progress
 
 
-- [x] 资产借用管理：新增"借用申请/审批"流程（独立于永久领用），支持设置计划归还日期；超期未还自动发送通知；借用中的资产状态为"IN_USE"但标记为"借用中"；归还时走独立归还流程 [DEV] 2026-05-15T04:35
 
 ## todo
 

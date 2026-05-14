@@ -48,6 +48,7 @@ export default function NotificationList() {
 
   const typeBadge = (type: string) => {
     const colors: Record<string, string> = {
+      ASSET_EXPIRING_WARRANTY: 'orange',
       APPROVAL_REQUIRED: 'blue',
       APPROVAL_APPROVED: 'green',
       APPROVAL_REJECTED: 'red',
@@ -59,6 +60,7 @@ export default function NotificationList() {
       SYSTEM: 'purple',
     };
     const labels: Record<string, string> = {
+      ASSET_EXPIRING_WARRANTY: '维保到期',
       APPROVAL_REQUIRED: '待审批',
       APPROVAL_APPROVED: '已批准',
       APPROVAL_REJECTED: '已拒绝',

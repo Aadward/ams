@@ -43,6 +43,8 @@ export interface Department {
 export interface MaintenanceRecord {
   id: number;
   assetId: number;
+  approvalId?: number;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   type: 'REPAIR' | 'MAINTENANCE' | 'INSPECTION';
   description?: string;
   cost?: number;

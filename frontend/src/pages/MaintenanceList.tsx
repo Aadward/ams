@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Table, Button, Space, Tag, message, Modal, Select, DatePicker, Popconfirm } from 'antd';
+import { Table, Button, Space, Tag, message, Select, DatePicker, Popconfirm } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { maintenanceApi } from '../api/maintenance';
@@ -69,11 +69,12 @@ export default function MaintenanceList() {
   };
 
   const handleDateChange = (dates: [Dayjs | null, Dayjs | null] | null) => {
-    if (dates && dates[0] && dates[1]) {
+    if (dates && dates[0] !== null && dates[1] !== null) {
+      const [from, to] = dates as [Dayjs, Dayjs];
       setFilters(prev => ({
         ...prev,
-        dateFrom: dates[0].format('YYYY-MM-DD'),
-        dateTo: dates[1].format('YYYY-MM-DD'),
+        dateFrom: from.format('YYYY-MM-DD'),
+        dateTo: to.format('YYYY-MM-DD'),
       }));
     } else {
       setFilters(prev => ({ ...prev, dateFrom: undefined, dateTo: undefined }));

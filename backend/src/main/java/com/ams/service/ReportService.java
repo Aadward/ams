@@ -32,7 +32,9 @@ public class ReportService {
                 .collect(Collectors.groupingBy(Asset::getCategory, Collectors.counting()));
         Map<AssetCategory, BigDecimal> values = assetRepository.findByDeletedFalse().stream()
                 .collect(Collectors.groupingBy(Asset::getCategory,
-                        Collectors.reducing(BigDecimal.ZERO, Asset::getPurchasePrice, BigDecimal::add)));
+                        Collectors.reducing(BigDecimal.ZERO,
+                                a -> a.getPurchasePrice() != null ? a.getPurchasePrice() : BigDecimal.ZERO,
+                                BigDecimal::add)));
 
         return counts.entrySet().stream()
                 .map(e -> AssetStatisticsResponse.builder()
@@ -66,7 +68,9 @@ public class ReportService {
         Map<String, BigDecimal> values = assets.stream()
                 .collect(Collectors.groupingBy(a -> a.getAssignee() != null && a.getAssignee().getDeptName() != null
                         ? a.getAssignee().getDeptName() : "未分配",
-                        Collectors.reducing(BigDecimal.ZERO, Asset::getPurchasePrice, BigDecimal::add)));
+                        Collectors.reducing(BigDecimal.ZERO,
+                                a -> a.getPurchasePrice() != null ? a.getPurchasePrice() : BigDecimal.ZERO,
+                                BigDecimal::add)));
         return counts.entrySet().stream()
                 .map(e -> AssetStatisticsResponse.builder()
                         .name(e.getKey())

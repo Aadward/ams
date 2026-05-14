@@ -1,6 +1,6 @@
 import { Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined, CloudUploadOutlined, ToolOutlined } from '@ant-design/icons';
+import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined, CloudUploadOutlined, ToolOutlined, BarChartOutlined } from '@ant-design/icons';
 
 export default function AppMenu() {
   const navigate = useNavigate();
@@ -54,6 +54,11 @@ export default function AppMenu() {
       key: '/backup',
       icon: <CloudUploadOutlined />,
       label: '备份管理',
+    },
+    {
+      key: '/reports',
+      icon: <BarChartOutlined />,
+      label: '统计报表',
     },
   ];
 

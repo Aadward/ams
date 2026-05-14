@@ -11,6 +11,8 @@ import java.time.LocalDate;
 @Builder
 public class MaintenanceRecordRequest {
 
+    private Long requestorId; // nullable, 用于通知
+
     @NotNull(message = "维修类型不能为空")
     private String type;
 

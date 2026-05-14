@@ -9,6 +9,7 @@ import com.ams.entity.Employee;
 import com.ams.enums.AssetAction;
 import com.ams.enums.AssetCategory;
 import com.ams.enums.AssetStatus;
+import com.ams.enums.NotificationType;
 import com.ams.repository.AssetLogRepository;
 import com.ams.repository.AssetRepository;
 import com.ams.repository.EmployeeRepository;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -30,6 +32,7 @@ public class AssetService {
     private final EmployeeRepository employeeRepository;
     private final AssetLogRepository assetLogRepository;
     private final ElasticsearchLogService elasticsearchLogService;
+    private final NotificationService notificationService;
 
     private static final String OPERATOR = "system";
 
@@ -122,6 +125,13 @@ public class AssetService {
 
         saveLog(asset, AssetAction.ASSIGN, "领用人: " + employee.getName());
 
+        notificationService.createNotification(
+                employee.getId(),
+                "资产已领用",
+                "您已领用资产：「" + asset.getName() + "」（编号：" + asset.getAssetCode() + "）",
+                NotificationType.ASSET_ASSIGNED
+        );
+
         return toResponse(asset);
     }
 
@@ -136,6 +146,13 @@ public class AssetService {
         asset = assetRepository.save(asset);
 
         saveLog(asset, AssetAction.UNASSIGN, "归还,原领用人: " + assigneeName);
+
+        notificationService.createNotification(
+                employeeId,
+                "资产已归还",
+                "资产「" + asset.getName() + "」（编号：" + asset.getAssetCode() + "）已归还库存",
+                NotificationType.ASSET_RETURNED
+        );
 
         return toResponse(asset);
     }

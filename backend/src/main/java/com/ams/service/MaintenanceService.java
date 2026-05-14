@@ -8,9 +8,11 @@ import com.ams.entity.MaintenanceRecord;
 import com.ams.enums.AssetAction;
 import com.ams.enums.AssetStatus;
 import com.ams.enums.MaintenanceType;
+import com.ams.enums.NotificationType;
 import com.ams.repository.AssetLogRepository;
 import com.ams.repository.AssetRepository;
 import com.ams.repository.MaintenanceRecordRepository;
+import com.ams.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,8 @@ public class MaintenanceService {
     private final MaintenanceRecordRepository maintenanceRecordRepository;
     private final AssetRepository assetRepository;
     private final AssetLogRepository assetLogRepository;
+    private final NotificationService notificationService;
+    private final EmployeeRepository employeeRepository;
 
     private static final String OPERATOR = "system";
 
@@ -50,6 +54,7 @@ public class MaintenanceService {
 
         MaintenanceRecord record = MaintenanceRecord.builder()
                 .asset(asset)
+                .requestorId(request.getRequestorId())
                 .type(MaintenanceType.valueOf(request.getType()))
                 .description(request.getDescription())
                 .cost(request.getCost())
@@ -60,6 +65,14 @@ public class MaintenanceService {
         record = maintenanceRecordRepository.save(record);
 
         saveLog(asset, AssetAction.MAINTENANCE, "维修类型: " + request.getType() + ", 描述: " + request.getDescription());
+
+        // Notify all ADMIN role employees about new repair request
+        notifyAdmins(
+                "新的维修申请",
+                "资产「" + asset.getName() + "」（编号：" + asset.getAssetCode() + "）提交了维修申请",
+                NotificationType.REPAIR_SUBMITTED,
+                request.getRequestorId()
+        );
 
         return toResponse(record);
     }
@@ -98,6 +111,16 @@ public class MaintenanceService {
             assetRepository.save(asset);
 
             saveLog(asset, AssetAction.UPDATE, "维修完成，资产恢复可用");
+
+            // Notify the requestor when repair is complete
+            if (record.getRequestorId() != null) {
+                notificationService.createNotification(
+                        record.getRequestorId(),
+                        "维修已完成",
+                        "您提交的资产「" + asset.getName() + "」（编号：" + asset.getAssetCode() + "）维修已完成，资产已恢复可用",
+                        NotificationType.REPAIR_COMPLETED
+                );
+            }
         }
 
         return toResponse(record);
@@ -107,6 +130,7 @@ public class MaintenanceService {
         return MaintenanceRecordResponse.builder()
                 .id(record.getId())
                 .assetId(record.getAsset().getId())
+                .requestorId(record.getRequestorId())
                 .type(record.getType().name())
                 .description(record.getDescription())
                 .cost(record.getCost())
@@ -116,6 +140,14 @@ public class MaintenanceService {
                 .createdAt(record.getCreatedAt())
                 .updatedAt(record.getUpdatedAt())
                 .build();
+    }
+
+    private void notifyAdmins(String title, String message, NotificationType type, Long excludeUserId) {
+        employeeRepository.findByRole(com.ams.enums.UserRole.ADMIN).forEach(admin -> {
+            if (!admin.getId().equals(excludeUserId)) {
+                notificationService.createNotification(admin.getId(), title, message, type);
+            }
+        });
     }
 
     private void saveLog(Asset asset, AssetAction action, String detail) {

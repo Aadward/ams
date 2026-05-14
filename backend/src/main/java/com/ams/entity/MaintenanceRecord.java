@@ -24,6 +24,9 @@ public class MaintenanceRecord {
     @JoinColumn(name = "asset_id", nullable = false)
     private Asset asset;
 
+    @Column(name = "requestor_id")
+    private Long requestorId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private MaintenanceType type;

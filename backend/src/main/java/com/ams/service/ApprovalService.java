@@ -4,6 +4,7 @@ import com.ams.dto.ApprovalRequestDTO;
 import com.ams.entity.ApprovalRequest;
 import com.ams.enums.ApprovalStatus;
 import com.ams.enums.ApprovalType;
+import com.ams.enums.NotificationType;
 import com.ams.repository.ApprovalRequestRepository;
 import com.ams.repository.AssetRepository;
 import com.ams.repository.DepartmentRepository;
@@ -26,6 +27,7 @@ public class ApprovalService {
     private final AssetRepository assetRepository;
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
+    private final NotificationService notificationService;
 
     private ApprovalRequestDTO toDTO(ApprovalRequest r) {
         String assetName = assetRepository.findById(r.getAssetId())
@@ -100,8 +102,17 @@ public class ApprovalService {
         request.setStatus(ApprovalStatus.APPROVED);
         request.setManagerComment(managerComment);
         request.setResolvedAt(LocalDateTime.now());
+        ApprovalRequest saved = approvalRequestRepository.save(request);
 
-        return approvalRequestRepository.save(request);
+        // Notify the requester
+        notificationService.createNotification(
+                saved.getRequesterId(),
+                "审批已通过",
+                "您申请的资产「" + assetRepository.findById(saved.getAssetId()).map(a -> a.getName()).orElse("") + "」已审批通过",
+                NotificationType.APPROVAL_REQUIRED
+        );
+
+        return saved;
     }
 
     @Transactional
@@ -118,7 +129,16 @@ public class ApprovalService {
         request.setStatus(ApprovalStatus.REJECTED);
         request.setManagerComment(managerComment);
         request.setResolvedAt(LocalDateTime.now());
+        ApprovalRequest saved = approvalRequestRepository.save(request);
 
-        return approvalRequestRepository.save(request);
+        // Notify the requester
+        notificationService.createNotification(
+                saved.getRequesterId(),
+                "审批已拒绝",
+                "您申请的资产「" + assetRepository.findById(saved.getAssetId()).map(a -> a.getName()).orElse("") + "」已被拒绝",
+                NotificationType.APPROVAL_REQUIRED
+        );
+
+        return saved;
     }
 }

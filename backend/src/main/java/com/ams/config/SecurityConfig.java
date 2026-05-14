@@ -92,6 +92,9 @@ public class SecurityConfig {
                         // Notifications - authenticated users
                         .requestMatchers("/api/notifications/**").authenticated()
 
+                        // Asset tag print - authenticated (generates printable label)
+                        .requestMatchers("/api/asset-tags/**").authenticated()
+
                         // Actuator health - public
                         .requestMatchers("/actuator/**").permitAll()
 

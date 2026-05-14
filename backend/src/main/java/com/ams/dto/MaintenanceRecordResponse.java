@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class MaintenanceRecordResponse {
     private Long id;
     private Long assetId;
+    private Long requestorId;
     private String type;
     private String description;
     private BigDecimal cost;

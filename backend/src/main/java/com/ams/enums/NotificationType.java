@@ -5,5 +5,7 @@ public enum NotificationType {
     ASSET_RETURNED,
     MAINTENANCE_DUE,
     APPROVAL_REQUIRED,
-    SYSTEM
+    SYSTEM,
+    REPAIR_SUBMITTED,
+    REPAIR_COMPLETED
 }

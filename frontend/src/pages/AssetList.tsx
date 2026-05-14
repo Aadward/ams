@@ -1,4 +1,5 @@
 import { Table, Button, Space, Select, Tag, Modal, Input, message, Dropdown, Upload } from 'antd';
+import { PrinterOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAssetList, useBatchAssign, useBatchUnassign, useBatchRetire, useBatchUpdateLocation } from '../api/asset';
@@ -151,10 +152,16 @@ export default function AssetList() {
           { title: '位置', dataIndex: 'location' },
           {
             title: '操作',
-            render: (_: unknown, record: { id: number }) => (
+            render: (_: unknown, record: { id: number; assetCode: string }) => (
               <Space>
                 <Button size="small" onClick={(e) => { e.stopPropagation(); navigate(`/assets/${record.id}`); }}>查看</Button>
                 <Button size="small" onClick={(e) => { e.stopPropagation(); navigate(`/assets/${record.id}/edit`); }}>编辑</Button>
+                <Button size="small" icon={<PrinterOutlined />} onClick={(e) => {
+                  e.stopPropagation();
+                  // Open print URL in new tab (auth handled via HTTP-only cookie or query token)
+                  const printUrl = `${import.meta.env.VITE_API_URL || ''}/api/asset-tags/${record.id}/print`;
+                  window.open(printUrl, '_blank');
+                }}>打印标签</Button>
               </Space>
             ),
           },

@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -44,7 +45,19 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("POST", "/api/auth/**").permitAll()
-                        .requestMatchers("GET", "/api/assets").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/assets/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/assets").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/assets/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/assets/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/employees/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/employees").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/employees/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/employees/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/departments/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/departments").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/departments/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/departments/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/dashboard/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll()
                         .requestMatchers("/api/backup/**").permitAll()

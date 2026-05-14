@@ -13,6 +13,7 @@ import ApprovalList from './pages/ApprovalList';
 import BackupList from './pages/BackupList';
 import MaintenanceList from './pages/MaintenanceList';
 import ReportList from './pages/ReportList';
+import DepreciationLedger from './pages/DepreciationLedger';
 import ConsumableList from './pages/ConsumableList';
 import ConsumableForm from './pages/ConsumableForm';
 import ConsumableStockIn from './pages/ConsumableStockIn';
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/maintenance" element={<MaintenanceList />} />
             <Route path="/backup" element={<BackupList />} />
             <Route path="/reports" element={<ReportList />} />
+            <Route path="/depreciation" element={<DepreciationLedger />} />
             <Route path="/consumables" element={<ConsumableList />} />
             <Route path="/consumables/new" element={<ConsumableForm />} />
             <Route path="/consumables/:id/edit" element={<ConsumableForm />} />

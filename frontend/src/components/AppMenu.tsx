@@ -61,6 +61,10 @@ export default function AppMenu() {
       label: '统计报表',
     },
     {
+      key: '/depreciation',
+      label: '折旧台账',
+    },
+    {
       key: '/consumables',
       icon: <InboxOutlined />,
       label: '低值易耗品',

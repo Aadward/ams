@@ -30,6 +30,8 @@ public class AssetCreateRequest {
     @DecimalMin(value = "0", message = "价格不能为负")
     private BigDecimal purchasePrice;
 
+    private Integer depreciationYears;
+
     private LocalDate warrantyEnd;
 
     @Size(max = 255)

@@ -3,6 +3,7 @@ package com.ams.service;
 import com.ams.dto.AssetCreateRequest;
 import com.ams.dto.AssetResponse;
 import com.ams.dto.AssetUpdateRequest;
+import com.ams.dto.DepreciationResponse;
 import com.ams.entity.Asset;
 import com.ams.entity.AssetLog;
 import com.ams.entity.Employee;
@@ -20,6 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +50,7 @@ public class AssetService {
                 .spec(request.getSpec())
                 .purchaseDate(request.getPurchaseDate())
                 .purchasePrice(request.getPurchasePrice())
+                .depreciationYears(request.getDepreciationYears())
                 .warrantyEnd(request.getWarrantyEnd())
                 .supplier(request.getSupplier())
                 .location(request.getLocation())
@@ -77,6 +82,9 @@ public class AssetService {
         }
         if (request.getPurchasePrice() != null) {
             asset.setPurchasePrice(request.getPurchasePrice());
+        }
+        if (request.getDepreciationYears() != null) {
+            asset.setDepreciationYears(request.getDepreciationYears());
         }
         if (request.getWarrantyEnd() != null) {
             asset.setWarrantyEnd(request.getWarrantyEnd());
@@ -280,6 +288,7 @@ public class AssetService {
                 .spec(asset.getSpec())
                 .purchaseDate(asset.getPurchaseDate())
                 .purchasePrice(asset.getPurchasePrice())
+                .depreciationYears(asset.getDepreciationYears())
                 .warrantyEnd(asset.getWarrantyEnd())
                 .supplier(asset.getSupplier())
                 .location(asset.getLocation())
@@ -287,6 +296,76 @@ public class AssetService {
                 .assigneeName(asset.getAssignee() != null ? asset.getAssignee().getName() : null)
                 .createdAt(asset.getCreatedAt())
                 .updatedAt(asset.getUpdatedAt())
+                .build();
+    }
+
+    public DepreciationResponse getAssetDepreciation(Long id) {
+        Asset asset = assetRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(() -> new RuntimeException("资产不存在"));
+        return computeDepreciation(asset);
+    }
+
+    public List<DepreciationResponse> getAllAssetDepreciations() {
+        return assetRepository.findByDeletedFalse().stream()
+                .filter(a -> a.getPurchasePrice() != null && a.getDepreciationYears() != null && a.getDepreciationYears() > 0)
+                .map(this::computeDepreciation)
+                .collect(Collectors.toList());
+    }
+
+    private DepreciationResponse computeDepreciation(Asset asset) {
+        BigDecimal originalValue = asset.getPurchasePrice();
+        Integer depreciationYears = asset.getDepreciationYears();
+
+        if (originalValue == null || depreciationYears == null || depreciationYears <= 0) {
+            return DepreciationResponse.builder()
+                    .assetId(asset.getId())
+                    .assetCode(asset.getAssetCode())
+                    .assetName(asset.getName())
+                    .category(asset.getCategory().name())
+                    .purchaseDate(asset.getPurchaseDate())
+                    .originalValue(originalValue)
+                    .depreciationYears(depreciationYears)
+                    .annualDepreciation(BigDecimal.ZERO)
+                    .accumulatedDepreciation(BigDecimal.ZERO)
+                    .currentNetValue(originalValue != null ? originalValue : BigDecimal.ZERO)
+                    .yearsUsed(0)
+                    .fullyDepreciated(false)
+                    .build();
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate purchaseDate = asset.getPurchaseDate();
+        long daysUsed = ChronoUnit.DAYS.between(purchaseDate, today);
+        int yearsUsed = (int) Math.floor(daysUsed / 365.0);
+
+        BigDecimal annualDepreciation = originalValue.divide(BigDecimal.valueOf(depreciationYears), 2, java.math.RoundingMode.HALF_UP);
+        BigDecimal accumulatedDepreciation = annualDepreciation.multiply(BigDecimal.valueOf(yearsUsed));
+
+        // Cap at original value
+        if (accumulatedDepreciation.compareTo(originalValue) > 0) {
+            accumulatedDepreciation = originalValue;
+        }
+
+        BigDecimal currentNetValue = originalValue.subtract(accumulatedDepreciation);
+        if (currentNetValue.compareTo(BigDecimal.ZERO) < 0) {
+            currentNetValue = BigDecimal.ZERO;
+        }
+
+        boolean fullyDepreciated = accumulatedDepreciation.compareTo(originalValue) >= 0;
+
+        return DepreciationResponse.builder()
+                .assetId(asset.getId())
+                .assetCode(asset.getAssetCode())
+                .assetName(asset.getName())
+                .category(asset.getCategory().name())
+                .purchaseDate(purchaseDate)
+                .originalValue(originalValue)
+                .depreciationYears(depreciationYears)
+                .annualDepreciation(annualDepreciation)
+                .accumulatedDepreciation(accumulatedDepreciation)
+                .currentNetValue(currentNetValue)
+                .yearsUsed(yearsUsed)
+                .fullyDepreciated(fullyDepreciated)
                 .build();
     }
 

@@ -44,6 +44,9 @@ public class Asset {
     @Column(name = "purchase_price", precision = 12, scale = 2)
     private BigDecimal purchasePrice;
 
+    @Column(name = "depreciation_years")
+    private Integer depreciationYears;
+
     @Column(name = "warranty_end")
     private LocalDate warrantyEnd;
 

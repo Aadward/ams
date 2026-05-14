@@ -54,6 +54,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.backend
+      args:
+        - JAR_SOURCE=backend/app.jar
     container_name: ams-backend
     restart: unless-stopped
     depends_on:

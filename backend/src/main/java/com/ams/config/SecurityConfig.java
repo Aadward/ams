@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -24,6 +25,7 @@ import java.util.List;
 @Slf4j
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -37,35 +39,61 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        log.info("Configuring security filter chain");
+        log.info("Configuring security filter chain with RBAC");
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("POST", "/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/assets/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/assets").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/assets/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/assets/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/employees/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/employees").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/employees/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/employees/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/departments/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/departments").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/departments/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/departments/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/dashboard/**").permitAll()
+                        // Auth endpoints - public
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // Role management - ADMIN only
+                        .requestMatchers("/api/roles/**").hasRole("ADMIN")
+
+                        // Backup - ADMIN, MANAGER
+                        .requestMatchers("/api/backup/**").hasAnyRole("ADMIN", "MANAGER")
+
+                        // Departments - ADMIN, MANAGER write; authenticated read
+                        .requestMatchers(HttpMethod.GET, "/api/departments/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/departments/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/api/departments/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/departments/**").hasRole("ADMIN")
+
+                        // Employees - ADMIN, MANAGER write; authenticated read
+                        .requestMatchers(HttpMethod.GET, "/api/employees/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/employees/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/api/employees/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/employees/**").hasRole("ADMIN")
+
+                        // Assets - ADMIN, MANAGER write; authenticated read
+                        .requestMatchers(HttpMethod.GET, "/api/assets/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/assets/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/api/assets/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/assets/**").hasRole("ADMIN")
+
+                        // Dashboard - ADMIN, MANAGER
+                        .requestMatchers("/api/dashboard/**").hasAnyRole("ADMIN", "MANAGER")
+
+                        // Maintenance - ADMIN, MANAGER
+                        .requestMatchers("/api/maintenance/**").hasAnyRole("ADMIN", "MANAGER")
+
+                        // Excel import/export - ADMIN, MANAGER
+                        .requestMatchers("/api/excel/**").hasAnyRole("ADMIN", "MANAGER")
+
+                        // Actuator health - public
                         .requestMatchers("/actuator/**").permitAll()
+
+                        // Swagger docs - public
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll()
-                        .requestMatchers("/api/backup/**").permitAll()
+
+                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        log.info("Security filter chain configured successfully");
+        log.info("Security filter chain configured with RBAC");
         return http.build();
     }
 

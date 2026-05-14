@@ -7,11 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -38,7 +37,9 @@ public class AuthController {
 
             LoginResponse response = LoginResponse.builder()
                     .token(token)
-                    .expiresIn(TOKEN_EXPIRATION_MS / 1000) // Convert to seconds
+                    .expiresIn(TOKEN_EXPIRATION_MS / 1000)
+                    .role(ADMIN_ROLE)
+                    .username(ADMIN_USERNAME)
                     .build();
 
             log.info("Login successful for user: {}", request.getUsername());
@@ -48,5 +49,26 @@ public class AuthController {
         log.warn("Login failed for user: {} - Invalid credentials", request.getUsername());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("error", "Invalid credentials"));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me(Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Not authenticated"));
+        }
+        String username = authentication.getName();
+        String role = authentication.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .map(auth -> auth.replace("ROLE_", ""))
+                .orElse("UNKNOWN");
+        return ResponseEntity.ok(Map.of(
+                "username", username,
+                "role", role,
+                "authorities", authentication.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .toList()
+        ));
     }
 }

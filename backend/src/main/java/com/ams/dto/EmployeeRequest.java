@@ -1,5 +1,6 @@
 package com.ams.dto;
 
+import com.ams.enums.UserRole;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -24,4 +25,6 @@ public class EmployeeRequest {
 
     @Size(max = 50)
     private String phone;
+
+    private UserRole role;
 }

@@ -1,7 +1,10 @@
+# Architecture Decision Records
+docs/decisions/
+
 # java
 backend/*.class
 backend/target/
-backend/*.jar
+backend/app.jar
 
 # node
 frontend/node_modules/

@@ -1,6 +1,7 @@
 package com.ams.dto;
 
 import com.ams.entity.Employee;
+import com.ams.enums.UserRole;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -15,6 +16,7 @@ public class EmployeeResponse {
     private String deptName;
     private String email;
     private String phone;
+    private UserRole role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -26,6 +28,7 @@ public class EmployeeResponse {
                 .deptName(employee.getDeptName())
                 .email(employee.getEmail())
                 .phone(employee.getPhone())
+                .role(employee.getRole())
                 .createdAt(employee.getCreatedAt())
                 .updatedAt(employee.getUpdatedAt())
                 .build();

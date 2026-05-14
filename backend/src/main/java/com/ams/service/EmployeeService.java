@@ -6,6 +6,7 @@ import com.ams.entity.AssetLog;
 import com.ams.entity.Department;
 import com.ams.entity.Employee;
 import com.ams.enums.AssetAction;
+import com.ams.enums.UserRole;
 import com.ams.repository.AssetLogRepository;
 import com.ams.repository.DepartmentRepository;
 import com.ams.repository.EmployeeRepository;
@@ -53,6 +54,9 @@ public class EmployeeService {
             employee.setDepartment(dept);
         }
 
+        // Default to USER role if not specified
+        employee.setRole(request.getRole() != null ? request.getRole() : UserRole.USER);
+
         employee = employeeRepository.save(employee);
         saveLog(null, AssetAction.CREATE, "创建员工: " + employee.getName());
         return EmployeeResponse.fromEntity(employee);
@@ -79,6 +83,9 @@ public class EmployeeService {
         }
         if (request.getPhone() != null) {
             employee.setPhone(request.getPhone());
+        }
+        if (request.getRole() != null) {
+            employee.setRole(request.getRole());
         }
 
         employee = employeeRepository.save(employee);

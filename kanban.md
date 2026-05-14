@@ -38,13 +38,15 @@
 
 ## completed
 
-## in_progress
+- [x] 维保到期提醒：完整实现（后端 API + 前端仪表盘卡片 + 通知类型映射）
+  - 后端：WarrantyNotificationService（@Scheduled 每日8点，ASSET_EXPIRING_WARRANTY 通知）
+  - 后端：DashboardController GET /api/dashboard/expiring-warranty?days=30
+  - 前端：ExpiringWarranty 类型 + useExpiringWarranty hook + 仪表盘卡片（7/15/30/60天筛选）
+  - 修复：NotificationBell.tsx / NotificationList.tsx 补全 ASSET_EXPIRING_WARRANTY 标签和颜色
+  - 修复：InventoryPlanList/InventoryReport/InventoryTaskList 清理未使用导入（解除构建阻塞）
+  - 验证：npm run build ✓，mvn compile ✓，docker compose build frontend ✓，git push ✓
 
-- [ ] 维保到期提醒：仪表盘展示"30天内即将过保的资产"卡片，支持筛选；后台定时任务扫描 warrantyEnd 字段，提前 N 天触发通知
-  - 后端：WarrantyNotificationService（已存在，@Scheduled 每日8点，发送 ASSET_EXPIRING_WARRANTY 通知）
-  - 后端：DashboardController GET /api/dashboard/expiring-warranty?days=30（已存在）
-  - 前端：ExpiringWarranty 类型 + useExpiringWarranty hook + 仪表盘卡片（新增）
-  - PRD：prds/2026-05-15-维保到期提醒.md（新增）
+## in_progress
 
 ## todo
 - [ ] 定期盘点：盘点计划（按部门/按资产分类），生成盘点任务；支持移动端扫码确认盘点结果；盘点差异报告

@@ -141,18 +141,21 @@ public class AssetService {
                 .orElseThrow(() -> new RuntimeException("资产不存在"));
 
         String assigneeName = asset.getAssignee() != null ? asset.getAssignee().getName() : "无";
+        Long previousAssigneeId = asset.getAssignee() != null ? asset.getAssignee().getId() : null;
         asset.setAssignee(null);
         asset.setStatus(AssetStatus.IN_STOCK);
         asset = assetRepository.save(asset);
 
         saveLog(asset, AssetAction.UNASSIGN, "归还,原领用人: " + assigneeName);
 
-        notificationService.createNotification(
-                asset.getAssignee().getId(),
-                "资产已归还",
-                "资产「" + asset.getName() + "」（编号：" + asset.getAssetCode() + "）已归还库存",
-                NotificationType.ASSET_RETURNED
-        );
+        if (previousAssigneeId != null) {
+            notificationService.createNotification(
+                    previousAssigneeId,
+                    "资产已归还",
+                    "资产「" + asset.getName() + "」（编号：" + asset.getAssetCode() + "）已归还库存",
+                    NotificationType.ASSET_RETURNED
+            );
+        }
 
         return toResponse(asset);
     }

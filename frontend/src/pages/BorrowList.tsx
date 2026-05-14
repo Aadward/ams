@@ -1,56 +1,66 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Space, Tag, Modal, Input, message, Card, Row, Col, Select, Tabs, Badge, Statistic } from 'antd';
 import { CheckOutlined, CloseOutlined, UndoOutlined } from '@ant-design/icons';
-import { useBorrowList, usePendingBorrows, useApproveBorrow, useRejectBorrow, useReturnBorrow, useCancelBorrow } from '../api/borrow';
-import type { BorrowRecord } from '../types';
-import { borrowStatusLabels, borrowTypeLabels } from '../types';
+import { useBorrowList, useReturnBorrow } from '../api/borrow';
+import type { BorrowRecord, BorrowRequest } from '../types';
+import { borrowStatusLabels } from '../types';
+import http from '../api/http';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 export default function BorrowList() {
-  const [status, setStatus] = useState<string>();
-  const [type, setType] = useState<string>();
-  const [keyword, setKeyword] = useState<string>();
-  const [pending, setPending] = useState<BorrowRecord[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>();
+  const [pendingRequests, setPendingRequests] = useState<BorrowRequest[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [actionType, setActionType] = useState<'approve' | 'reject'>('approve');
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [comment, setComment] = useState('');
   const [returnModalVisible, setReturnModalVisible] = useState(false);
   const [returnId, setReturnId] = useState<number | null>(null);
+  const [pendingLoading, setPendingLoading] = useState(false);
 
-  const { data, isLoading, refetch } = useBorrowList({ status, type, keyword });
-  const { data: pendingData, refetch: refetchPending } = usePendingBorrows();
-  const approveMutation = useApproveBorrow();
-  const rejectMutation = useRejectBorrow();
+  const { data, isLoading, refetch } = useBorrowList(statusFilter ? { status: statusFilter } : {});
   const returnMutation = useReturnBorrow();
-  const cancelMutation = useCancelBorrow();
+
+  // Fetch pending borrow requests (ASSET_BORROW approval requests)
+  const fetchPending = async () => {
+    setPendingLoading(true);
+    try {
+      const { data: res } = await http.get<BorrowRequest[]>('/borrows/pending');
+      setPendingRequests(res || []);
+    } catch {
+      message.error('获取待审批列表失败');
+    } finally {
+      setPendingLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (pendingData) {
-      setPending(pendingData);
-    }
-  }, [pendingData]);
+    fetchPending();
+  }, []);
 
   const statusBadge = (status: string) => {
     const colorMap: Record<string, string> = {
-      PENDING: 'blue',
-      APPROVED: 'green',
-      REJECTED: 'red',
       BORROWED: 'orange',
-      RETURNED: 'purple',
-      CANCELLED: 'default',
+      RETURNED: 'green',
+      OVERDUE: 'red',
     };
     return <Tag color={colorMap[status] || 'default'}>{borrowStatusLabels[status] || status}</Tag>;
   };
 
-  const typeBadge = (type: string) => {
+  const approvalStatusBadge = (status: string) => {
     const colorMap: Record<string, string> = {
-      BORROW: 'blue',
-      RETURN: 'green',
+      PENDING: 'blue',
+      APPROVED: 'green',
+      REJECTED: 'red',
     };
-    return <Tag color={colorMap[type] || 'default'}>{borrowTypeLabels[type] || type}</Tag>;
+    const labels: Record<string, string> = {
+      PENDING: '待审批',
+      APPROVED: '已批准',
+      REJECTED: '已拒绝',
+    };
+    return <Tag color={colorMap[status] || 'default'}>{labels[status] || status}</Tag>;
   };
 
   const openActionModal = (id: number, action: 'approve' | 'reject') => {
@@ -63,16 +73,12 @@ export default function BorrowList() {
   const handleAction = async () => {
     if (!selectedId) return;
     try {
-      if (actionType === 'approve') {
-        await approveMutation.mutateAsync({ id: selectedId, managerComment: comment });
-        message.success('审批通过');
-      } else {
-        await rejectMutation.mutateAsync({ id: selectedId, managerComment: comment });
-        message.success('已拒绝');
-      }
+      const endpoint = actionType === 'approve' ? `/approvals/${selectedId}/approve` : `/approvals/${selectedId}/reject`;
+      await http.post(endpoint, { managerComment: comment });
+      message.success(actionType === 'approve' ? '审批通过' : '已拒绝');
       setModalVisible(false);
       refetch();
-      refetchPending();
+      fetchPending();
     } catch {
       message.error('操作失败');
     }
@@ -85,20 +91,8 @@ export default function BorrowList() {
       message.success('归还成功');
       setReturnModalVisible(false);
       refetch();
-      refetchPending();
     } catch {
       message.error('归还失败');
-    }
-  };
-
-  const handleCancel = async (id: number) => {
-    try {
-      await cancelMutation.mutateAsync(id);
-      message.success('已取消');
-      refetch();
-      refetchPending();
-    } catch {
-      message.error('取消失败');
     }
   };
 
@@ -107,10 +101,10 @@ export default function BorrowList() {
     setReturnModalVisible(true);
   };
 
-  const columns = [
+  // Columns for BorrowRecord list (after approval - BORROWED/RETURNED/OVERDUE)
+  const recordColumns = [
     { title: '资产编码', dataIndex: 'assetCode', width: 120 },
     { title: '资产名称', dataIndex: 'assetName', width: 150 },
-    { title: '类型', dataIndex: 'type', width: 80, render: typeBadge },
     { title: '状态', dataIndex: 'status', width: 100, render: statusBadge },
     { title: '借用人', dataIndex: 'borrowerName', width: 100 },
     { title: '部门', dataIndex: 'departmentName', width: 120 },
@@ -120,42 +114,40 @@ export default function BorrowList() {
     { title: '时间', dataIndex: 'createdAt', width: 170 },
     {
       title: '操作',
-      width: 200,
-      render: (_: unknown, record: { id: number; status: string }) => (
+      width: 120,
+      render: (_: unknown, record: BorrowRecord) => (
         <Space>
-          {record.status === 'PENDING' && (
-            <>
-              <Button size="small" type="primary" icon={<CheckOutlined />} onClick={() => openActionModal(record.id, 'approve')}>通过</Button>
-              <Button size="small" danger icon={<CloseOutlined />} onClick={() => openActionModal(record.id, 'reject')}>拒绝</Button>
-            </>
-          )}
-          {record.status === 'APPROVED' && (
-            <Button size="small" type="primary" icon={<UndoOutlined />} onClick={() => openReturnModal(record.id)}>确认归还</Button>
-          )}
-          {(record.status === 'PENDING' || record.status === 'APPROVED') && (
-            <Button size="small" onClick={() => handleCancel(record.id)}>取消</Button>
+          {record.status === 'BORROWED' && (
+            <Button size="small" type="primary" icon={<UndoOutlined />} onClick={() => openReturnModal(record.id)}>
+              确认归还
+            </Button>
           )}
         </Space>
       ),
     },
   ];
 
+  // Columns for pending approval requests
   const pendingColumns = [
     { title: '资产编码', dataIndex: 'assetCode', width: 120 },
     { title: '资产名称', dataIndex: 'assetName', width: 150 },
-    { title: '类型', dataIndex: 'type', width: 80, render: typeBadge },
-    { title: '借用人', dataIndex: 'borrowerName', width: 100 },
+    { title: '申请人', dataIndex: 'requesterName', width: 100 },
     { title: '部门', dataIndex: 'departmentName', width: 120 },
     { title: '预计归还', dataIndex: 'expectedReturnDate', width: 120 },
+    { title: '状态', dataIndex: 'status', width: 80, render: approvalStatusBadge },
     { title: '申请原因', dataIndex: 'reason', ellipsis: true },
     { title: '时间', dataIndex: 'createdAt', width: 170 },
     {
       title: '操作',
       width: 160,
-      render: (_: unknown, record: { id: number }) => (
+      render: (_: unknown, record: BorrowRequest) => (
         <Space>
-          <Button size="small" type="primary" icon={<CheckOutlined />} onClick={() => openActionModal(record.id, 'approve')}>通过</Button>
-          <Button size="small" danger icon={<CloseOutlined />} onClick={() => openActionModal(record.id, 'reject')}>拒绝</Button>
+          <Button size="small" type="primary" icon={<CheckOutlined />} onClick={() => openActionModal(record.id, 'approve')}>
+            通过
+          </Button>
+          <Button size="small" danger icon={<CloseOutlined />} onClick={() => openActionModal(record.id, 'reject')}>
+            拒绝
+          </Button>
         </Space>
       ),
     },
@@ -166,7 +158,7 @@ export default function BorrowList() {
       <Row gutter={16}>
         <Col span={6}>
           <Card>
-            <Statistic title="待审批" value={pending.length} valueStyle={{ color: '#cf1322' }} />
+            <Statistic title="待审批" value={pendingRequests.length} valueStyle={{ color: '#cf1322' }} />
           </Card>
         </Col>
       </Row>
@@ -179,29 +171,40 @@ export default function BorrowList() {
             children: (
               <>
                 <Space style={{ marginBottom: 16 }}>
-                  <Select placeholder="状态" allowClear style={{ width: 140 }} value={status} onChange={setStatus}>
-                    <Option value="PENDING">待审批</Option>
-                    <Option value="APPROVED">已批准</Option>
-                    <Option value="REJECTED">已拒绝</Option>
+                  <Select
+                    placeholder="状态"
+                    allowClear
+                    style={{ width: 140 }}
+                    value={statusFilter}
+                    onChange={setStatusFilter}
+                  >
                     <Option value="BORROWED">已借出</Option>
                     <Option value="RETURNED">已归还</Option>
-                    <Option value="CANCELLED">已取消</Option>
+                    <Option value="OVERDUE">已超期</Option>
                   </Select>
-                  <Select placeholder="类型" allowClear style={{ width: 120 }} value={type} onChange={setType}>
-                    <Option value="BORROW">借出</Option>
-                    <Option value="RETURN">归还</Option>
-                  </Select>
-                  <Input.Search placeholder="搜索资产/借用人" style={{ width: 200 }} onSearch={setKeyword} />
+                  <Input.Search placeholder="搜索资产/借用人" style={{ width: 200 }} />
                 </Space>
-                <Table loading={isLoading} dataSource={data?.content} rowKey="id" columns={columns} pagination={{ total: data?.totalElements, defaultPageSize: 10 }} />
+                <Table
+                  loading={isLoading}
+                  dataSource={data?.content}
+                  rowKey="id"
+                  columns={recordColumns}
+                  pagination={{ total: data?.totalElements, defaultPageSize: 10 }}
+                />
               </>
             ),
           },
           {
             key: 'pending',
-            label: <span>待我审批 <Badge count={pending.length} style={{ backgroundColor: '#faad14' }} /></span>,
+            label: <span>待我审批 <Badge count={pendingRequests.length} style={{ backgroundColor: '#faad14' }} /></span>,
             children: (
-              <Table dataSource={pending} rowKey="id" columns={pendingColumns} pagination={false} />
+              <Table
+                loading={pendingLoading}
+                dataSource={pendingRequests}
+                rowKey="id"
+                columns={pendingColumns}
+                pagination={false}
+              />
             ),
           },
         ]}
@@ -213,7 +216,7 @@ export default function BorrowList() {
         onOk={handleAction}
         onCancel={() => setModalVisible(false)}
         okText={actionType === 'approve' ? '确认通过' : '确认拒绝'}
-        okButtonProps={{ danger: actionType === 'reject', loading: approveMutation.isPending || rejectMutation.isPending }}
+        okButtonProps={{ danger: actionType === 'reject' }}
       >
         <Space direction="vertical" style={{ width: '100%' }}>
           <p>{actionType === 'approve' ? '确认通过此借用申请？' : '请输入拒绝原因：'}</p>

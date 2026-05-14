@@ -113,32 +113,42 @@ export interface BorrowRecord {
   borrowerName: string;
   departmentId: number;
   departmentName: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'BORROWED' | 'RETURNED' | 'CANCELLED';
-  type: 'BORROW' | 'RETURN';
+  approvalId?: number;
+  status: 'BORROWED' | 'RETURNED' | 'OVERDUE';
   expectedReturnDate?: string;
   actualReturnDate?: string;
   reason?: string;
   managerComment?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+}
+
+export interface BorrowRequest {
+  id: number;
+  requesterId: number;
+  requesterName: string;
+  assetId: number;
+  assetName: string;
+  assetCode: string;
+  departmentId: number;
+  departmentName: string;
+  type: string;
+  status: string;
+  reason?: string;
+  managerComment?: string;
+  createdAt: string;
 }
 
 export const borrowStatusLabels: Record<string, string> = {
-  PENDING: '待审批',
-  APPROVED: '已批准',
-  REJECTED: '已拒绝',
   BORROWED: '已借出',
   RETURNED: '已归还',
-  CANCELLED: '已取消',
+  OVERDUE: '已超期',
 };
 
 export const borrowStatusColors: Record<string, string> = {
-  PENDING: 'processing',
-  APPROVED: 'success',
-  REJECTED: 'error',
   BORROWED: 'warning',
   RETURNED: 'green',
-  CANCELLED: 'default',
+  OVERDUE: 'error',
 };
 
 export const borrowTypeLabels: Record<string, string> = {

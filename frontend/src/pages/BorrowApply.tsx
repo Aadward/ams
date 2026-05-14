@@ -22,7 +22,6 @@ export default function BorrowApply() {
     assetId: number;
     borrowerId: number;
     departmentId: number;
-    type: string;
     expectedReturnDate?: dayjs.Dayjs;
     reason?: string;
   }) => {
@@ -32,7 +31,6 @@ export default function BorrowApply() {
         assetId: values.assetId,
         borrowerId: values.borrowerId,
         departmentId: values.departmentId,
-        type: values.type,
         expectedReturnDate: values.expectedReturnDate?.format('YYYY-MM-DD'),
         reason: values.reason,
       });
@@ -50,25 +48,13 @@ export default function BorrowApply() {
 
   return (
     <Card title="资产借用申请">
-      <Form form={form} layout="vertical" onFinish={handleSubmit} initialValues={{ type: 'BORROW' }}>
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <Row gutter={24}>
-          <Col span={12}>
-            <Form.Item
-              name="type"
-              label="申请类型"
-              rules={[{ required: true, message: '请选择申请类型' }]}
-            >
-              <Select>
-                <Option value="BORROW">借出</Option>
-              </Select>
-            </Form.Item>
-          </Col>
           <Col span={12}>
             <Form.Item
               name="assetId"
               label="资产"
-              rules={[{ required: true, message: '请选择资产' }]}
-            >
+              rules={[{ required: true, message: '请选择资产' }]}>
               <Select
                 showSearch
                 placeholder="搜索选择资产"

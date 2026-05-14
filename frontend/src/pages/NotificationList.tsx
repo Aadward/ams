@@ -58,10 +58,10 @@ export default function NotificationList() {
       REPAIR_SUBMITTED: 'orange',
       REPAIR_COMPLETED: 'green',
       SYSTEM: 'purple',
-      BORROW_PENDING: 'processing',
       BORROW_APPROVED: 'success',
       BORROW_REJECTED: 'error',
-      BORROW_RETURN: 'warning',
+      BORROW_OVERDUE: 'error',
+      BORROW_RETURN_REMINDER: 'warning',
     };
     const labels: Record<string, string> = {
       ASSET_EXPIRING_WARRANTY: '维保到期',
@@ -74,10 +74,10 @@ export default function NotificationList() {
       REPAIR_SUBMITTED: '维修提交',
       REPAIR_COMPLETED: '维修完成',
       SYSTEM: '系统',
-      BORROW_PENDING: '借用待审批',
       BORROW_APPROVED: '借用已批准',
       BORROW_REJECTED: '借用已拒绝',
-      BORROW_RETURN: '借用待归还',
+      BORROW_OVERDUE: '借用已超期',
+      BORROW_RETURN_REMINDER: '借用待归还',
     };
     return <Tag color={colors[type] || 'default'}>{labels[type] || type}</Tag>;
   };

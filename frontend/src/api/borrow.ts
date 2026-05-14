@@ -57,11 +57,11 @@ export function useCreateBorrow() {
       assetId: number;
       borrowerId: number;
       departmentId: number;
-      type: string;
       expectedReturnDate?: string;
       reason?: string;
     }) => {
-      const { data } = await http.post<BorrowRecord>('/borrows', payload);
+      // POST to /borrows/apply which creates an ApprovalRequest with type=ASSET_BORROW
+      const { data } = await http.post('/borrows/apply', payload);
       return data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['borrows'] }),

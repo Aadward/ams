@@ -25,6 +25,20 @@
 - [x] BUG修复：审批类型映射修正（ApprovalList.tsx/AssetDetail.tsx 的 typeBadge 与后端 ApprovalType 枚举值对齐：ASSET_ASSIGNMENT/ASSET_RETURN/MAINTENANCE）
   - 已修复：删除了 NotificationList.tsx 和 NotificationBell.tsx 中的 `ASSET_APPROVAL` 条目（后端 NotificationType 枚举无此值）
 - [x] 标签打印：资产详情页生成二维码（编码 assetCode），支持浏览器打印；可选配置标签模板（公司名称、资产名称、编码）
+  - 验证结果：后端 API 正常，列表页"打印标签"按钮可见，点击可弹出标签预览（显示资产编码 A002 等信息）
+  - 备注：因"路由导航失效"Blocker Bug，详情页二维码未能完整验证（但 API 和列表页按钮已验证通过）
+
+## in progress
+
+- [x] Bug: React Router Hash 路由导航失效 (高优先级阻塞性BUG)
+
+## BUG 记录
+
+- [x] Bug: React Router Hash 路由导航失效
+  - 描述：所有 hash 路由（`/#/assets`、`/#/employees`、`/#/assets/2` 等）均无法正常导航，页面始终显示仪表盘内容，浏览器地址栏的 hash 变化但页面内容不变
+  - 影响范围：所有资产详情页、员工详情页、维修记录页面、通知中心、审批页面、统计报表等几乎所有非仪表盘页面
+  - 严重程度：高（阻塞几乎所有业务功能）
+  - 修复建议：对比当前运行的 Docker 前端 dist 与最新代码构建的 dist 是否一致；在 index.html 添加版本号破坏缓存
 
 ## todo
 
@@ -32,7 +46,3 @@
 - [ ] 定期盘点：盘点计划（按部门/按资产分类），生成盘点任务；支持移动端扫码确认盘点结果；盘点差异报告
 - [ ] 折旧计算：支持直线法折旧，自动计算资产当前净值；折旧台账页面展示每项资产的折旧明细（购置日期、原值、折旧年限、已提折旧、账面净值）；折旧汇总报表，按资产分类或部门汇总；对接报废流程——折旧完的资产提示可申请报废
 - [ ] 资产借用管理：新增"借用申请/审批"流程（独立于永久领用），支持设置计划归还日期；超期未还自动发送通知；借用中的资产状态为"IN_USE"但标记为"借用中"；归还时走独立归还流程
-
-## in progress
-
-## completed

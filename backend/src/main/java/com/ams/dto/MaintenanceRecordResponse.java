@@ -13,6 +13,8 @@ public class MaintenanceRecordResponse {
     private Long id;
     private Long assetId;
     private Long requestorId;
+    private Long approvalId;
+    private String status;
     private String type;
     private String description;
     private BigDecimal cost;

@@ -39,4 +39,6 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
     long countByStatus(AssetStatus status);
 
     long countByCategory(AssetCategory category);
+
+    List<Asset> findByDeletedFalse();
 }

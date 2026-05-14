@@ -1,6 +1,7 @@
 package com.ams.entity;
 
 import com.ams.enums.MaintenanceType;
+import com.ams.enums.MaintenanceStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -26,6 +27,14 @@ public class MaintenanceRecord {
 
     @Column(name = "requestor_id")
     private Long requestorId;
+
+    @Column(name = "approval_id")
+    private Long approvalId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private MaintenanceStatus status = MaintenanceStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)

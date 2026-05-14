@@ -148,7 +148,7 @@ public class AssetService {
         saveLog(asset, AssetAction.UNASSIGN, "归还,原领用人: " + assigneeName);
 
         notificationService.createNotification(
-                employeeId,
+                asset.getAssignee().getId(),
                 "资产已归还",
                 "资产「" + asset.getName() + "」（编号：" + asset.getAssetCode() + "）已归还库存",
                 NotificationType.ASSET_RETURNED

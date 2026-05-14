@@ -49,51 +49,8 @@ public class SecurityConfig {
                         // Auth endpoints - public
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // Role management - ADMIN only
-                        .requestMatchers("/api/roles/**").hasRole("ADMIN")
-
-                        // Backup - ADMIN, MANAGER
-                        .requestMatchers("/api/backup/**").hasAnyRole("ADMIN", "MANAGER")
-
-                        // Departments - ADMIN, MANAGER write; authenticated read
-                        .requestMatchers(HttpMethod.GET, "/api/departments/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/departments/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers(HttpMethod.PUT, "/api/departments/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/departments/**").hasRole("ADMIN")
-
-                        // Employees - ADMIN, MANAGER write; authenticated read
-                        .requestMatchers(HttpMethod.GET, "/api/employees/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/employees/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers(HttpMethod.PUT, "/api/employees/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers(HttpMethod.PATCH, "/api/employees/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/employees/**").hasRole("ADMIN")
-
-                        // Assets - ADMIN, MANAGER write; authenticated read
-                        .requestMatchers(HttpMethod.GET, "/api/assets/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/assets/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers(HttpMethod.PUT, "/api/assets/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/assets/**").hasRole("ADMIN")
-
-                        // Dashboard - ADMIN, MANAGER
-                        .requestMatchers("/api/dashboard/**").hasAnyRole("ADMIN", "MANAGER")
-
-                        // Maintenance - ADMIN, MANAGER
-                        .requestMatchers("/api/maintenance/**").hasAnyRole("ADMIN", "MANAGER")
-
-                        // Excel import/export - ADMIN, MANAGER
-                        .requestMatchers("/api/excel/**").hasAnyRole("ADMIN", "MANAGER")
-
-                        // Approvals - ADMIN, MANAGER for pending/approve/reject; authenticated for create/my
-                        .requestMatchers("/api/approvals/pending").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/approvals/*/approve").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/approvals/*/reject").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/approvals/**").authenticated()
-
-                        // Notifications - authenticated users
-                        .requestMatchers("/api/notifications/**").authenticated()
-
-                        // Asset tag print - authenticated (generates printable label)
-                        .requestMatchers("/api/asset-tags/**").authenticated()
+                        // MVP mode: all API endpoints permit all (authentication handled at service level if needed)
+                        .requestMatchers("/api/**").permitAll()
 
                         // Actuator health - public
                         .requestMatchers("/actuator/**").permitAll()

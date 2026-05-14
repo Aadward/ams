@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRecord, Long> {
     List<MaintenanceRecord> findByAssetIdOrderByStartDateDesc(Long assetId);
+
+    List<MaintenanceRecord> findByApprovalId(Long approvalId);
 }

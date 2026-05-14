@@ -1,4 +1,4 @@
-import { Descriptions, Card, Button, Space, Tag, Table, Modal, InputNumber, message } from 'antd';
+import { Descriptions, Card, Button, Space, Tag, Table, Modal, InputNumber, message, Input } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import {
@@ -8,6 +8,9 @@ import {
   useUnassignAsset,
   useRetireAsset,
 } from '../api/asset';
+import { approvalApi } from '../api/approval';
+
+const { TextArea } = Input;
 
 const statusMap: Record<string, { color: string; label: string }> = {
   IN_STOCK: { color: 'green', label: '库存' },
@@ -23,6 +26,11 @@ const categoryLabel: Record<string, string> = {
   SOFTWARE_LICENSE: '软件许可证',
 };
 
+const getCurrentEmployeeId = (): number | null => {
+  const stored = localStorage.getItem('currentEmployeeId');
+  return stored ? parseInt(stored, 10) : null;
+};
+
 export default function AssetDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -35,7 +43,12 @@ export default function AssetDetail() {
   const retireMutation = useRetireAsset();
 
   const [assignModalVisible, setAssignModalVisible] = useState(false);
+  const [applyModalVisible, setApplyModalVisible] = useState(false);
+  const [applyType, setApplyType] = useState<'ASSIGNMENT' | 'MAINTENANCE'>('ASSIGNMENT');
   const [assigneeId, setAssigneeId] = useState<number>();
+  const [applyReason, setApplyReason] = useState('');
+
+  const currentEmployeeId = getCurrentEmployeeId();
 
   const handleAssign = async () => {
     if (!assigneeId) {
@@ -66,8 +79,38 @@ export default function AssetDetail() {
     });
   };
 
-  const handleRepair = () => {
-    message.info('送修功能请前往维修记录页面');
+  const openApplyModal = (type: 'ASSIGNMENT' | 'MAINTENANCE') => {
+    if (!currentEmployeeId) {
+      message.warning('请先在员工列表选择当前登录员工（localStorage currentEmployeeId）');
+      return;
+    }
+    setApplyType(type);
+    setApplyReason('');
+    setApplyModalVisible(true);
+  };
+
+  const handleApply = async () => {
+    if (!currentEmployeeId) {
+      message.warning('请先在员工列表选择当前登录员工');
+      return;
+    }
+    if (!applyReason.trim()) {
+      message.error('请填写申请原因');
+      return;
+    }
+    try {
+      await approvalApi.create({
+        requesterId: currentEmployeeId,
+        assetId: numericId,
+        departmentId: 1, // default department
+        type: applyType,
+        reason: applyReason,
+      });
+      message.success(applyType === 'ASSIGNMENT' ? '领用申请已提交' : '维修申请已提交');
+      setApplyModalVisible(false);
+    } catch (e: unknown) {
+      message.error('提交申请失败');
+    }
   };
 
   return (
@@ -107,10 +150,10 @@ export default function AssetDetail() {
           {asset?.status === 'IN_USE' && (
             <Button onClick={handleUnassign}>归还</Button>
           )}
-          <Button onClick={handleRepair}>送修</Button>
-          {asset?.status !== 'RETIRED' && (
-            <Button danger onClick={handleRetire}>报废</Button>
-          )}
+          <Button onClick={handleRetire}>报废</Button>
+          <Button onClick={() => navigate('/maintenance/new', { state: { assetId: numericId } })}>送修</Button>
+          <Button onClick={() => openApplyModal('ASSIGNMENT')}>申请领用</Button>
+          <Button onClick={() => openApplyModal('MAINTENANCE')}>申请维修</Button>
         </Space>
       </Card>
 
@@ -121,6 +164,8 @@ export default function AssetDetail() {
           pagination={false}
           size="small"
           columns={[
+            { title: '审批ID', dataIndex: 'approvalId' },
+            { title: '状态', dataIndex: 'status' },
             { title: '类型', dataIndex: 'type' },
             { title: '描述', dataIndex: 'description' },
             { title: '费用', dataIndex: 'cost' },
@@ -145,6 +190,24 @@ export default function AssetDetail() {
             placeholder="领用人ID"
             value={assigneeId}
             onChange={(val) => setAssigneeId(val ?? undefined)}
+          />
+        </Space>
+      </Modal>
+
+      <Modal
+        title={applyType === 'ASSIGNMENT' ? '申请领用' : '申请维修'}
+        open={applyModalVisible}
+        onOk={handleApply}
+        onCancel={() => setApplyModalVisible(false)}
+        confirmLoading={false}
+      >
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <span>申请原因：</span>
+          <TextArea
+            rows={4}
+            placeholder="请输入申请原因"
+            value={applyReason}
+            onChange={(e) => setApplyReason(e.target.value)}
           />
         </Space>
       </Modal>

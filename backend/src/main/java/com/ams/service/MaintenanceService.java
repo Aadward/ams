@@ -5,8 +5,10 @@ import com.ams.dto.MaintenanceRecordResponse;
 import com.ams.entity.Asset;
 import com.ams.entity.AssetLog;
 import com.ams.entity.MaintenanceRecord;
+import com.ams.entity.ApprovalRequest;
 import com.ams.enums.AssetAction;
 import com.ams.enums.AssetStatus;
+import com.ams.enums.MaintenanceStatus;
 import com.ams.enums.MaintenanceType;
 import com.ams.enums.NotificationType;
 import com.ams.repository.AssetLogRepository;
@@ -15,12 +17,14 @@ import com.ams.repository.MaintenanceRecordRepository;
 import com.ams.repository.EmployeeRepository;
 import com.ams.enums.ApprovalType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MaintenanceService {
@@ -62,13 +66,17 @@ public class MaintenanceService {
         saveLog(asset, AssetAction.MAINTENANCE, "维修类型: " + request.getType() + ", 描述: " + request.getDescription());
 
         // Create an approval request for the maintenance — do NOT set asset to MAINTENANCE until approved
-        approvalService.createRequest(
+        ApprovalRequest approval = approvalService.createRequest(
                 request.getRequestorId(),
                 asset.getId(),
                 1L,
                 ApprovalType.MAINTENANCE,
                 request.getDescription()
         );
+
+        // Link maintenance record to the approval request
+        record.setApprovalId(approval.getId());
+        maintenanceRecordRepository.save(record);
 
         return toResponse(record);
     }
@@ -106,6 +114,9 @@ public class MaintenanceService {
             asset.setStatus(AssetStatus.IN_STOCK);
             assetRepository.save(asset);
 
+            record.setStatus(MaintenanceStatus.COMPLETED);
+            maintenanceRecordRepository.save(record);
+
             saveLog(asset, AssetAction.UPDATE, "维修完成，资产恢复可用");
 
             // Notify the requestor when repair is complete
@@ -127,6 +138,8 @@ public class MaintenanceService {
                 .id(record.getId())
                 .assetId(record.getAsset().getId())
                 .requestorId(record.getRequestorId())
+                .approvalId(record.getApprovalId())
+                .status(record.getStatus().name())
                 .type(record.getType().name())
                 .description(record.getDescription())
                 .cost(record.getCost())

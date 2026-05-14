@@ -5,10 +5,16 @@ import com.ams.entity.ApprovalRequest;
 import com.ams.enums.ApprovalStatus;
 import com.ams.enums.ApprovalType;
 import com.ams.enums.NotificationType;
+import com.ams.enums.AssetStatus;
+import com.ams.enums.MaintenanceStatus;
+import com.ams.enums.MaintenanceType;
 import com.ams.repository.ApprovalRequestRepository;
 import com.ams.repository.AssetRepository;
 import com.ams.repository.DepartmentRepository;
 import com.ams.repository.EmployeeRepository;
+import com.ams.repository.MaintenanceRecordRepository;
+import com.ams.entity.Asset;
+import com.ams.entity.MaintenanceRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +34,7 @@ public class ApprovalService {
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final NotificationService notificationService;
+    private final MaintenanceRecordRepository maintenanceRecordRepository;
 
     private ApprovalRequestDTO toDTO(ApprovalRequest r) {
         String assetName = assetRepository.findById(r.getAssetId())
@@ -71,7 +78,38 @@ public class ApprovalService {
                 .reason(reason)
                 .build();
 
-        return approvalRequestRepository.save(request);
+        ApprovalRequest saved = approvalRequestRepository.save(request);
+
+        // Notify all MANAGER and ADMIN roles about the new approval request
+        String assetName = assetRepository.findById(assetId).map(a -> a.getName()).orElse("未知");
+        String requesterName = employeeRepository.findById(requesterId).map(e -> e.getName()).orElse("未知");
+        String typeLabel = switch (type) {
+            case ASSET_ASSIGNMENT -> "领用";
+            case ASSET_RETURN -> "归还";
+            case MAINTENANCE -> "维修";
+        };
+
+        String title = "新的" + typeLabel + "申请";
+        String message = requesterName + " 申请「" + assetName + "」" + typeLabel + "，请尽快审批";
+
+        employeeRepository.findByRole(com.ams.enums.UserRole.MANAGER).forEach(manager -> {
+            notificationService.createNotification(manager.getId(), title, message, NotificationType.APPROVAL_REQUIRED);
+        });
+        employeeRepository.findByRole(com.ams.enums.UserRole.ADMIN).forEach(admin -> {
+            notificationService.createNotification(admin.getId(), title, message, NotificationType.APPROVAL_REQUIRED);
+        });
+
+        // For MAINTENANCE type, notify the requester that their repair request was submitted
+        if (type == ApprovalType.MAINTENANCE) {
+            notificationService.createNotification(
+                    requesterId,
+                    "维修申请已提交",
+                    "您对资产「" + assetName + "」的维修申请已提交，等待审批",
+                    NotificationType.REPAIR_SUBMITTED
+            );
+        }
+
+        return saved;
     }
 
     @Transactional(readOnly = true)
@@ -104,6 +142,19 @@ public class ApprovalService {
         request.setResolvedAt(LocalDateTime.now());
         ApprovalRequest saved = approvalRequestRepository.save(request);
 
+        // Sync maintenance record if this is a MAINTENANCE approval
+        if (saved.getType() == ApprovalType.MAINTENANCE) {
+            List<MaintenanceRecord> records = maintenanceRecordRepository.findByApprovalId(saved.getId());
+            for (MaintenanceRecord record : records) {
+                record.setStatus(MaintenanceStatus.APPROVED);
+                Asset asset = record.getAsset();
+                asset.setStatus(AssetStatus.MAINTENANCE);
+                assetRepository.save(asset);
+                maintenanceRecordRepository.save(record);
+                log.info("Synced maintenance record {} to APPROVED, asset {} set to MAINTENANCE", record.getId(), asset.getId());
+            }
+        }
+
         // Notify the requester
         notificationService.createNotification(
                 saved.getRequesterId(),
@@ -130,6 +181,16 @@ public class ApprovalService {
         request.setManagerComment(managerComment);
         request.setResolvedAt(LocalDateTime.now());
         ApprovalRequest saved = approvalRequestRepository.save(request);
+
+        // Sync maintenance record if this is a MAINTENANCE rejection
+        if (saved.getType() == ApprovalType.MAINTENANCE) {
+            List<MaintenanceRecord> records = maintenanceRecordRepository.findByApprovalId(saved.getId());
+            for (MaintenanceRecord record : records) {
+                record.setStatus(MaintenanceStatus.REJECTED);
+                maintenanceRecordRepository.save(record);
+                log.info("Synced maintenance record {} to REJECTED", record.getId());
+            }
+        }
 
         // Notify the requester
         notificationService.createNotification(

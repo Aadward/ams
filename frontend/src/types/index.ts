@@ -72,3 +72,24 @@ export interface PageResult<T> {
   number: number;
   size: number;
 }
+
+// Consumable types
+export type ConsumableCategory = 'OFFICE_SUPPLIES' | 'ELECTRONIC_PARTS' | 'PRODUCTION_CONSUMABLES';
+export type ConsumableRecordType = 'IN' | 'OUT';
+
+export const consumableCategoryLabels: Record<string, string> = {
+  OFFICE_SUPPLIES: '办公用品',
+  ELECTRONIC_PARTS: '电子配件',
+  PRODUCTION_CONSUMABLES: '生产耗材',
+};
+
+export const consumableRecordTypeLabels: Record<string, string> = {
+  IN: '入库',
+  OUT: '出库',
+};
+
+export const consumableCategoryColors: Record<string, string> = {
+  OFFICE_SUPPLIES: 'blue',
+  ELECTRONIC_PARTS: 'green',
+  PRODUCTION_CONSUMABLES: 'orange',
+};

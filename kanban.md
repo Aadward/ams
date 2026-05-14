@@ -30,13 +30,22 @@
 
 ## completed
 
+## done（已验收）
+
 - [x] Bug: React Router Hash 路由导航失效 (BrowserRouter → HashRouter + nginx try_files 移除，Docker 镜像已重建并验证)
+  - QA验证：6项测试全部通过（Hash路由、跨模块导航、后端health、nginx配置）
   - 修复：frontend/src/main.tsx BrowserRouter → HashRouter，nginx.conf 移除 try_files，index.html 添加 build comment
   - 验证：npm run build ✓，docker compose build frontend ✓，docker compose up -d ✓，curl localhost:80 → 200，backend health → 200
 
-## todo
+## completed
 
 - [ ] 低值易耗品管理：易耗品分类/入库/出库/实时库存/库存预警/消耗报表（prds/2026-05-14-低值易耗品管理.md）
+  - 后端：Consumable/ConsumableStock/ConsumableRecord 实体 + Repository + Service + Controller
+  - 前端：ConsumableList/ConsumableForm/ConsumableStockIn/ConsumableStockOut/ConsumableReport 页面
+  - API 验证：创建/入库/出库/查询均正常
+
+## todo
+
 - [ ] 维保到期提醒：仪表盘展示"30天内即将过保的资产"卡片，支持筛选；后台定时任务扫描 warrantyEnd 字段，提前 N 天触发通知
 - [ ] 定期盘点：盘点计划（按部门/按资产分类），生成盘点任务；支持移动端扫码确认盘点结果；盘点差异报告
 - [ ] 折旧计算：支持直线法折旧，自动计算资产当前净值；折旧台账页面展示每项资产的折旧明细（购置日期、原值、折旧年限、已提折旧、账面净值）；折旧汇总报表，按资产分类或部门汇总；对接报废流程——折旧完的资产提示可申请报废

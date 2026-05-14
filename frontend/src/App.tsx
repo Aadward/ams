@@ -13,6 +13,11 @@ import ApprovalList from './pages/ApprovalList';
 import BackupList from './pages/BackupList';
 import MaintenanceList from './pages/MaintenanceList';
 import ReportList from './pages/ReportList';
+import ConsumableList from './pages/ConsumableList';
+import ConsumableForm from './pages/ConsumableForm';
+import ConsumableStockIn from './pages/ConsumableStockIn';
+import ConsumableStockOut from './pages/ConsumableStockOut';
+import ConsumableReport from './pages/ConsumableReport';
 import AppMenu from './components/AppMenu';
 import NotificationBell from './components/NotificationBell';
 
@@ -49,6 +54,12 @@ export default function App() {
             <Route path="/maintenance" element={<MaintenanceList />} />
             <Route path="/backup" element={<BackupList />} />
             <Route path="/reports" element={<ReportList />} />
+            <Route path="/consumables" element={<ConsumableList />} />
+            <Route path="/consumables/new" element={<ConsumableForm />} />
+            <Route path="/consumables/:id/edit" element={<ConsumableForm />} />
+            <Route path="/consumables/stock-in" element={<ConsumableStockIn />} />
+            <Route path="/consumables/stock-out" element={<ConsumableStockOut />} />
+            <Route path="/consumables/report" element={<ConsumableReport />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Content>

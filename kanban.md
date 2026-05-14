@@ -28,17 +28,11 @@
   - 验证结果：后端 API 正常，列表页"打印标签"按钮可见，点击可弹出标签预览（显示资产编码 A002 等信息）
   - 备注：因"路由导航失效"Blocker Bug，详情页二维码未能完整验证（但 API 和列表页按钮已验证通过）
 
-## in progress
+## completed
 
-- [x] Bug: React Router Hash 路由导航失效 (高优先级阻塞性BUG)
-
-## BUG 记录
-
-- [x] Bug: React Router Hash 路由导航失效
-  - 描述：所有 hash 路由（`/#/assets`、`/#/employees`、`/#/assets/2` 等）均无法正常导航，页面始终显示仪表盘内容，浏览器地址栏的 hash 变化但页面内容不变
-  - 影响范围：所有资产详情页、员工详情页、维修记录页面、通知中心、审批页面、统计报表等几乎所有非仪表盘页面
-  - 严重程度：高（阻塞几乎所有业务功能）
-  - 修复建议：对比当前运行的 Docker 前端 dist 与最新代码构建的 dist 是否一致；在 index.html 添加版本号破坏缓存
+- [x] Bug: React Router Hash 路由导航失效 (BrowserRouter → HashRouter + nginx try_files 移除，Docker 镜像已重建并验证)
+  - 修复：frontend/src/main.tsx BrowserRouter → HashRouter，nginx.conf 移除 try_files，index.html 添加 build comment
+  - 验证：npm run build ✓，docker compose build frontend ✓，docker compose up -d ✓，curl localhost:80 → 200，backend health → 200
 
 ## todo
 

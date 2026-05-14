@@ -1,4 +1,4 @@
-import { Form, Input, Button, Card, Space, message } from 'antd';
+import { Form, Input, Button, Card, Space, message, Select } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useEmployee, useCreateEmployee, useUpdateEmployee } from '../api/employee';
@@ -14,7 +14,7 @@ export default function EmployeeForm() {
   const { data: employee, isLoading } = useEmployee(numericId);
   useDepartmentList();
   const createMutation = useCreateEmployee();
-  const updateMutation = useUpdateEmployee(numericId);
+  const updateMutation = useUpdateEmployee();
 
   useEffect(() => {
     if (isEdit && employee) {
@@ -24,6 +24,7 @@ export default function EmployeeForm() {
         deptName: employee.deptName,
         email: employee.email,
         phone: employee.phone,
+        role: employee.role,
       });
     }
   }, [isEdit, employee, form]);
@@ -65,6 +66,13 @@ export default function EmployeeForm() {
         </Form.Item>
         <Form.Item label="电话" name="phone">
           <Input />
+        </Form.Item>
+        <Form.Item label="角色" name="role" initialValue="USER">
+          <Select>
+            <Select.Option value="ADMIN">管理员</Select.Option>
+            <Select.Option value="MANAGER">经理</Select.Option>
+            <Select.Option value="USER">普通用户</Select.Option>
+          </Select>
         </Form.Item>
         <Form.Item>
           <Space>

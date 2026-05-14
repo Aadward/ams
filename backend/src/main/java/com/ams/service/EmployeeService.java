@@ -101,6 +101,16 @@ public class EmployeeService {
         saveLog(null, AssetAction.UNASSIGN, "删除员工: " + employee.getName());
     }
 
+    @Transactional
+    public EmployeeResponse updateRole(Long id, UserRole newRole) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("员工不存在"));
+        employee.setRole(newRole);
+        employee = employeeRepository.save(employee);
+        saveLog(null, AssetAction.UPDATE, "更新员工角色: " + employee.getName());
+        return EmployeeResponse.fromEntity(employee);
+    }
+
     private void saveLog(com.ams.entity.Asset asset, AssetAction action, String detail) {
         AssetLog log = AssetLog.builder()
                 .asset(asset)

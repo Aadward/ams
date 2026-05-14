@@ -2,17 +2,22 @@ package com.ams.controller;
 
 import com.ams.dto.EmployeeRequest;
 import com.ams.dto.EmployeeResponse;
+import com.ams.dto.EmployeeRoleUpdateRequest;
+import com.ams.enums.UserRole;
 import com.ams.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/employees")
 @RequiredArgsConstructor
+@Slf4j
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -69,6 +74,23 @@ public class EmployeeController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{id}/role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateEmployeeRole(@PathVariable Long id, @RequestBody EmployeeRoleUpdateRequest request) {
+        try {
+            UserRole newRole = UserRole.valueOf(request.getNewRole().toUpperCase());
+            return ResponseEntity.ok(employeeService.updateRole(id, newRole));
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid role value: {}", request.getNewRole());
+            return ResponseEntity.badRequest().body("无效的角色: " + request.getNewRole());
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("Error updating employee role", e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

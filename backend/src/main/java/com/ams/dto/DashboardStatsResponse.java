@@ -1,6 +1,7 @@
 package com.ams.dto;
 
 import lombok.*;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -13,5 +14,6 @@ public class DashboardStatsResponse {
     private long inUse;
     private long inMaintenance;
     private long retired;
-    private Map<String, Long> categoryStats;
+    private Map<String, Long> categoryBreakdown;
+    private List<AssetLogResponse> recentActivity;
 }

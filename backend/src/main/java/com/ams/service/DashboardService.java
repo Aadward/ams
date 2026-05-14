@@ -32,10 +32,17 @@ public class DashboardService {
         long inMaintenance = countByStatusAndDeletedFalse(AssetStatus.MAINTENANCE);
         long retired = countByStatusAndDeletedFalse(AssetStatus.RETIRED);
 
-        Map<String, Long> categoryStats = new HashMap<>();
+        Map<String, Long> categoryBreakdown = new HashMap<>();
         for (AssetCategory category : AssetCategory.values()) {
-            categoryStats.put(category.name(), countByCategoryAndDeletedFalse(category));
+            categoryBreakdown.put(category.name(), countByCategoryAndDeletedFalse(category));
         }
+
+        List<AssetLogResponse> recentActivity = assetLogRepository
+                .findTop20ByOrderByCreatedAtDesc()
+                .stream()
+                .limit(10)
+                .map(this::toResponse)
+                .collect(Collectors.toList());
 
         return DashboardStatsResponse.builder()
                 .totalAssets(totalAssets)
@@ -43,7 +50,8 @@ public class DashboardService {
                 .inUse(inUse)
                 .inMaintenance(inMaintenance)
                 .retired(retired)
-                .categoryStats(categoryStats)
+                .categoryBreakdown(categoryBreakdown)
+                .recentActivity(recentActivity)
                 .build();
     }
 

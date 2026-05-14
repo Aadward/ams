@@ -32,10 +32,17 @@ public class DashboardController {
             long inMaintenance = assetRepository.countByStatus(AssetStatus.MAINTENANCE);
             long retired = assetRepository.countByStatus(AssetStatus.RETIRED);
 
-            Map<String, Long> categoryStats = new HashMap<>();
+            Map<String, Long> categoryBreakdown = new HashMap<>();
             for (AssetCategory category : AssetCategory.values()) {
-                categoryStats.put(category.name(), assetRepository.countByCategory(category));
+                categoryBreakdown.put(category.name(), assetRepository.countByCategory(category));
             }
+
+            // Fetch recent activity from logs
+            List<AssetLog> logs = assetLogRepository.findTop20ByOrderByCreatedAtDesc();
+            List<AssetLogResponse> recentActivity = logs.stream()
+                    .limit(10)
+                    .map(this::toResponse)
+                    .collect(Collectors.toList());
 
             DashboardStatsResponse response = DashboardStatsResponse.builder()
                     .totalAssets(totalAssets)
@@ -43,7 +50,8 @@ public class DashboardController {
                     .inUse(inUse)
                     .inMaintenance(inMaintenance)
                     .retired(retired)
-                    .categoryStats(categoryStats)
+                    .categoryBreakdown(categoryBreakdown)
+                    .recentActivity(recentActivity)
                     .build();
 
             return ResponseEntity.ok(response);

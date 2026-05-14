@@ -1,10 +1,20 @@
-import { Table, Button, Space } from 'antd';
+import { Table, Button, Space, Select, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { useEmployeeList } from '../api/employee';
+import { useEmployeeList, useUpdateEmployeeRole } from '../api/employee';
 
 export default function EmployeeList() {
   const navigate = useNavigate();
-  const { data, isLoading } = useEmployeeList();
+  const { data, isLoading, refetch } = useEmployeeList();
+  const updateRoleMutation = useUpdateEmployeeRole();
+
+  const handleRoleChange = async (employeeId: number, newRole: string) => {
+    try {
+      await updateRoleMutation.mutateAsync({ id: employeeId, role: newRole });
+      message.success('角色更新成功');
+    } catch {
+      message.error('角色更新失败');
+    }
+  };
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -25,6 +35,24 @@ export default function EmployeeList() {
           { title: '部门', dataIndex: 'deptName' },
           { title: '邮箱', dataIndex: 'email' },
           { title: '电话', dataIndex: 'phone' },
+          {
+            title: '角色',
+            dataIndex: 'role',
+            render: (role: string, record: { id: number }) => (
+              <Select
+                value={role}
+                size="small"
+                style={{ width: 100 }}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(val) => handleRoleChange(record.id, val)}
+                options={[
+                  { value: 'ADMIN', label: '管理员' },
+                  { value: 'MANAGER', label: '经理' },
+                  { value: 'USER', label: '普通用户' },
+                ]}
+              />
+            ),
+          },
           {
             title: '操作',
             render: (_: unknown, record: { id: number }) => (

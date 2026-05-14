@@ -34,12 +34,22 @@ export function useCreateEmployee() {
   });
 }
 
-export function useUpdateEmployee(id: number) {
+export function useUpdateEmployee() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Record<string, unknown>) => {
-      const { data } = await http.put<Employee>(`/employees/${id}`, payload);
+      const { data } = await http.put<Employee>(`/employees/${payload.id}`, payload);
       return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['employees'] }),
+  });
+}
+
+export function useUpdateEmployeeRole() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, role }: { id: number; role: string }) => {
+      await http.patch(`/employees/${id}/role`, { newRole: role });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['employees'] }),
   });

@@ -24,6 +24,7 @@ export interface Employee {
   deptName?: string;
   email?: string;
   phone?: string;
+  role?: 'ADMIN' | 'MANAGER' | 'USER';
   createdAt: string;
   updatedAt: string;
 }

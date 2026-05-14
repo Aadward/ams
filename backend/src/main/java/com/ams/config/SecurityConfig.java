@@ -65,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/employees/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/employees/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers(HttpMethod.PUT, "/api/employees/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/employees/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers(HttpMethod.DELETE, "/api/employees/**").hasRole("ADMIN")
 
                         // Assets - ADMIN, MANAGER write; authenticated read
@@ -81,6 +82,15 @@ public class SecurityConfig {
 
                         // Excel import/export - ADMIN, MANAGER
                         .requestMatchers("/api/excel/**").hasAnyRole("ADMIN", "MANAGER")
+
+                        // Approvals - ADMIN, MANAGER for pending/approve/reject; authenticated for create/my
+                        .requestMatchers("/api/approvals/pending").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/api/approvals/*/approve").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/api/approvals/*/reject").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/api/approvals/**").authenticated()
+
+                        // Notifications - authenticated users
+                        .requestMatchers("/api/notifications/**").authenticated()
 
                         // Actuator health - public
                         .requestMatchers("/actuator/**").permitAll()

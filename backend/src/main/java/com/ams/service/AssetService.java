@@ -13,6 +13,7 @@ import com.ams.repository.AssetLogRepository;
 import com.ams.repository.AssetRepository;
 import com.ams.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AssetService {
@@ -168,7 +170,9 @@ public class AssetService {
                 assetRepository.save(asset);
                 saveLog(asset, AssetAction.ASSIGN, "批量领用,领用人: " + employee.getName());
                 count++;
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                log.warn("批量操作失败 assetId={}: {}", assetId, e.getMessage());
+            }
         }
         return count;
     }
@@ -186,7 +190,9 @@ public class AssetService {
                 assetRepository.save(asset);
                 saveLog(asset, AssetAction.UNASSIGN, "批量归还,原领用人: " + assigneeName);
                 count++;
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                log.warn("批量操作失败 assetId={}: {}", assetId, e.getMessage());
+            }
         }
         return count;
     }
@@ -203,7 +209,9 @@ public class AssetService {
                 assetRepository.save(asset);
                 saveLog(asset, AssetAction.RETIRE, "批量报废");
                 count++;
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                log.warn("批量操作失败 assetId={}: {}", assetId, e.getMessage());
+            }
         }
         return count;
     }
@@ -219,7 +227,9 @@ public class AssetService {
                 assetRepository.save(asset);
                 saveLog(asset, AssetAction.UPDATE, "批量更新位置: " + location);
                 count++;
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                log.warn("批量操作失败 assetId={}: {}", assetId, e.getMessage());
+            }
         }
         return count;
     }

@@ -4,6 +4,7 @@ import com.ams.dto.AssetCreateRequest;
 import com.ams.dto.AssetResponse;
 import com.ams.dto.AssetUpdateRequest;
 import com.ams.dto.DepreciationResponse;
+import com.ams.dto.DepreciationSummaryResponse;
 import com.ams.entity.Asset;
 import com.ams.entity.AssetLog;
 import com.ams.entity.Employee;
@@ -22,9 +23,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -311,6 +314,70 @@ public class AssetService {
                 .map(this::computeDepreciation)
                 .collect(Collectors.toList());
     }
+
+    public List<DepreciationSummaryResponse> getSummaryByCategory() {
+        List<DepreciationResponse> all = getAllAssetDepreciations();
+        Map<String, List<DepreciationResponse>> byCategory = all.stream()
+                .collect(Collectors.groupingBy(DepreciationResponse::getCategory));
+
+        return byCategory.entrySet().stream()
+                .map(e -> buildSummary(e.getKey(), e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    public List<DepreciationSummaryResponse> getSummaryByDepartment() {
+        // department is determined by assignee's department via asset.assignee.deptName
+        List<Asset> assets = assetRepository.findByDeletedFalse().stream()
+                .filter(a -> a.getPurchasePrice() != null && a.getDepreciationYears() != null && a.getDepreciationYears() > 0)
+                .collect(Collectors.toList());
+
+        // Group by assignee's deptName (null means "未分配")
+        Map<String, List<Asset>> byDept = assets.stream()
+                .collect(Collectors.groupingBy(a -> {
+                    if (a.getAssignee() != null && a.getAssignee().getDeptName() != null) {
+                        return a.getAssignee().getDeptName();
+                    }
+                    return "未分配";
+                }));
+
+        return byDept.entrySet().stream()
+                .map(e -> {
+                    List<DepreciationResponse> depts = e.getValue().stream()
+                            .map(this::computeDepreciation)
+                            .collect(Collectors.toList());
+                    return buildSummary(e.getKey(), e.getKey(), depts);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private DepreciationSummaryResponse buildSummary(String groupKey, String groupLabel, List<DepreciationResponse> items) {
+        long count = items.size();
+        BigDecimal totalOriginal = items.stream()
+                .map(DepreciationResponse::getOriginalValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalAccumulated = items.stream()
+                .map(DepreciationResponse::getAccumulatedDepreciation)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalNetValue = items.stream()
+                .map(DepreciationResponse::getCurrentNetValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal rate = BigDecimal.ZERO;
+        if (totalOriginal.compareTo(BigDecimal.ZERO) > 0) {
+            rate = totalAccumulated.divide(totalOriginal, 4, RoundingMode.HALF_UP);
+        }
+
+        return DepreciationSummaryResponse.builder()
+                .groupKey(groupKey)
+                .groupLabel(groupLabel)
+                .assetCount(count)
+                .totalOriginalValue(totalOriginal)
+                .totalAccumulatedDepreciation(totalAccumulated)
+                .totalNetValue(totalNetValue)
+                .depreciationRate(rate)
+                .build();
+    }
+
 
     private DepreciationResponse computeDepreciation(Asset asset) {
         BigDecimal originalValue = asset.getPurchasePrice();

@@ -1,6 +1,7 @@
 package com.ams.enums;
 
 public enum NotificationType {
+    ASSET_EXPIRING_WARRANTY,
     ASSET_ASSIGNED,
     ASSET_RETURNED,
     MAINTENANCE_DUE,

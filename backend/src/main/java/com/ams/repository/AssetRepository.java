@@ -41,4 +41,6 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
     long countByCategory(AssetCategory category);
 
     List<Asset> findByDeletedFalse();
+
+    List<Asset> findByDeletedFalseAndWarrantyEndBetween(java.time.LocalDate start, java.time.LocalDate end);
 }

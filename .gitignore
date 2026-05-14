@@ -26,6 +26,9 @@ logs/
 *.local
 
 # docker
-.docker/
 docker/backend/
 docker/frontend/
+
+# lock files (for concurrent access control)
+*.lock
+scripts/*.lock

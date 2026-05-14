@@ -48,11 +48,9 @@ export default function ApprovalList() {
 
   const typeBadge = (type: string) => {
     const map: Record<string, string> = {
-      PROCUREMENT: '采购',
-      ASSIGNMENT: '领用',
-      RETURN: '归还',
+      ASSET_ASSIGNMENT: '领用',
+      ASSET_RETURN: '归还',
       MAINTENANCE: '维修',
-      RETIREMENT: '报废',
     };
     return <Tag>{map[type] || type}</Tag>;
   };

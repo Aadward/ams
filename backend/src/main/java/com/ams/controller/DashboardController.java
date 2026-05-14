@@ -2,11 +2,14 @@ package com.ams.controller;
 
 import com.ams.dto.AssetLogResponse;
 import com.ams.dto.DashboardStatsResponse;
+import com.ams.dto.ExpiringWarrantyResponse;
+import com.ams.entity.Asset;
 import com.ams.entity.AssetLog;
 import com.ams.enums.AssetCategory;
 import com.ams.enums.AssetStatus;
 import com.ams.repository.AssetLogRepository;
 import com.ams.repository.AssetRepository;
+import com.ams.service.WarrantyNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +25,7 @@ public class DashboardController {
 
     private final AssetRepository assetRepository;
     private final AssetLogRepository assetLogRepository;
+    private final WarrantyNotificationService warrantyNotificationService;
 
     @GetMapping("/api/dashboard/stats")
     public ResponseEntity<?> getStats() {
@@ -71,6 +75,29 @@ public class DashboardController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/api/dashboard/expiring-warranty")
+    public ResponseEntity<?> getExpiringWarranty(@RequestParam(defaultValue = "30") int days) {
+        try {
+            List<Asset> assets = warrantyNotificationService.getExpiringWarrantyAssets(days);
+            List<ExpiringWarrantyResponse> response = assets.stream()
+                    .map(this::toExpiringWarrantyResponse)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    private ExpiringWarrantyResponse toExpiringWarrantyResponse(Asset asset) {
+        return ExpiringWarrantyResponse.builder()
+                .id(asset.getId())
+                .assetCode(asset.getAssetCode())
+                .name(asset.getName())
+                .category(asset.getCategory().name())
+                .warrantyEnd(asset.getWarrantyEnd())
+                .build();
     }
 
     private AssetLogResponse toResponse(AssetLog log) {

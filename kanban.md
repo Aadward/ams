@@ -35,6 +35,7 @@
   - 验证：npm run build ✓，docker compose build frontend ✓，docker compose up -d ✓，curl localhost:80 → 200，backend health → 200
 
 
+
 ## completed
 
 - [x] 维保到期提醒：完整实现（后端 API + 前端仪表盘卡片 + 通知类型映射）
@@ -45,10 +46,13 @@
   - 修复：InventoryPlanList/InventoryReport/InventoryTaskList 清理未使用导入（解除构建阻塞）
   - 验证：npm run build ✓，mvn compile ✓，docker compose build frontend ✓，git push ✓
 
-- [ ] 定期盘点：盘点计划（按部门/按资产分类），生成盘点任务；支持移动端扫码确认盘点结果；盘点差异报告 [DEV] 2026-05-15T01:17
+- [x] 定期盘点：盘点计划（按部门/按资产分类），生成盘点任务；支持移动端扫码确认盘点结果；盘点差异报告
+  - 后端：InventoryPlan/InventoryTask/InventoryRecord 实体 + Repository + Service + Controller
+  - 前端：InventoryPlanList / InventoryTaskList / InventoryReport 页面，AppMenu 菜单
+  - 验证：mvn compile ✓，npm run build ✓，API 测试通过
 
 ## in_progress
-  - PRD：prds/2026-05-15-定期盘点.md
+
 
 
 ## todo

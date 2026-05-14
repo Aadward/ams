@@ -102,3 +102,46 @@ export interface ExpiringWarranty {
   category: string;
   warrantyEnd: string;
 }
+
+// Borrow types
+export interface BorrowRecord {
+  id: number;
+  assetId: number;
+  assetCode: string;
+  assetName: string;
+  borrowerId: number;
+  borrowerName: string;
+  departmentId: number;
+  departmentName: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'BORROWED' | 'RETURNED' | 'CANCELLED';
+  type: 'BORROW' | 'RETURN';
+  expectedReturnDate?: string;
+  actualReturnDate?: string;
+  reason?: string;
+  managerComment?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const borrowStatusLabels: Record<string, string> = {
+  PENDING: '待审批',
+  APPROVED: '已批准',
+  REJECTED: '已拒绝',
+  BORROWED: '已借出',
+  RETURNED: '已归还',
+  CANCELLED: '已取消',
+};
+
+export const borrowStatusColors: Record<string, string> = {
+  PENDING: 'processing',
+  APPROVED: 'success',
+  REJECTED: 'error',
+  BORROWED: 'warning',
+  RETURNED: 'green',
+  CANCELLED: 'default',
+};
+
+export const borrowTypeLabels: Record<string, string> = {
+  BORROW: '借出',
+  RETURN: '归还',
+};

@@ -10,16 +10,19 @@ import com.ams.enums.MaintenanceStatus;
 import com.ams.enums.MaintenanceType;
 import com.ams.repository.ApprovalRequestRepository;
 import com.ams.repository.AssetRepository;
+import com.ams.repository.BorrowRecordRepository;
 import com.ams.repository.DepartmentRepository;
 import com.ams.repository.EmployeeRepository;
 import com.ams.repository.MaintenanceRecordRepository;
 import com.ams.entity.Asset;
 import com.ams.entity.MaintenanceRecord;
+import com.ams.entity.BorrowRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +38,7 @@ public class ApprovalService {
     private final DepartmentRepository departmentRepository;
     private final NotificationService notificationService;
     private final MaintenanceRecordRepository maintenanceRecordRepository;
+    private final BorrowRecordRepository borrowRecordRepository;
 
     private ApprovalRequestDTO toDTO(ApprovalRequest r) {
         String assetName = assetRepository.findById(r.getAssetId())
@@ -87,6 +91,7 @@ public class ApprovalService {
             case ASSET_ASSIGNMENT -> "领用";
             case ASSET_RETURN -> "归还";
             case MAINTENANCE -> "维修";
+            case ASSET_BORROW -> "借用";
         };
 
         String title = "新的" + typeLabel + "申请";
@@ -155,12 +160,59 @@ public class ApprovalService {
             }
         }
 
+        // Create borrow record if this is an ASSET_BORROW approval
+        if (saved.getType() == ApprovalType.ASSET_BORROW) {
+            // Parse expected return date from reason (format: "借用天数:X" or "归还日期:YYYY-MM-DD")
+            LocalDate expectedReturnDate = LocalDate.now().plusDays(30); // default 30 days
+            String reason = saved.getReason();
+            if (reason != null && reason.startsWith("归还日期:")) {
+                try {
+                    expectedReturnDate = LocalDate.parse(reason.substring(5));
+                } catch (Exception e) {
+                    log.warn("Failed to parse expected return date from reason: {}", reason);
+                }
+            } else if (reason != null && reason.startsWith("借用天数:")) {
+                try {
+                    int days = Integer.parseInt(reason.substring(5));
+                    expectedReturnDate = LocalDate.now().plusDays(days);
+                } catch (Exception e) {
+                    log.warn("Failed to parse borrow days from reason: {}", reason);
+                }
+            }
+
+            BorrowRecord borrowRecord = BorrowRecord.builder()
+                    .assetId(saved.getAssetId())
+                    .borrowerId(saved.getRequesterId())
+                    .departmentId(saved.getDepartmentId())
+                    .approvalId(saved.getId())
+                    .borrowDate(LocalDate.now())
+                    .expectedReturnDate(expectedReturnDate)
+                    .status(com.ams.enums.BorrowStatus.BORROWED)
+                    .reason(reason)
+                    .build();
+
+            borrowRecordRepository.save(borrowRecord);
+
+            // Update asset status to IN_USE
+            Asset asset = assetRepository.findById(saved.getAssetId()).orElse(null);
+            if (asset != null) {
+                asset.setStatus(AssetStatus.IN_USE);
+                asset.setAssignee(employeeRepository.findById(saved.getRequesterId()).orElse(null));
+                assetRepository.save(asset);
+            }
+
+            log.info("Created borrow record for asset {} borrowed by {}", saved.getAssetId(), saved.getRequesterId());
+        }
+
         // Notify the requester
+        NotificationType notifyType = (saved.getType() == ApprovalType.ASSET_BORROW)
+                ? NotificationType.BORROW_APPROVED
+                : NotificationType.APPROVAL_APPROVED;
         notificationService.createNotification(
                 saved.getRequesterId(),
                 "审批已通过",
                 "您申请的资产「" + assetRepository.findById(saved.getAssetId()).map(a -> a.getName()).orElse("") + "」已审批通过",
-                NotificationType.APPROVAL_APPROVED
+                notifyType
         );
 
         return saved;
@@ -193,11 +245,14 @@ public class ApprovalService {
         }
 
         // Notify the requester
+        NotificationType notifyType = (saved.getType() == ApprovalType.ASSET_BORROW)
+                ? NotificationType.BORROW_REJECTED
+                : NotificationType.APPROVAL_REJECTED;
         notificationService.createNotification(
                 saved.getRequesterId(),
                 "审批已拒绝",
                 "您申请的资产「" + assetRepository.findById(saved.getAssetId()).map(a -> a.getName()).orElse("") + "」已被拒绝",
-                NotificationType.APPROVAL_REJECTED
+                notifyType
         );
 
         return saved;

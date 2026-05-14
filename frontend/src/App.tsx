@@ -22,6 +22,8 @@ import ConsumableReport from './pages/ConsumableReport';
 import InventoryPlanList from './pages/InventoryPlanList';
 import InventoryTaskList from './pages/InventoryTaskList';
 import InventoryReport from './pages/InventoryReport';
+import BorrowList from './pages/BorrowList';
+import BorrowApply from './pages/BorrowApply';
 import AppMenu from './components/AppMenu';
 import NotificationBell from './components/NotificationBell';
 
@@ -55,6 +57,8 @@ export default function App() {
             <Route path="/departments" element={<DepartmentList />} />
             <Route path="/notifications" element={<NotificationList />} />
             <Route path="/approvals" element={<ApprovalList />} />
+            <Route path="/borrows" element={<BorrowList />} />
+            <Route path="/borrows/apply" element={<BorrowApply />} />
             <Route path="/maintenance" element={<MaintenanceList />} />
             <Route path="/backup" element={<BackupList />} />
             <Route path="/reports" element={<ReportList />} />

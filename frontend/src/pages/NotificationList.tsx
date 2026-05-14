@@ -49,16 +49,26 @@ export default function NotificationList() {
   const typeBadge = (type: string) => {
     const colors: Record<string, string> = {
       ASSET_APPROVAL: 'blue',
+      APPROVAL_REQUIRED: 'blue',
+      APPROVAL_APPROVED: 'green',
+      APPROVAL_REJECTED: 'red',
       ASSET_ASSIGNED: 'green',
       ASSET_RETURNED: 'orange',
       MAINTENANCE_DUE: 'red',
+      REPAIR_SUBMITTED: 'orange',
+      REPAIR_COMPLETED: 'green',
       SYSTEM: 'purple',
     };
     const labels: Record<string, string> = {
       ASSET_APPROVAL: '审批',
+      APPROVAL_REQUIRED: '待审批',
+      APPROVAL_APPROVED: '已批准',
+      APPROVAL_REJECTED: '已拒绝',
       ASSET_ASSIGNED: '已领用',
       ASSET_RETURNED: '已归还',
       MAINTENANCE_DUE: '维保',
+      REPAIR_SUBMITTED: '维修提交',
+      REPAIR_COMPLETED: '维修完成',
       SYSTEM: '系统',
     };
     return <Tag color={colors[type] || 'default'}>{labels[type] || type}</Tag>;

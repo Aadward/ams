@@ -98,7 +98,9 @@ export default function NotificationBell({ userId = 1 }: NotificationBellProps) 
 
   const typeLabels: Record<string, string> = {
     ASSET_APPROVAL: '审批',
-    APPROVAL_REQUIRED: '审批',
+    APPROVAL_REQUIRED: '待审批',
+    APPROVAL_APPROVED: '已批准',
+    APPROVAL_REJECTED: '已拒绝',
     ASSET_ASSIGNED: '已领用',
     ASSET_RETURNED: '已归还',
     MAINTENANCE_DUE: '维保',
@@ -110,6 +112,8 @@ export default function NotificationBell({ userId = 1 }: NotificationBellProps) 
   const typeColors: Record<string, string> = {
     ASSET_APPROVAL: 'blue',
     APPROVAL_REQUIRED: 'blue',
+    APPROVAL_APPROVED: 'green',
+    APPROVAL_REJECTED: 'red',
     ASSET_ASSIGNED: 'green',
     ASSET_RETURNED: 'orange',
     MAINTENANCE_DUE: 'red',

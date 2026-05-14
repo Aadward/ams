@@ -1,5 +1,3 @@
-# AMS 看板
-
 ## done（已验收）
 
 - [x] MVP Phase 1: 项目骨架 + Docker Compose
@@ -36,6 +34,7 @@
   - 修复：frontend/src/main.tsx BrowserRouter → HashRouter，nginx.conf 移除 try_files，index.html 添加 build comment
   - 验证：npm run build ✓，docker compose build frontend ✓，docker compose up -d ✓，curl localhost:80 → 200，backend health → 200
 
+
 ## completed
 
 - [x] 维保到期提醒：完整实现（后端 API + 前端仪表盘卡片 + 通知类型映射）
@@ -46,9 +45,11 @@
   - 修复：InventoryPlanList/InventoryReport/InventoryTaskList 清理未使用导入（解除构建阻塞）
   - 验证：npm run build ✓，mvn compile ✓，docker compose build frontend ✓，git push ✓
 
+- [ ] 定期盘点：盘点计划（按部门/按资产分类），生成盘点任务；支持移动端扫码确认盘点结果；盘点差异报告 [DEV] 2026-05-15T01:17
+
 ## in_progress
-- [ ] 定期盘点：盘点计划（按部门/按资产分类），生成盘点任务；支持移动端扫码确认盘点结果；盘点差异报告
   - PRD：prds/2026-05-15-定期盘点.md
+
 
 ## todo
 - [ ] 折旧计算：支持直线法折旧，自动计算资产当前净值；折旧台账页面展示每项资产的折旧明细（购置日期、原值、折旧年限、已提折旧、账面净值）；折旧汇总报表，按资产分类或部门汇总；对接报废流程——折旧完的资产提示可申请报废

@@ -160,7 +160,7 @@ public class ApprovalService {
                 saved.getRequesterId(),
                 "审批已通过",
                 "您申请的资产「" + assetRepository.findById(saved.getAssetId()).map(a -> a.getName()).orElse("") + "」已审批通过",
-                NotificationType.APPROVAL_REQUIRED
+                NotificationType.APPROVAL_APPROVED
         );
 
         return saved;
@@ -197,7 +197,7 @@ public class ApprovalService {
                 saved.getRequesterId(),
                 "审批已拒绝",
                 "您申请的资产「" + assetRepository.findById(saved.getAssetId()).map(a -> a.getName()).orElse("") + "」已被拒绝",
-                NotificationType.APPROVAL_REQUIRED
+                NotificationType.APPROVAL_REJECTED
         );
 
         return saved;

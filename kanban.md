@@ -89,6 +89,9 @@
 
 - [x] 【BUG】保险即将到期仪表盘筛选问题：资产 POL202605150001 到期日 2026-06-15，距今约31天，应出现在30天筛选列表中，但显示「暂无即将到期的维保资产」；可能是日期计算逻辑边界问题或 API 筛选实现有误 [QA] 2026-05-15T18:36 ← 代码修复正确（plusDays(days+1)已确认），但数据库缺少测试数据：POL202605150001不存在，所有资产warranty_end均为NULL，无法验证API筛选功能 [QA] 2026-05-15T18:37
 
+
+
+
 ## completed
 
     - 修复：`WarrantyNotificationService.getExpiringWarrantyAssets()` 使用 `plusDays(days + 1)` 修正边界；mvn clean package ✓；backend Docker 已重启
@@ -108,7 +111,14 @@
 
 
 
+
+
+- [ ] 供应商管理BUG修复：详情页缺少供应商编码/类型/状态/评级字段；新增表单提交按钮点击无响应；EQUIPMENT类型标签显示为易耗品供应商应为设备供应商 [DEV] 2026-05-15T18:43
+
 ## in_progress
+
+
+
 
 
 

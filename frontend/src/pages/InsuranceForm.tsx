@@ -12,12 +12,6 @@ const insuranceTypeOptions = [
   { label: '盗抢险', value: 'THEFT' },
 ];
 
-const statusOptions = [
-  { label: '有效', value: 'ACTIVE' },
-  { label: '已过期', value: 'EXPIRED' },
-  { label: '已取消', value: 'CANCELLED' },
-];
-
 export default function InsuranceForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -82,7 +76,6 @@ export default function InsuranceForm() {
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={{
-            status: 'ACTIVE',
             coverageAmount: 0,
             premium: 0,
           }}
@@ -113,14 +106,13 @@ export default function InsuranceForm() {
               <Form.Item
                 name="insuranceCompany"
                 label="保险公司"
-                rules={[{ required: true, message: '请输入保险公司' }]}
               >
-                <Input placeholder="请输入保险公司" />
+                <Input placeholder="请输入保险公司（可选）" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                name="insuranceType"
+                name="type"
                 label="保险类型"
                 rules={[{ required: true, message: '请选择保险类型' }]}
               >
@@ -149,13 +141,12 @@ export default function InsuranceForm() {
               <Form.Item
                 name="premium"
                 label="保费（元）"
-                rules={[{ required: true, message: '请输入保费' }]}
               >
                 <InputNumber
                   style={{ width: '100%' }}
                   min={0}
                   precision={2}
-                  placeholder="请输入保费"
+                  placeholder="请输入保费（可选）"
                   formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 />
               </Form.Item>
@@ -179,14 +170,6 @@ export default function InsuranceForm() {
                 rules={[{ required: true, message: '请选择到期日期' }]}
               >
                 <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="status" label="状态">
-                <Select options={statusOptions} />
               </Form.Item>
             </Col>
           </Row>

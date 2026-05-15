@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { insuranceApi } from '../api/insurance';
+import type { InsuranceRecord } from '../api/insurance';
 
 const { RangePicker } = DatePicker;
 
@@ -13,11 +14,10 @@ const statusMap: Record<string, { color: string; label: string }> = {
   CANCELLED: { color: 'orange', label: '已取消' },
 };
 
-const claimStatusMap: Record<string, { color: string; label: string }> = {
-  NONE: { color: 'default', label: '无理赔' },
-  PENDING: { color: 'orange', label: '待处理' },
-  APPROVED: { color: 'green', label: '已批准' },
-  REJECTED: { color: 'red', label: '已拒绝' },
+const insuranceTypeMap: Record<string, { color: string; label: string }> = {
+  PROPERTY: { color: 'blue', label: '财产险' },
+  COMPREHENSIVE: { color: 'purple', label: '综合险' },
+  THEFT: { color: 'orange', label: '盗抢险' },
 };
 
 export default function InsuranceList() {
@@ -29,12 +29,13 @@ export default function InsuranceList() {
   const [filters, setFilters] = useState<{
     assetId?: number;
     status?: string;
+    type?: string;
     dateFrom?: string;
     dateTo?: string;
   }>({});
 
   const { data, isLoading } = useQuery({
-    queryKey: ['insurances', page, pageSize, filters],
+    queryKey: ['insurance-policies', page, pageSize, filters],
     queryFn: async () => {
       const params: Record<string, unknown> = {
         page: page - 1,
@@ -52,7 +53,7 @@ export default function InsuranceList() {
     mutationFn: (id: number) => insuranceApi.delete(id),
     onSuccess: () => {
       message.success('删除成功');
-      queryClient.invalidateQueries({ queryKey: ['insurances'] });
+      queryClient.invalidateQueries({ queryKey: ['insurance-policies'] });
     },
     onError: () => {
       message.error('删除失败');
@@ -113,8 +114,11 @@ export default function InsuranceList() {
     },
     {
       title: '保险类型',
-      dataIndex: 'insuranceType',
+      dataIndex: 'type',
       width: 100,
+      render: (type: string) => (
+        <Tag color={insuranceTypeMap[type]?.color}>{insuranceTypeMap[type]?.label || type}</Tag>
+      ),
     },
     {
       title: '状态',
@@ -152,27 +156,16 @@ export default function InsuranceList() {
       },
     },
     {
-      title: '理赔状态',
-      dataIndex: 'claimStatus',
-      width: 100,
-      render: (status: string) => (
-        <Tag color={claimStatusMap[status]?.color}>{claimStatusMap[status]?.label || status}</Tag>
-      ),
-    },
-    {
       title: '操作',
       key: 'action',
-      width: 220,
-      render: (_: unknown, record: { id: number; assetId: number; status: string }) => (
+      width: 200,
+      render: (_: unknown, record: InsuranceRecord) => (
         <Space size="small">
           <Button size="small" onClick={() => navigate(`/insurance/${record.id}`)}>
             详情
           </Button>
           <Button size="small" onClick={() => navigate(`/insurance/${record.id}/edit`)}>
             编辑
-          </Button>
-          <Button size="small" onClick={() => navigate(`/insurance/${record.id}/claim`)}>
-            理赔
           </Button>
           <Popconfirm
             title="确认删除"
@@ -206,6 +199,14 @@ export default function InsuranceList() {
           value={filters.status}
           onChange={(val) => handleFilterChange('status', val)}
           options={Object.entries(statusMap).map(([k, v]) => ({ label: v.label, value: k }))}
+        />
+        <Select
+          placeholder="保险类型"
+          allowClear
+          style={{ width: 120 }}
+          value={filters.type}
+          onChange={(val) => handleFilterChange('type', val)}
+          options={Object.entries(insuranceTypeMap).map(([k, v]) => ({ label: v.label, value: k }))}
         />
         <RangePicker onChange={handleDateChange} />
         <Button

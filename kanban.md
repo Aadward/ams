@@ -110,4 +110,10 @@
 ## todo
 
   - PRD：prds/2026-05-15-资产保险管理.md [PM] 2026-05-15T11:26
-- [ ] 二维码扫码盘点：资产二维码生成、移动端扫码识别、盘点结果实时上报（prds/2026-05-15-二维码扫码盘点.md） [PM] 2026-05-15T12:12
+
+## completed
+
+- [x] 二维码扫码盘点：资产二维码生成、移动端扫码识别、盘点结果实时上报（prds/2026-05-15-二维码扫码盘点.md） [PM] 2026-05-15T12:12
+  - 后端: ScanController (GET /api/scan/{assetCode}, POST assign/return/borrow-return)
+  - 前端: api/scan.ts, ScanPage.tsx (H5, /#/scan/:assetCode)
+  - 验证: mvn compile ✓, npm run build ✓, curl /api/scan/A002 → 200 ✓

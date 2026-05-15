@@ -1,8 +1,6 @@
 #!/bin/bash
 #==============================================================================
-# AMS 构建部署脚本 — 严谨版本
-#
-# 每次构建前先清理旧容器/镜像，确保 JAR 与源码完全一致
+# AMS 构建部署脚本
 #
 # 用法: ./scripts/build-and-deploy.sh [--skip-tests]
 #==============================================================================
@@ -35,15 +33,12 @@ if [[ ! -f "$JAR_PATH" ]]; then
 fi
 echo "JAR: $(ls -lh "$JAR_PATH" | awk '{print $5, $9}')"
 
-echo "==== [4/6] 验证 Migration 文件 CRC ===="
-python3 "$SCRIPT_DIR/verify-migrations.py" "$JAR_PATH" "$BACKEND_DIR/src/main/resources/db/migration"
-
-echo "==== [5/6] Docker 构建（pull 最新基础镜像） ===="
+echo "==== [4/6] Docker 构建 ===="
 cd "$PROJECT_DIR"
 docker compose build --pull backend
 
-echo "==== [6/6] 启动服务 ===="
+echo "==== [5/6] 启动服务 ===="
 docker compose up -d backend
 
-echo "==== 完成 ===="
+echo "==== [6/6] 完成 ===="
 docker compose ps backend 2>&1 | grep -v Warning

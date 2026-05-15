@@ -35,7 +35,7 @@ echo "JAR: $(ls -lh "$JAR_PATH" | awk '{print $5, $9}')"
 
 echo "==== [4/6] Docker 构建 ===="
 cd "$PROJECT_DIR"
-docker compose build --pull backend
+docker compose build --no-cache backend
 
 echo "==== [5/6] 启动服务 ===="
 docker compose up -d backend

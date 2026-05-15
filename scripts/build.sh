@@ -48,8 +48,8 @@ echo ""
 echo "=== Building Docker Images ==="
 cd "$PROJECT_DIR/docker"
 
-# 构建后端镜像（只复制 app.jar，不下载任何依赖）
-docker build -t ams-backend:latest -f Dockerfile.backend .
+# 构建后端镜像（--no-cache 强制重新复制 JAR，避免旧层缓存）
+docker build --no-cache -t ams-backend:latest -f Dockerfile.backend .
 
 # 构建前端镜像（只复制 dist，不重新 npm install）
 docker build -t ams-frontend:latest -f Dockerfile.frontend .

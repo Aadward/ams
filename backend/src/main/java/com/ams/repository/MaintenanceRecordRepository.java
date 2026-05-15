@@ -12,4 +12,6 @@ public interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRe
     List<MaintenanceRecord> findByAssetIdOrderByStartDateDesc(Long assetId);
 
     List<MaintenanceRecord> findByApprovalId(Long approvalId);
+
+    List<MaintenanceRecord> findByVendorContainingIgnoreCase(String vendor);
 }

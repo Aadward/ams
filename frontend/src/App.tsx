@@ -19,6 +19,9 @@ import ConsumableForm from './pages/ConsumableForm';
 import ConsumableStockIn from './pages/ConsumableStockIn';
 import ConsumableStockOut from './pages/ConsumableStockOut';
 import ConsumableReport from './pages/ConsumableReport';
+import SupplierList from './pages/SupplierList';
+import SupplierForm from './pages/SupplierForm';
+import SupplierDetail from './pages/SupplierDetail';
 import InventoryPlanList from './pages/InventoryPlanList';
 import InventoryTaskList from './pages/InventoryTaskList';
 import InventoryReport from './pages/InventoryReport';
@@ -87,6 +90,10 @@ export default function App() {
             <Route path="/insurance/:id" element={<InsuranceDetail />} />
             <Route path="/insurance/:id/edit" element={<InsuranceForm />} />
             <Route path="/insurance/:id/claim" element={<ClaimForm />} />
+            <Route path="/suppliers" element={<SupplierList />} />
+            <Route path="/suppliers/new" element={<SupplierForm />} />
+            <Route path="/suppliers/:id" element={<SupplierDetail />} />
+            <Route path="/suppliers/:id/edit" element={<SupplierForm />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Content>

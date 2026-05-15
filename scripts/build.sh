@@ -29,6 +29,11 @@ echo "=== Copying build artifacts to docker/ ==="
 mkdir -p "$PROJECT_DIR/docker/backend"
 mkdir -p "$PROJECT_DIR/docker/frontend"
 
+# 清理旧的构建产物，确保只用本次构建的结果
+rm -rf "$PROJECT_DIR/docker/backend"/*
+rm -rf "$PROJECT_DIR/docker/frontend/dist"
+rm -f "$PROJECT_DIR/docker/frontend/nginx.conf"
+
 # 后端 JAR
 cp "$PROJECT_DIR/backend/target"/*.jar "$PROJECT_DIR/docker/backend/app.jar"
 echo "Backend JAR: $PROJECT_DIR/docker/backend/app.jar"

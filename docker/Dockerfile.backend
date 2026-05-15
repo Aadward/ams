@@ -1,5 +1,6 @@
 FROM docker.1ms.run/eclipse-temurin:21-jre-alpine
+ARG JAR_SOURCE=backend/app.jar
 WORKDIR /app
 RUN apk add --no-cache curl
-COPY backend/target/ams-backend-1.0.0-SNAPSHOT.jar app.jar
+COPY ${JAR_SOURCE} app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

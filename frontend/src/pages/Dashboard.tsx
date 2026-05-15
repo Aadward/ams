@@ -1,11 +1,13 @@
 import { Row, Col, Card, Statistic, Progress, Tag, Segmented } from 'antd';
 import { useState } from 'react';
-import { useDashboardStats, useExpiringWarranty } from '../api/asset';
+import { useDashboardStats, useExpiringWarranty, useExpiringInsurance } from '../api/asset';
 
 export default function Dashboard() {
   const { data, isLoading } = useDashboardStats();
   const [warrantyDays, setWarrantyDays] = useState<number>(30);
   const { data: expiringAssets } = useExpiringWarranty(warrantyDays);
+  const [insuranceDays, setInsuranceDays] = useState<number>(30);
+  const { data: expiringInsurances } = useExpiringInsurance(insuranceDays);
 
   const categoryLabels: Record<string, string> = {
     HARDWARE: '硬件设备',
@@ -188,6 +190,77 @@ export default function Dashboard() {
             ) : (
               <div style={{ textAlign: 'center', color: '#666', padding: '24px 0' }}>
                 暂无即将到期的维保资产
+              </div>
+            )}
+          </Card>
+        </Col>
+      </Row>
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col span={24}>
+          <Card
+            title={
+              <span>
+                保险即将到期
+                {expiringInsurances && expiringInsurances.length > 0 && (
+                  <Tag color="orange" style={{ marginLeft: 8 }}>{expiringInsurances.length}</Tag>
+                )}
+              </span>
+            }
+            extra={
+              <Segmented
+                value={insuranceDays}
+                onChange={(val) => setInsuranceDays(val as number)}
+                options={[
+                  { label: '7天', value: 7 },
+                  { label: '15天', value: 15 },
+                  { label: '30天', value: 30 },
+                  { label: '60天', value: 60 },
+                ]}
+              />
+            }
+            loading={isLoading}
+          >
+            {expiringInsurances && expiringInsurances.length > 0 ? (
+              <>
+                <div style={{ maxHeight: 240, overflow: 'auto' }}>
+                  {expiringInsurances.slice(0, 5).map((insurance) => {
+                    const daysRemaining = getDaysRemaining(insurance.endDate);
+                    return (
+                      <div
+                        key={insurance.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 0',
+                          borderBottom: '1px solid #f0f0f0',
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontWeight: 500 }}>{insurance.assetName}</div>
+                          <div style={{ fontSize: 12, color: '#666' }}>
+                            {insurance.assetCode} · {insurance.insuranceCompany} · {insurance.policyNumber}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: 12, color: '#666' }}>到期：{insurance.endDate}</div>
+                          <Tag color={getDaysTagColor(daysRemaining)} style={{ marginTop: 2 }}>
+                            剩余{daysRemaining}天
+                          </Tag>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {expiringInsurances.length > 5 && (
+                  <div style={{ marginTop: 8, textAlign: 'center', color: '#666' }}>
+                    还有 {expiringInsurances.length - 5} 条...
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', color: '#666', padding: '24px 0' }}>
+                暂无即将到期的保险
               </div>
             )}
           </Card>

@@ -104,6 +104,18 @@ export interface ExpiringWarranty {
   warrantyEnd: string;
 }
 
+// Insurance notification types
+export interface ExpiringInsurance {
+  id: number;
+  assetId: number;
+  assetName: string;
+  assetCode: string;
+  policyNumber: string;
+  insuranceCompany: string;
+  type: string;
+  endDate: string;
+}
+
 // Borrow types
 export interface BorrowRecord {
   id: number;

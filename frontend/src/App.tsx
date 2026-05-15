@@ -30,6 +30,7 @@ import BorrowApply from './pages/BorrowApply';
 import TransferList from './pages/TransferList';
 import TransferApply from './pages/TransferApply';
 import TransferDetail from './pages/TransferDetail';
+import ScanPage from './pages/ScanPage';
 import InsuranceList from './pages/InsuranceList';
 import InsuranceForm from './pages/InsuranceForm';
 import InsuranceDetail from './pages/InsuranceDetail';
@@ -72,6 +73,7 @@ export default function App() {
             <Route path="/transfers" element={<TransferList />} />
             <Route path="/transfers/apply" element={<TransferApply />} />
             <Route path="/transfers/:id" element={<TransferDetail />} />
+            <Route path="/scan/:assetCode" element={<ScanPage />} />
             <Route path="/maintenance" element={<MaintenanceList />} />
             <Route path="/backup" element={<BackupList />} />
             <Route path="/reports" element={<ReportList />} />

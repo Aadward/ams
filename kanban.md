@@ -82,11 +82,16 @@
 
 
 
+- [x] 后端: ScanController (GET /api/scan/{assetCode}, POST assign/return/borrow-return) [QA] 2026-05-15T18:36
+
+
+
+
+- [x] 【BUG】保险即将到期仪表盘筛选问题：资产 POL202605150001 到期日 2026-06-15，距今约31天，应出现在30天筛选列表中，但显示「暂无即将到期的维保资产」；可能是日期计算逻辑边界问题或 API 筛选实现有误 [QA] 2026-05-15T18:36 ← 代码修复正确（plusDays(days+1)已确认），但数据库缺少测试数据：POL202605150001不存在，所有资产warranty_end均为NULL，无法验证API筛选功能 [QA] 2026-05-15T18:37
+
 ## completed
 
-  - [x] 【BUG】保险即将到期仪表盘筛选问题：资产 POL202605150001 到期日 2026-06-15，距今约31天，应出现在30天筛选列表中，但显示「暂无即将到期的维保资产」；可能是日期计算逻辑边界问题或 API 筛选实现有误 [QA] 2026-05-15T16:41
     - 修复：`WarrantyNotificationService.getExpiringWarrantyAssets()` 使用 `plusDays(days + 1)` 修正边界；mvn clean package ✓；backend Docker 已重启
-  - [x] 后端: ScanController (GET /api/scan/{assetCode}, POST assign/return/borrow-return)
     - 前端: api/scan.ts, ScanPage.tsx (H5, /#/scan/:assetCode)
     - 验证: mvn compile ✓, npm run build ✓, curl /api/scan/A002 → 200 ✓，前端页面资产信息正常显示
 
@@ -98,7 +103,17 @@
 
 
 
+
+
+
+
+
 ## in_progress
+
+
+
+
+
 
 
 

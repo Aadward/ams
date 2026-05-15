@@ -94,11 +94,17 @@
 
 - [ ] 供应商管理BUG修复：详情页缺少供应商编码/类型/状态/评级字段；新增表单提交按钮点击无响应；EQUIPMENT类型标签显示为易耗品供应商应为设备供应商 [QA] 2026-05-15T18:44
 
+- 前端: api/scan.ts, ScanPage.tsx (H5, /#/scan/:assetCode) [QA] 2026-05-15T20:06
+
+- 验证: mvn compile ✓, npm run build ✓, curl /api/scan/A002 → 200 ✓，前端页面资产信息正常显示 [QA] 2026-05-15T20:06
+
+- 修复：`WarrantyNotificationService.getExpiringWarrantyAssets()` 使用 `plusDays(days + 1)` 修正边界；mvn clean package ✓；backend Docker 已重启 [QA] 2026-05-15T20:06
+
 ## completed
 
-    - 修复：`WarrantyNotificationService.getExpiringWarrantyAssets()` 使用 `plusDays(days + 1)` 修正边界；mvn clean package ✓；backend Docker 已重启
-    - 前端: api/scan.ts, ScanPage.tsx (H5, /#/scan/:assetCode)
-    - 验证: mvn compile ✓, npm run build ✓, curl /api/scan/A002 → 200 ✓，前端页面资产信息正常显示
+
+
+
 
 
 
@@ -118,6 +124,9 @@
 
 
 ## in_progress
+
+
+
 
 
 

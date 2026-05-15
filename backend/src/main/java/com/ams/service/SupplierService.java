@@ -31,8 +31,19 @@ public class SupplierService {
     @Transactional
     public Supplier createSupplier(String supplierCode, String name, String type, String contact,
                                    String phone, String email, String address, String remark) {
-        if (supplierRepository.findBySupplierCodeAndDeletedFalse(supplierCode).isPresent()) {
-            throw new RuntimeException("供应商编号已存在");
+        // Auto-generate supplierCode if not provided
+        if (supplierCode == null || supplierCode.isBlank()) {
+            long count = supplierRepository.count() + 1;
+            supplierCode = String.format("SUP%05d", count);
+            // Ensure unique
+            while (supplierRepository.findBySupplierCodeAndDeletedFalse(supplierCode).isPresent()) {
+                count++;
+                supplierCode = String.format("SUP%05d", count);
+            }
+        } else {
+            if (supplierRepository.findBySupplierCodeAndDeletedFalse(supplierCode).isPresent()) {
+                throw new RuntimeException("供应商编号已存在");
+            }
         }
 
         Supplier supplier = Supplier.builder()

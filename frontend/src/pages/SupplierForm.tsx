@@ -1,7 +1,14 @@
 import { useEffect } from 'react';
-import { Form, Input, Button, Card, message } from 'antd';
+import { Form, Input, Button, Card, message, Select } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supplierApi } from '../api/supplier';
+
+const SUPPLIER_TYPE_OPTIONS = [
+  { value: 'EQUIPMENT', label: 'EQUIPMENT/易耗品供应商' },
+  { value: 'CONSUMABLE', label: 'CONSUMABLE/易耗品供应商' },
+  { value: 'MAINTENANCE', label: 'MAINTENANCE/维修服务商' },
+  { value: 'MULTI', label: 'MULTI/多元化供应商' },
+];
 
 export default function SupplierForm() {
   const [form] = Form.useForm();
@@ -14,7 +21,9 @@ export default function SupplierForm() {
       supplierApi.getById(Number(id)).then(res => {
         const data = res.data;
         form.setFieldsValue({
+          supplierCode: data.supplierCode,
           name: data.name,
+          type: data.type,
           contactPerson: data.contactPerson,
           phone: data.phone,
           email: data.email,
@@ -45,6 +54,12 @@ export default function SupplierForm() {
   return (
     <Card title={isEdit ? '编辑供应商' : '新增供应商'}>
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form.Item name="supplierCode" label="供应商编码" rules={[{ required: true, message: '请输入供应商编码' }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="type" label="供应商类型" rules={[{ required: true, message: '请选择供应商类型' }]}>
+          <Select options={SUPPLIER_TYPE_OPTIONS} />
+        </Form.Item>
         <Form.Item name="name" label="供应商名称" rules={[{ required: true, message: '请输入供应商名称' }]}>
           <Input />
         </Form.Item>

@@ -3,7 +3,9 @@ import type { PageResult } from '../types';
 
 export interface Supplier {
   id: number;
+  supplierCode: string;
   name: string;
+  type: string;
   contactPerson?: string;
   phone?: string;
   email?: string;
@@ -14,7 +16,9 @@ export interface Supplier {
 }
 
 interface SupplierFormData {
+  supplierCode: string;
   name: string;
+  type: string;
   contactPerson?: string;
   phone?: string;
   email?: string;

@@ -39,7 +39,7 @@ export default function SupplierDetail() {
         <Descriptions.Item label="电话">{supplier?.phone ?? '-'}</Descriptions.Item>
         <Descriptions.Item label="邮箱">{supplier?.email ?? '-'}</Descriptions.Item>
         <Descriptions.Item label="地址" span={2}>{supplier?.address ?? '-'}</Descriptions.Item>
-        <Descriptions.Item label="评级">{supplier?.rating != null ? '★'.repeat(supplier.rating) : '-'}</Descriptions.Item>
+        <Descriptions.Item label="评级">{supplier?.rating != null && supplier.rating > 0 ? '★'.repeat(Math.floor(supplier.rating)) : supplier?.rating === 0 ? '0星' : '-'}</Descriptions.Item>
         <Descriptions.Item label="备注" span={2}>{supplier?.remark ?? '-'}</Descriptions.Item>
         <Descriptions.Item label="创建时间">{supplier?.createdAt}</Descriptions.Item>
         <Descriptions.Item label="更新时间">{supplier?.updatedAt}</Descriptions.Item>

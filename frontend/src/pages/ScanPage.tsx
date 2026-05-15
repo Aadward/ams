@@ -20,9 +20,9 @@ const categoryLabel: Record<string, string> = {
   SOFTWARE_LICENSE: '软件许可证',
 };
 
-const getCurrentEmployeeId = (): number | null => {
+const getCurrentEmployeeId = (): number => {
   const stored = localStorage.getItem('currentEmployeeId');
-  return stored ? parseInt(stored, 10) : null;
+  return stored ? parseInt(stored, 10) : 1; // default to 1 for scan page
 };
 
 export default function ScanPage() {

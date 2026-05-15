@@ -116,17 +116,21 @@ export default function InsuranceList() {
       title: '保险类型',
       dataIndex: 'type',
       width: 100,
-      render: (type: string) => (
-        <Tag color={insuranceTypeMap[type]?.color}>{insuranceTypeMap[type]?.label || type}</Tag>
-      ),
+      render: (type: string) => {
+        if (!type) return '-';
+        const info = insuranceTypeMap[type];
+        return <Tag color={info?.color}>{info?.label || type}</Tag>;
+      },
     },
     {
       title: '状态',
       dataIndex: 'status',
       width: 90,
-      render: (status: string) => (
-        <Tag color={statusMap[status]?.color}>{statusMap[status]?.label || status}</Tag>
-      ),
+      render: (status: string) => {
+        if (!status) return '-';
+        const info = statusMap[status];
+        return <Tag color={info?.color}>{info?.label || status}</Tag>;
+      },
     },
     {
       title: '保险金额',

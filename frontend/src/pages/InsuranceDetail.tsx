@@ -11,6 +11,12 @@ const statusMap: Record<string, { color: string; label: string }> = {
   CANCELLED: { color: 'orange', label: '已取消' },
 };
 
+const insuranceTypeMap: Record<string, { color: string; label: string }> = {
+  PROPERTY: { color: 'blue', label: '财产险' },
+  COMPREHENSIVE: { color: 'purple', label: '综合险' },
+  THEFT: { color: 'orange', label: '盗抢险' },
+};
+
 const claimStatusMap: Record<string, { color: string; label: string }> = {
   PENDING: { color: 'orange', label: '待处理' },
   SETTLED: { color: 'green', label: '已赔付' },
@@ -151,7 +157,11 @@ export default function InsuranceDetail() {
           <Descriptions.Item label="资产名称">{insurance.assetName}</Descriptions.Item>
           <Descriptions.Item label="保单号">{insurance.policyNumber}</Descriptions.Item>
           <Descriptions.Item label="保险公司">{insurance.insuranceCompany}</Descriptions.Item>
-          <Descriptions.Item label="保险类型">{insurance.type}</Descriptions.Item>
+          <Descriptions.Item label="保险类型">
+            <Tag color={insuranceTypeMap[insurance.type]?.color}>
+              {insuranceTypeMap[insurance.type]?.label || insurance.type}
+            </Tag>
+          </Descriptions.Item>
           <Descriptions.Item label="保险金额">
             {insurance.coverageAmount != null ? `¥${insurance.coverageAmount.toLocaleString()}` : '-'}
           </Descriptions.Item>
@@ -211,7 +221,11 @@ export default function InsuranceDetail() {
                 <Descriptions.Item label="保费">
                   <strong style={{ fontSize: 18 }}>¥{insurance.premium?.toLocaleString() || '0'}</strong>
                 </Descriptions.Item>
-                <Descriptions.Item label="保险类型">{insurance.type}</Descriptions.Item>
+                <Descriptions.Item label="保险类型">
+                  <Tag color={insuranceTypeMap[insurance.type]?.color}>
+                    {insuranceTypeMap[insurance.type]?.label || insurance.type}
+                  </Tag>
+                </Descriptions.Item>
               </Descriptions>
             </Card>
           </Col>

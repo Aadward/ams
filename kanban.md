@@ -58,13 +58,24 @@
   - 前端：DepreciationLedger.tsx（3个Tab：折旧台账/分类汇总/部门汇总）
   - QA验证：3个Tab正常渲染，API 返回正确数据，mvn compile ✓，npm run build ✓
 
+
+
+
 ## completed
 
 
+
+
+
+- [ ] 资产保险管理：保险单增删改查、保险与资产关联、保险到期提醒、索赔记录、仪表盘视图 [DEV] 2026-05-15T11:26
 
 ## in_progress
 
 
 
+
+
+
 ## todo
 
+  - PRD：prds/2026-05-15-资产保险管理.md [PM] 2026-05-15T11:26

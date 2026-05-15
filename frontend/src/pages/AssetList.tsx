@@ -1,4 +1,4 @@
-import { Table, Button, Space, Select, Tag, Modal, Input, message, Dropdown, Upload } from 'antd';
+import { Table, Button, Space, Select, Tag, Modal, Input, message, Dropdown, Upload, Image } from 'antd';
 import { PrinterOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
@@ -131,6 +131,23 @@ export default function AssetList() {
           style: { cursor: 'pointer' },
         })}
         columns={[
+          {
+            title: '照片',
+            dataIndex: 'photoUrl',
+            width: 70,
+            render: (photoUrl: string) => photoUrl ? (
+              <Image
+                src={photoUrl}
+                alt="asset"
+                width={50}
+                height={50}
+                style={{ objectFit: 'cover', borderRadius: 4 }}
+                preview={{ src: photoUrl }}
+              />
+            ) : (
+              <div style={{ width: 50, height: 50, background: '#f0f0f0', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc', fontSize: 20 }}>?</div>
+            ),
+          },
           { title: '资产编码', dataIndex: 'assetCode' },
           { title: '名称', dataIndex: 'name' },
           {

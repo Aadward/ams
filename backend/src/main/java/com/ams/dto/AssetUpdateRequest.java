@@ -18,4 +18,5 @@ public class AssetUpdateRequest {
     private LocalDate warrantyEnd;
     private String supplier;
     private String location;
+    private String photoUrl;
 }

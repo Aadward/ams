@@ -69,6 +69,9 @@ public class Asset {
     @Column(nullable = false)
     private Boolean deleted = false;
 
+    @Column(name = "photo_url", length = 500)
+    private String photoUrl;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

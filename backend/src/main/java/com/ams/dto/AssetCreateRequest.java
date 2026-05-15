@@ -39,4 +39,7 @@ public class AssetCreateRequest {
 
     @Size(max = 255)
     private String location;
+
+    @Size(max = 500)
+    private String photoUrl;
 }

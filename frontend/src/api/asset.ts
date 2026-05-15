@@ -158,3 +158,29 @@ export function useBatchUpdateLocation() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['assets'] }),
   });
 }
+
+export function useUploadAssetPhoto() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, file }: { id: number; file: File }) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const { data } = await http.post<{ photoUrl: string }>(`/assets/${id}/photo`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['assets'] }),
+  });
+}
+
+export function useDeleteAssetPhoto() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const { data } = await http.delete<{ success: boolean }>(`/assets/${id}/photo`);
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['assets'] }),
+  });
+}

@@ -1,7 +1,9 @@
-import { Form, Input, Select, DatePicker, InputNumber, Button, Card, Space, message } from 'antd';
+import { Form, Input, Select, DatePicker, InputNumber, Button, Card, Space, message, Upload, Image } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useAsset, useCreateAsset, useUpdateAsset } from '../api/asset';
+import { useState, useEffect } from 'react';
+import { useAsset, useCreateAsset, useUpdateAsset, useUploadAssetPhoto } from '../api/asset';
+import { UploadOutlined } from '@ant-design/icons';
+import type { RcFile } from 'antd/es/upload';
 
 const { Option } = Select;
 
@@ -11,10 +13,13 @@ export default function AssetForm() {
   const [form] = Form.useForm();
   const isEdit = !!id;
   const numericId = Number(id);
+  const [photoFile, setPhotoFile] = useState<RcFile | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | undefined>(undefined);
 
   const { data: asset, isLoading } = useAsset(numericId);
   const createMutation = useCreateAsset();
   const updateMutation = useUpdateAsset(numericId);
+  const uploadPhotoMutation = useUploadAssetPhoto();
 
   useEffect(() => {
     if (isEdit && asset) {
@@ -29,17 +34,26 @@ export default function AssetForm() {
         warrantyEnd: asset.warrantyEnd,
         supplier: asset.supplier,
       });
+      setPhotoUrl(asset.photoUrl);
     }
   }, [isEdit, asset, form]);
 
   const handleSubmit = async (values: Record<string, unknown>) => {
     try {
+      let createdId: number;
       if (isEdit) {
         await updateMutation.mutateAsync(values);
+        createdId = numericId;
         message.success('更新成功');
       } else {
-        await createMutation.mutateAsync(values);
+        const created = await createMutation.mutateAsync(values);
+        createdId = created.id;
         message.success('创建成功');
+      }
+      // Upload photo if selected
+      if (photoFile) {
+        await uploadPhotoMutation.mutateAsync({ id: createdId, file: photoFile as File });
+        message.success('照片上传成功');
       }
       navigate('/assets');
     } catch {
@@ -86,6 +100,32 @@ export default function AssetForm() {
         </Form.Item>
         <Form.Item label="位置" name="location">
           <Input />
+        </Form.Item>
+        <Form.Item label="照片">
+          {photoUrl && (
+            <div style={{ marginBottom: 8 }}>
+              <Image src={photoUrl} alt="preview" style={{ maxWidth: 200, borderRadius: 4 }} />
+            </div>
+          )}
+          <Upload
+            accept="image/*"
+            showUploadList={false}
+            beforeUpload={(file: RcFile) => {
+              setPhotoFile(file);
+              // Preview local file
+              const reader = new FileReader();
+              reader.onload = (e) => setPhotoUrl(e.target?.result as string);
+              reader.readAsDataURL(file);
+              return false;
+            }}
+          >
+            <Button icon={<UploadOutlined />}>{photoFile ? '更换照片' : '上传照片'}</Button>
+          </Upload>
+          {photoFile && (
+            <div style={{ marginTop: 4, fontSize: 12, color: '#999' }}>
+              已选择: {photoFile.name}
+            </div>
+          )}
         </Form.Item>
         <Form.Item>
           <Space>

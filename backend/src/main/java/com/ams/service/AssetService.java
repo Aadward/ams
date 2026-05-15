@@ -57,6 +57,7 @@ public class AssetService {
                 .warrantyEnd(request.getWarrantyEnd())
                 .supplier(request.getSupplier())
                 .location(request.getLocation())
+                .photoUrl(request.getPhotoUrl())
                 .deleted(false)
                 .build();
         asset = assetRepository.save(asset);
@@ -97,6 +98,9 @@ public class AssetService {
         }
         if (request.getLocation() != null) {
             asset.setLocation(request.getLocation());
+        }
+        if (request.getPhotoUrl() != null) {
+            asset.setPhotoUrl(request.getPhotoUrl());
         }
         asset = assetRepository.save(asset);
 
@@ -297,6 +301,7 @@ public class AssetService {
                 .location(asset.getLocation())
                 .assigneeId(asset.getAssignee() != null ? asset.getAssignee().getId() : null)
                 .assigneeName(asset.getAssignee() != null ? asset.getAssignee().getName() : null)
+                .photoUrl(asset.getPhotoUrl())
                 .createdAt(asset.getCreatedAt())
                 .updatedAt(asset.getUpdatedAt())
                 .build();
@@ -434,6 +439,25 @@ public class AssetService {
                 .yearsUsed(yearsUsed)
                 .fullyDepreciated(fullyDepreciated)
                 .build();
+    }
+
+    @Transactional
+    public AssetResponse updateAssetPhoto(Long id, String photoUrl) {
+        Asset asset = assetRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(() -> new RuntimeException("资产不存在"));
+        asset.setPhotoUrl(photoUrl);
+        asset = assetRepository.save(asset);
+        saveLog(asset, AssetAction.UPDATE, "更新照片");
+        return toResponse(asset);
+    }
+
+    @Transactional
+    public void deleteAssetPhoto(Long id) {
+        Asset asset = assetRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(() -> new RuntimeException("资产不存在"));
+        asset.setPhotoUrl(null);
+        assetRepository.save(asset);
+        saveLog(asset, AssetAction.UPDATE, "删除照片");
     }
 
     private void saveLog(Asset asset, AssetAction action, String detail) {

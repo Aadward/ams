@@ -1,4 +1,4 @@
-import { Descriptions, Card, Button, Space, Tag, Table, Modal, InputNumber, message, Input } from 'antd';
+import { Descriptions, Card, Button, Space, Tag, Table, Modal, InputNumber, message, Input, Upload, Image, Popconfirm } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
@@ -7,6 +7,8 @@ import {
   useAssignAsset,
   useUnassignAsset,
   useRetireAsset,
+  useUploadAssetPhoto,
+  useDeleteAssetPhoto,
 } from '../api/asset';
 import { approvalApi } from '../api/approval';
 import { depreciationApi } from '../api/depreciation';
@@ -75,6 +77,10 @@ export default function AssetDetail() {
 
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
   const [tempCompanyName, setTempCompanyName] = useState(localStorage.getItem('labelCompanyName') || '');
+  const [photoModalVisible, setPhotoModalVisible] = useState(false);
+
+  const uploadPhotoMutation = useUploadAssetPhoto();
+  const deletePhotoMutation = useDeleteAssetPhoto();
 
   const currentEmployeeId = getCurrentEmployeeId();
 
@@ -216,6 +222,21 @@ export default function AssetDetail() {
           <Descriptions.Item label="领用人">{asset?.assigneeName ?? '-'}</Descriptions.Item>
           <Descriptions.Item label="创建时间">{asset?.createdAt}</Descriptions.Item>
         </Descriptions>
+      </Card>
+
+      <Card
+        title="照片"
+        extra={<Button size="small" onClick={() => setPhotoModalVisible(true)}>管理照片</Button>}
+      >
+        {asset?.photoUrl ? (
+          <Image
+            src={asset.photoUrl}
+            alt="asset"
+            style={{ maxWidth: 300, borderRadius: 8 }}
+          />
+        ) : (
+          <div style={{ color: '#999', padding: 40, textAlign: 'center', background: '#fafafa', borderRadius: 8 }}>暂无照片</div>
+        )}
       </Card>
 
       <Card title="折旧信息" loading={depreciationLoading}>
@@ -369,6 +390,61 @@ export default function AssetDetail() {
             value={tempCompanyName}
             onChange={(e) => setTempCompanyName(e.target.value)}
           />
+        </Space>
+      </Modal>
+
+      <Modal
+        title="管理照片"
+        open={photoModalVisible}
+        onCancel={() => setPhotoModalVisible(false)}
+        footer={null}
+      >
+        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+          {asset?.photoUrl && (
+            <div style={{ textAlign: 'center' }}>
+              <Image
+                src={asset.photoUrl}
+                alt="asset"
+                style={{ maxWidth: '100%', borderRadius: 8 }}
+              />
+              <Popconfirm
+                title="确定删除照片？"
+                onConfirm={async () => {
+                  try {
+                    await deletePhotoMutation.mutateAsync(numericId);
+                    message.success('照片已删除');
+                    refetch();
+                    setPhotoModalVisible(false);
+                  } catch {
+                    message.error('删除失败');
+                  }
+                }}
+                okText="确定"
+                cancelText="取消"
+              >
+                <Button danger size="small" style={{ marginTop: 8 }} loading={deletePhotoMutation.isPending}>
+                  删除照片
+                </Button>
+              </Popconfirm>
+            </div>
+          )}
+          <Upload
+            accept="image/*"
+            showUploadList={false}
+            beforeUpload={async (file) => {
+              try {
+                await uploadPhotoMutation.mutateAsync({ id: numericId, file });
+                message.success('照片上传成功');
+                refetch();
+                setPhotoModalVisible(false);
+              } catch {
+                message.error('上传失败');
+              }
+              return false;
+            }}
+          >
+            <Button loading={uploadPhotoMutation.isPending}>上传新照片</Button>
+          </Upload>
         </Space>
       </Modal>
     </Space>

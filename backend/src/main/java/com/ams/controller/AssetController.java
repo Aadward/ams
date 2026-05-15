@@ -159,4 +159,50 @@ public class AssetController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    // Photo endpoints
+    @PostMapping("/{id}/photo")
+    public ResponseEntity<?> updateAssetPhoto(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        try {
+            String photoUrl = body.get("photoUrl");
+            return ResponseEntity.ok(assetService.updateAssetPhoto(id, photoUrl));
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("不存在")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/photo")
+    public ResponseEntity<?> getAssetPhoto(@PathVariable Long id) {
+        try {
+            AssetResponse response = assetService.getAsset(id);
+            return ResponseEntity.ok(Map.of("photoUrl", response.getPhotoUrl() != null ? response.getPhotoUrl() : ""));
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("不存在")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}/photo")
+    public ResponseEntity<?> deleteAssetPhoto(@PathVariable Long id) {
+        try {
+            assetService.deleteAssetPhoto(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("不存在")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

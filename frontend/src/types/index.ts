@@ -13,6 +13,7 @@ export interface Asset {
   location?: string;
   assigneeId?: number;
   assigneeName?: string;
+  photoUrl?: string;
   createdAt: string;
   updatedAt: string;
 }

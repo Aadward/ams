@@ -98,6 +98,7 @@ export default function NotificationBell({ userId = 1 }: NotificationBellProps) 
 
   const typeLabels: Record<string, string> = {
     ASSET_EXPIRING_WARRANTY: '维保到期',
+    ASSET_EXPIRING_INSURANCE: '保险到期提醒',
     APPROVAL_REQUIRED: '待审批',
     APPROVAL_APPROVED: '已批准',
     APPROVAL_REJECTED: '已拒绝',
@@ -118,6 +119,7 @@ export default function NotificationBell({ userId = 1 }: NotificationBellProps) 
 
   const typeColors: Record<string, string> = {
     ASSET_EXPIRING_WARRANTY: 'orange',
+    ASSET_EXPIRING_INSURANCE: 'orange',
     APPROVAL_REQUIRED: 'blue',
     APPROVAL_APPROVED: 'green',
     APPROVAL_REJECTED: 'red',

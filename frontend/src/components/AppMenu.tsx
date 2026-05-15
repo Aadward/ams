@@ -1,6 +1,6 @@
 import { Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined, CloudUploadOutlined, ToolOutlined, BarChartOutlined, InboxOutlined, AuditOutlined, SwapOutlined, ArrowsAltOutlined } from '@ant-design/icons';
+import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined, CloudUploadOutlined, ToolOutlined, BarChartOutlined, InboxOutlined, AuditOutlined, SwapOutlined, ArrowsAltOutlined, SafetyOutlined } from '@ant-design/icons';
 
 export default function AppMenu() {
   const navigate = useNavigate();
@@ -101,6 +101,11 @@ export default function AppMenu() {
         { key: '/inventory-plan', label: '盘点计划' },
         { key: '/inventory-task', label: '盘点任务' },
       ],
+    },
+    {
+      key: '/insurance',
+      icon: <SafetyOutlined />,
+      label: '保险管理',
     },
   ];
 

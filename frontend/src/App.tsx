@@ -27,6 +27,10 @@ import BorrowApply from './pages/BorrowApply';
 import TransferList from './pages/TransferList';
 import TransferApply from './pages/TransferApply';
 import TransferDetail from './pages/TransferDetail';
+import InsuranceList from './pages/InsuranceList';
+import InsuranceForm from './pages/InsuranceForm';
+import InsuranceDetail from './pages/InsuranceDetail';
+import ClaimForm from './pages/ClaimForm';
 import AppMenu from './components/AppMenu';
 import NotificationBell from './components/NotificationBell';
 
@@ -78,6 +82,11 @@ export default function App() {
             <Route path="/inventory-plan" element={<InventoryPlanList />} />
             <Route path="/inventory-task" element={<InventoryTaskList />} />
             <Route path="/inventory-report/:planId" element={<InventoryReport />} />
+            <Route path="/insurance" element={<InsuranceList />} />
+            <Route path="/insurance/form" element={<InsuranceForm />} />
+            <Route path="/insurance/:id" element={<InsuranceDetail />} />
+            <Route path="/insurance/:id/edit" element={<InsuranceForm />} />
+            <Route path="/insurance/:id/claim" element={<ClaimForm />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Content>

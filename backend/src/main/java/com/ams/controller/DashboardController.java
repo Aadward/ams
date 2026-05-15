@@ -5,10 +5,12 @@ import com.ams.dto.DashboardStatsResponse;
 import com.ams.dto.ExpiringWarrantyResponse;
 import com.ams.entity.Asset;
 import com.ams.entity.AssetLog;
+import com.ams.entity.InsurancePolicy;
 import com.ams.enums.AssetCategory;
 import com.ams.enums.AssetStatus;
 import com.ams.repository.AssetLogRepository;
 import com.ams.repository.AssetRepository;
+import com.ams.service.InsuranceNotificationService;
 import com.ams.service.WarrantyNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,7 @@ public class DashboardController {
     private final AssetRepository assetRepository;
     private final AssetLogRepository assetLogRepository;
     private final WarrantyNotificationService warrantyNotificationService;
+    private final InsuranceNotificationService insuranceNotificationService;
 
     @GetMapping("/api/dashboard/stats")
     public ResponseEntity<?> getStats() {
@@ -84,6 +87,28 @@ public class DashboardController {
             List<ExpiringWarrantyResponse> response = assets.stream()
                     .map(this::toExpiringWarrantyResponse)
                     .collect(Collectors.toList());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/api/dashboard/expiring-insurance")
+    public ResponseEntity<?> getExpiringInsurance(@RequestParam(defaultValue = "30") int days) {
+        try {
+            List<InsurancePolicy> policies = insuranceNotificationService.getExpiringInsurancePolicies(days);
+            List<Map<String, Object>> response = policies.stream().map(p -> {
+                Map<String, Object> m = new HashMap<>();
+                m.put("id", p.getId());
+                m.put("assetId", p.getAsset().getId());
+                m.put("assetName", p.getAsset().getName());
+                m.put("assetCode", p.getAsset().getAssetCode());
+                m.put("policyNumber", p.getPolicyNumber());
+                m.put("insuranceCompany", p.getInsuranceCompany());
+                m.put("type", p.getType().name());
+                m.put("endDate", p.getEndDate());
+                return m;
+            }).collect(Collectors.toList());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

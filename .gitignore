@@ -4,6 +4,8 @@ docs/decisions/
 # java
 backend/*.class
 backend/target/
+backend/dist/
+backend/BOOT-INF/
 backend/app.jar
 app.jar
 

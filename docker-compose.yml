@@ -70,7 +70,7 @@ services:
       AMS_DB_USER: root
       AMS_DB_PASSWORD: root123
       AMS_ES_URI: http://elasticsearch:9200
-      SPRING_FLYWAY_ENABLED: "false"
+      # SPRING_FLYWAY_ENABLED: "true"  # 已通过 application.yml 配置
     ports:
       - "8080:8080"
     healthcheck:

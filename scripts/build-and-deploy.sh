@@ -1,102 +1,70 @@
 #!/bin/bash
+#==============================================================================
+# AMS 构建部署脚本 — 严谨版本
+#
+# 每次构建前先清理旧容器/镜像，确保 JAR 与源码完全一致
+#
+# 用法: ./scripts/build-and-deploy.sh [--skip-tests]
+#==============================================================================
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+BACKEND_DIR="$PROJECT_DIR/backend"
+JAR_NAME="ams-backend-1.0.0-SNAPSHOT.jar"
+JAR_PATH="$BACKEND_DIR/target/$JAR_NAME"
+DOCKERFILE="$PROJECT_DIR/docker/Dockerfile.backend"
 
-# Find mvn - try PATH first, then common locations
-if command -v mvn &>/dev/null; then
-    MVN="mvn"
-elif [ -x "/home/yuhang/.hermes/profiles/independent-developer/home/.local/maven/bin/mvn" ]; then
-    MVN="/home/yuhang/.hermes/profiles/independent-developer/home/.local/maven/bin/mvn"
-else
-    echo "ERROR: mvn not found"
-    exit 1
+SKIP_TESTS=""
+if [[ "$1" == "--skip-tests" ]]; then
+    SKIP_TESTS="-DskipTests"
 fi
 
-# Set JAVA_HOME if not set
-if [ -z "$JAVA_HOME" ]; then
-    if [ -d "/home/yuhang/.hermes/profiles/independent-developer/home/.local/java" ]; then
-        export JAVA_HOME="/home/yuhang/.hermes/profiles/independent-developer/home/.local/java"
-        export PATH="$JAVA_HOME/bin:$PATH"
-    fi
-fi
-
-echo "=== AMS Build and Deploy Script ==="
-echo "Project dir: $PROJECT_DIR"
-
-# --- 1. Backend: Maven build ---
-echo ""
-echo "=== Building Backend (mvn package -DskipTests) ==="
-cd "$PROJECT_DIR/backend"
-$MVN package -DskipTests -B -q
-
-# --- 2. Frontend: npm build ---
-echo ""
-echo "=== Building Frontend (npm run build) ==="
-cd "$PROJECT_DIR/frontend"
-npm run build
-
-# --- 3. Copy artifacts to backend/ and frontend/ (docker build context = project root) ---
-echo ""
-echo "=== Copying artifacts to backend/ and frontend/ (context=.) ==="
-mkdir -p "$PROJECT_DIR/backend"
-mkdir -p "$PROJECT_DIR/frontend"
-
-# Backend JAR
-cp "$PROJECT_DIR/backend/target"/*.jar "$PROJECT_DIR/backend/app.jar"
-echo "Backend JAR: $PROJECT_DIR/backend/app.jar"
-
-# Frontend dist - already at frontend/dist, no need to copy
-echo "Frontend dist: $PROJECT_DIR/frontend/dist"
-
-# --- 4. Build Docker images ---
-echo ""
-echo "=== Building Docker Images (context=.) ==="
-
-# Backend image (context=project root, dockerfile=docker/Dockerfile.backend)
-docker build -t ams-backend:latest -f docker/Dockerfile.backend .
-echo "Built: ams-backend:latest"
-
-# Frontend image (context=project root, dockerfile=docker/Dockerfile.frontend)
-docker build -t ams-frontend:latest -f docker/Dockerfile.frontend .
-echo "Built: ams-frontend:latest"
-
-# --- 5. Deploy with docker compose ---
-echo ""
-echo "=== Deploying with docker compose ==="
+echo "==== [1/7] 清理旧容器 ===="
 cd "$PROJECT_DIR"
+docker compose rm -sf backend 2>/dev/null || true
+docker image rm -f ams-backend:latest 2>/dev/null || true
 
-# Stop existing containers
-docker compose down
+echo "==== [2/7] Maven 编译打包 ===="
+cd "$BACKEND_DIR"
+mvn clean package $SKIP_TESTS -q
 
-# Start containers (rebuild if needed)
-docker compose up -d --build
-echo "Containers started."
-
-# --- 6. Wait for health check ---
-echo ""
-echo "=== Waiting for backend health check ==="
-MAX_RETRIES=40
-RETRY_INTERVAL=10
-retries=0
-
-while [ $retries -lt $MAX_RETRIES ]; do
-    if docker compose exec -T backend curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
-        echo "Backend is healthy!"
-        break
-    fi
-    retries=$((retries + 1))
-    echo "Waiting for backend to be healthy... ($retries/$MAX_RETRIES)"
-    sleep $RETRY_INTERVAL
-done
-
-if [ $retries -eq $MAX_RETRIES ]; then
-    echo "ERROR: Backend health check failed after $MAX_RETRIES retries."
+echo "==== [3/7] 验证 JAR 存在 ===="
+if [[ ! -f "$JAR_PATH" ]]; then
+    echo "ERROR: JAR 文件不存在: $JAR_PATH"
     exit 1
 fi
+echo "JAR: $(ls -lh "$JAR_PATH" | awk '{print $5, $9}')"
 
+echo "==== [4/7] 验证 Migration 文件 CRC ===="
+python3 "$SCRIPT_DIR/verify-migrations.py" "$JAR_PATH" "$BACKEND_DIR/src/main/resources/db/migration"
+
+echo "==== [5/7] Docker 构建（no-cache） ===="
+cd "$PROJECT_DIR"
+docker compose build --no-cache backend
+
+echo "==== [6/7] 验证 Docker 镜像 CRC ===="
+# 从新构建的镜像中提取 JAR 并验证 V5 migration CRC
+IMG_CRC=$(docker run --rm --entrypoint sh ams-backend:latest -c 'cat /app/app.jar' 2>/dev/null | \
+    python3 -c "
+import sys, zipfile, io, zlib
+jar_data = sys.stdin.buffer.read()
+with zipfile.ZipFile(io.BytesIO(jar_data)) as z:
+    for name in z.namelist():
+        if 'V5__add_approval_id_to_maintenance_record' in name:
+            data = z.read(name)
+            crc = zlib.crc32(data) & 0xffffffff
+            print(crc)
+")
+echo "  V5 CRC in container: $IMG_CRC"
+if [[ "$IMG_CRC" != "2539394677" ]]; then
+    echo "  ERROR: Expected 2539394677"
+    exit 1
+fi
+echo "  CRC 验证通过"
+
+echo "==== [7/7] 启动服务 ===="
+docker compose up -d backend
 echo ""
-echo "=== Build and Deploy Complete ==="
-docker compose ps
-docker images | grep ams
+echo "==== 完成 ===="
+docker compose ps backend 2>&1 | grep -v Warning

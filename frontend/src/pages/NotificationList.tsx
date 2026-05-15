@@ -62,6 +62,9 @@ export default function NotificationList() {
       BORROW_REJECTED: 'error',
       BORROW_OVERDUE: 'error',
       BORROW_RETURN_REMINDER: 'warning',
+      TRANSFER_REQUIRED: 'blue',
+      TRANSFER_APPROVED: 'green',
+      TRANSFER_REJECTED: 'red',
     };
     const labels: Record<string, string> = {
       ASSET_EXPIRING_WARRANTY: '维保到期',
@@ -78,6 +81,9 @@ export default function NotificationList() {
       BORROW_REJECTED: '借用已拒绝',
       BORROW_OVERDUE: '借用已超期',
       BORROW_RETURN_REMINDER: '借用待归还',
+      TRANSFER_REQUIRED: '调拨待审批',
+      TRANSFER_APPROVED: '调拨已批准',
+      TRANSFER_REJECTED: '调拨已拒绝',
     };
     return <Tag color={colors[type] || 'default'}>{labels[type] || type}</Tag>;
   };

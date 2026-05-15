@@ -24,6 +24,9 @@ import InventoryTaskList from './pages/InventoryTaskList';
 import InventoryReport from './pages/InventoryReport';
 import BorrowList from './pages/BorrowList';
 import BorrowApply from './pages/BorrowApply';
+import TransferList from './pages/TransferList';
+import TransferApply from './pages/TransferApply';
+import TransferDetail from './pages/TransferDetail';
 import AppMenu from './components/AppMenu';
 import NotificationBell from './components/NotificationBell';
 
@@ -59,6 +62,9 @@ export default function App() {
             <Route path="/approvals" element={<ApprovalList />} />
             <Route path="/borrows" element={<BorrowList />} />
             <Route path="/borrows/apply" element={<BorrowApply />} />
+            <Route path="/transfers" element={<TransferList />} />
+            <Route path="/transfers/apply" element={<TransferApply />} />
+            <Route path="/transfers/:id" element={<TransferDetail />} />
             <Route path="/maintenance" element={<MaintenanceList />} />
             <Route path="/backup" element={<BackupList />} />
             <Route path="/reports" element={<ReportList />} />

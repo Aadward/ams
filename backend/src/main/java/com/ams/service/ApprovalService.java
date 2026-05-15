@@ -92,6 +92,7 @@ public class ApprovalService {
             case ASSET_RETURN -> "归还";
             case MAINTENANCE -> "维修";
             case ASSET_BORROW -> "借用";
+            case TRANSFER -> "转移";
         };
 
         String title = "新的" + typeLabel + "申请";
@@ -207,7 +208,9 @@ public class ApprovalService {
         // Notify the requester
         NotificationType notifyType = (saved.getType() == ApprovalType.ASSET_BORROW)
                 ? NotificationType.BORROW_APPROVED
-                : NotificationType.APPROVAL_APPROVED;
+                : (saved.getType() == ApprovalType.TRANSFER)
+                    ? NotificationType.TRANSFER_APPROVED
+                    : NotificationType.APPROVAL_APPROVED;
         notificationService.createNotification(
                 saved.getRequesterId(),
                 "审批已通过",
@@ -247,7 +250,9 @@ public class ApprovalService {
         // Notify the requester
         NotificationType notifyType = (saved.getType() == ApprovalType.ASSET_BORROW)
                 ? NotificationType.BORROW_REJECTED
-                : NotificationType.APPROVAL_REJECTED;
+                : (saved.getType() == ApprovalType.TRANSFER)
+                    ? NotificationType.TRANSFER_REJECTED
+                    : NotificationType.APPROVAL_REJECTED;
         notificationService.createNotification(
                 saved.getRequesterId(),
                 "审批已拒绝",

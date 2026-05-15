@@ -1,6 +1,6 @@
 import { Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined, CloudUploadOutlined, ToolOutlined, BarChartOutlined, InboxOutlined, AuditOutlined, SwapOutlined } from '@ant-design/icons';
+import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined, CloudUploadOutlined, ToolOutlined, BarChartOutlined, InboxOutlined, AuditOutlined, SwapOutlined, ArrowsAltOutlined } from '@ant-design/icons';
 
 export default function AppMenu() {
   const navigate = useNavigate();
@@ -47,6 +47,15 @@ export default function AppMenu() {
       children: [
         { key: '/borrows', label: '借用记录' },
         { key: '/borrows/apply', label: '申请借用' },
+      ],
+    },
+    {
+      key: '/transfers',
+      icon: <ArrowsAltOutlined />,
+      label: '调拨管理',
+      children: [
+        { key: '/transfers', label: '调拨记录' },
+        { key: '/transfers/apply', label: '申请调拨' },
       ],
     },
     {

@@ -63,10 +63,18 @@ public class SupplierService {
     }
 
     @Transactional
-    public Supplier updateSupplier(Long id, String name, String type, String status,
+    public Supplier updateSupplier(Long id, String supplierCode, String name, String type, String status,
                                    String contact, String phone, String email, String address, String remark, Double rating) {
         Supplier supplier = supplierRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new RuntimeException("供应商不存在"));
+
+        if (supplierCode != null && !supplierCode.equals(supplier.getSupplierCode())) {
+            // Check if new supplierCode already exists
+            if (supplierRepository.findBySupplierCodeAndDeletedFalse(supplierCode).isPresent()) {
+                throw new RuntimeException("供应商编号已存在");
+            }
+            supplier.setSupplierCode(supplierCode);
+        }
 
         if (name != null) {
             supplier.setName(name);

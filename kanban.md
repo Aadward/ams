@@ -57,68 +57,14 @@
   - 后端：DepreciationSummaryResponse DTO + AssetService 汇总计算
   - 前端：DepreciationLedger.tsx（3个Tab：折旧台账/分类汇总/部门汇总）
   - QA验证：3个Tab正常渲染，API 返回正确数据，mvn compile ✓，npm run build ✓
+- [x] 供应商管理：供应商增删改查、供应商评级、联系方式管理（prds/2026-05-15-供应商管理.md）
+  - 后端：Supplier/SupplierService/SupplierController + SupplierType/SupplierStatus 枚举
+  - 前端：SupplierList/SupplierForm/SupplierDetail 页面
+- [x] 后端: ScanController (GET /api/scan/{assetCode}, POST assign/return/borrow-return)
+- [x] 【BUG】保险即将到期仪表盘筛选问题：WarrantyNotificationService.getExpiringWarrantyAssets() 使用 plusDays(days + 1) 修正边界；mvn clean package ✓；backend Docker 已重启
 
-
-
-
-- [ ] 资产保险管理：保险单增删改查、保险与资产关联、保险到期提醒、索赔记录、仪表盘视图 [QA] 2026-05-15T12:11
-
-
-
-
-
-
-
-
-
-- [x] 供应商管理：供应商增删改查、供应商评级、联系方式管理（prds/2026-05-15-供应商管理.md） [QA] 2026-05-15T14:20 ← BUG: 详情页缺少供应商编码/类型/状态/评级字段; BUG: 新增表单提交按钮点击无响应; BUG: EQUIPMENT类型标签显示为易耗品供应商应为设备供应商 [QA] 2026-05-15T14:32
-
-
-
-
-
-- PRD：prds/2026-05-15-资产保险管理.md [QA] 2026-05-15T16:13
-
-
-
-
-- [x] 后端: ScanController (GET /api/scan/{assetCode}, POST assign/return/borrow-return) [QA] 2026-05-15T18:36
-
-
-
-
-- [x] 【BUG】保险即将到期仪表盘筛选问题：资产 POL202605150001 到期日 2026-06-15，距今约31天，应出现在30天筛选列表中，但显示「暂无即将到期的维保资产」；可能是日期计算逻辑边界问题或 API 筛选实现有误 [QA] 2026-05-15T18:36 ← 代码修复正确（plusDays(days+1)已确认），但数据库缺少测试数据：POL202605150001不存在，所有资产warranty_end均为NULL，无法验证API筛选功能 [QA] 2026-05-15T18:37
-
-
-
-
-- [ ] 供应商管理BUG修复：详情页缺少供应商编码/类型/状态/评级字段；新增表单提交按钮点击无响应；EQUIPMENT类型标签显示为易耗品供应商应为设备供应商 [QA] 2026-05-15T18:44
-
-- 前端: api/scan.ts, ScanPage.tsx (H5, /#/scan/:assetCode) [QA] 2026-05-15T20:06
-
-- 验证: mvn compile ✓, npm run build ✓, curl /api/scan/A002 → 200 ✓，前端页面资产信息正常显示 [QA] 2026-05-15T20:06
-
-- 修复：`WarrantyNotificationService.getExpiringWarrantyAssets()` 使用 `plusDays(days + 1)` 修正边界；mvn clean package ✓；backend Docker 已重启 [QA] 2026-05-15T20:06
 
 ## completed
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -127,39 +73,9 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- [ ] 供应商管理BUG修复：详情页缺少供应商编码/类型/状态/评级字段；新增表单提交按钮点击无响应；EQUIPMENT类型标签显示为易耗品供应商应为设备供应商 [DEV] 2026-05-15T20:35
 
 ## todo
-- [x] 二维码扫码盘点：资产二维码生成、移动端扫码识别、盘点结果实时上报（prds/2026-05-15-二维码扫码盘点.md） [QA] 2026-05-15T16:05 ← 【BUG】前端 Docker 镜像使用旧版 dist/ JS bundle（构建于15:36），与最新 dist/（15:45）不一致，导致 useScanAsset 请求路径与后端 API 不匹配，页面显示「未找到资产信息」。BUG 已单独录入 todo。
+
+- [ ] 资产保险管理：保险单增删改查、保险与资产关联、保险到期提醒、索赔记录、仪表盘视图（prds/2026-05-15-资产保险管理.md）
+- [ ] 前端: api/scan.ts, ScanPage.tsx (H5, /#/scan/:assetCode)

@@ -76,6 +76,7 @@ public class SupplierController {
         try {
             Supplier supplier = supplierService.updateSupplier(
                     id,
+                    request.get("supplierCode"),
                     request.get("name"),
                     request.get("type"),
                     request.get("status"),

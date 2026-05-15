@@ -64,16 +64,19 @@
 - [x] 【BUG】保险即将到期仪表盘筛选问题：WarrantyNotificationService.getExpiringWarrantyAssets() 使用 plusDays(days + 1) 修正边界；mvn clean package ✓；backend Docker 已重启
 
 
+
 ## completed
 
 
 
 
+- [ ] 供应商管理BUG修复：详情页缺少供应商编码/类型/状态/评级字段；新增表单提交按钮点击无响应；EQUIPMENT类型标签显示为易耗品供应商应为设备供应商 [DEV] 2026-05-15T20:43
+
 ## in_progress
 
 
 
-- [ ] 供应商管理BUG修复：详情页缺少供应商编码/类型/状态/评级字段；新增表单提交按钮点击无响应；EQUIPMENT类型标签显示为易耗品供应商应为设备供应商 [DEV] 2026-05-15T20:35
+
 
 ## todo
 

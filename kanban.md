@@ -63,33 +63,13 @@
 - [x] 后端: ScanController (GET /api/scan/{assetCode}, POST assign/return/borrow-return)
 - [x] 【BUG】保险即将到期仪表盘筛选问题：WarrantyNotificationService.getExpiringWarrantyAssets() 使用 plusDays(days + 1) 修正边界；mvn clean package ✓；backend Docker 已重启
 
+## completed
 
-
-
+## in_progress
 
 - [ ] 供应商管理BUG修复：详情页缺少供应商编码/类型/状态/评级字段；新增表单提交按钮点击无响应；EQUIPMENT类型标签显示为易耗品供应商应为设备供应商 [QA] 2026-05-15T23:03
 
 - [ ] 资产保险管理：保险单增删改查、保险与资产关联、保险到期提醒、索赔记录、仪表盘视图（prds/2026-05-15-资产保险管理.md） [QA] 2026-05-15T23:03
-
-## completed
-
-
-
-
-
-
-
-
-
-## in_progress
-
-
-
-
-
-
-
-
 
 ## todo
 

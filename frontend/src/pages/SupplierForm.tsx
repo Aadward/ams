@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Form, Input, Button, Card, message, Select } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supplierApi } from '../api/supplier';
@@ -15,6 +15,7 @@ export default function SupplierForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (isEdit) {
@@ -39,6 +40,8 @@ export default function SupplierForm() {
   }, [id]);
 
   const handleSubmit = async (values: any) => {
+    if (submitting) return;
+    setSubmitting(true);
     try {
       // Transform contactPerson -> contact (backend field name)
       const payload = {
@@ -54,8 +57,11 @@ export default function SupplierForm() {
         message.success('创建成功');
       }
       navigate('/suppliers');
-    } catch {
-      message.error('操作失败');
+    } catch (err: any) {
+      const errMsg = err?.response?.data?.message || err?.message || '操作失败';
+      message.error(errMsg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -98,7 +104,7 @@ export default function SupplierForm() {
             { value: 5, label: '★★★★★' },
           ]} />
         </Form.Item>
-        <Button type="primary" htmlType="submit">提交</Button>
+        <Button type="primary" htmlType="submit" loading={submitting}>提交</Button>
       </Form>
     </Card>
   );

@@ -1,12 +1,14 @@
 package com.ams.controller;
 
 import com.ams.dto.InsuranceClaimRequest;
+import com.ams.dto.InsuranceClaimResponse;
 import com.ams.dto.InsurancePolicyRequest;
 import com.ams.dto.InsurancePolicyResponse;
-import com.ams.dto.InsuranceClaimResponse;
 import com.ams.enums.ClaimStatus;
 import com.ams.service.InsuranceClaimService;
+import com.ams.service.InsuranceNotificationService;
 import com.ams.service.InsurancePolicyService;
+import com.ams.entity.InsurancePolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +32,7 @@ public class InsuranceAliasController {
 
     private final InsurancePolicyService insurancePolicyService;
     private final InsuranceClaimService insuranceClaimService;
+    private final InsuranceNotificationService insuranceNotificationService;
 
     // ==================== Insurance Policy Alias Endpoints ====================
 
@@ -65,7 +68,7 @@ public class InsuranceAliasController {
         try {
             // Map frontend field names to backend DTO
             InsurancePolicyRequest request = InsurancePolicyRequest.builder()
-                    .policyNumber((String) body.get("insuranceNo"))
+                    .policyNumber((String) body.get("policyNumber"))
                     .assetId(body.get("assetId") != null ? ((Number) body.get("assetId")).longValue() : null)
                     .type((String) body.get("insuranceType"))
                     .insuranceCompany((String) body.get("insuranceCompany"))
@@ -73,7 +76,7 @@ public class InsuranceAliasController {
                     .coverageAmount(body.get("coverageAmount") != null ? new BigDecimal(body.get("coverageAmount").toString()) : null)
                     .startDate(body.get("startDate") != null ? LocalDate.parse(body.get("startDate").toString()) : null)
                     .endDate(body.get("endDate") != null ? LocalDate.parse(body.get("endDate").toString()) : null)
-                    .remarks((String) body.get("description"))
+                    .remarks((String) body.get("remarks"))
                     .build();
             return ResponseEntity.ok(insurancePolicyService.createPolicy(request));
         } catch (RuntimeException e) {
@@ -167,15 +170,19 @@ public class InsuranceAliasController {
     @GetMapping("/expiring")
     public ResponseEntity<?> getExpiringInsurances(@RequestParam(defaultValue = "30") int days) {
         try {
-            List<Map<String, Object>> result = insuranceClaimService.getClaimsByPolicy(null).stream()
-                    .map(c -> {
+            List<InsurancePolicy> policies = insuranceNotificationService.getExpiringInsurancePolicies(days);
+            List<Map<String, Object>> result = policies.stream()
+                    .map(p -> {
                         Map<String, Object> m = new java.util.HashMap<>();
-                        m.put("id", c.getId());
-                        m.put("policyId", c.getPolicyId());
-                        m.put("claimNumber", c.getClaimNumber());
-                        m.put("assetId", c.getAssetId());
-                        m.put("assetName", c.getAssetName());
-                        m.put("status", c.getStatus());
+                        m.put("id", p.getId());
+                        m.put("policyNumber", p.getPolicyNumber());
+                        m.put("assetId", p.getAsset().getId());
+                        m.put("assetName", p.getAsset().getName());
+                        m.put("assetCode", p.getAsset().getAssetCode());
+                        m.put("endDate", p.getEndDate().toString());
+                        m.put("insuranceCompany", p.getInsuranceCompany());
+                        m.put("coverageAmount", p.getCoverageAmount());
+                        m.put("status", p.getStatus().name());
                         return m;
                     }).toList();
             return ResponseEntity.ok(result);

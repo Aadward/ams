@@ -102,7 +102,7 @@ export default function InsuranceList() {
     },
     {
       title: '保单号',
-      dataIndex: 'insuranceNo',
+      dataIndex: 'policyNumber',
       width: 160,
     },
     {

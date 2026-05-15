@@ -6,7 +6,7 @@ export interface InsuranceRecord {
   assetId: number;
   assetCode: string;
   assetName: string;
-  insuranceNo: string;
+  policyNumber: string;
   insuranceCompany: string;
   insuranceType: string;
   coverageAmount: number;
@@ -17,21 +17,21 @@ export interface InsuranceRecord {
   claimAmount?: number;
   claimDate?: string;
   claimStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
-  description?: string;
+  remarks?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 interface InsuranceFormData {
   assetId: number;
-  insuranceNo: string;
+  policyNumber: string;
   insuranceCompany: string;
   insuranceType: string;
   coverageAmount: number;
   premium: number;
   startDate: string;
   endDate: string;
-  description?: string;
+  remarks?: string;
 }
 
 interface ClaimFormData {

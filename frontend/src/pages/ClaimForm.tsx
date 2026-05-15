@@ -77,7 +77,7 @@ export default function ClaimForm() {
           </Space>
           <Space>
             <strong>保单号：</strong>
-            <span>{insurance.insuranceNo}</span>
+            <span>{insurance.policyNumber}</span>
           </Space>
           <Space>
             <strong>保险公司：</strong>

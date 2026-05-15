@@ -49,7 +49,7 @@ export default function InsuranceDetail() {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <Card
-        title={`保险详情 - ${insurance.insuranceNo}`}
+        title={`保险详情 - ${insurance.policyNumber}`}
         extra={
           <Space>
             <Button onClick={() => navigate('/insurance')}>返回列表</Button>
@@ -69,7 +69,7 @@ export default function InsuranceDetail() {
           <Descriptions.Item label="资产ID">{insurance.assetId}</Descriptions.Item>
           <Descriptions.Item label="资产编码">{insurance.assetCode}</Descriptions.Item>
           <Descriptions.Item label="资产名称">{insurance.assetName}</Descriptions.Item>
-          <Descriptions.Item label="保单号">{insurance.insuranceNo}</Descriptions.Item>
+          <Descriptions.Item label="保单号">{insurance.policyNumber}</Descriptions.Item>
           <Descriptions.Item label="保险公司">{insurance.insuranceCompany}</Descriptions.Item>
           <Descriptions.Item label="保险类型">{insurance.insuranceType}</Descriptions.Item>
           <Descriptions.Item label="保险金额">
@@ -101,7 +101,7 @@ export default function InsuranceDetail() {
           <Descriptions.Item label="创建时间">{insurance.createdAt}</Descriptions.Item>
           <Descriptions.Item label="更新时间">{insurance.updatedAt}</Descriptions.Item>
           <Descriptions.Item label="备注" span={2}>
-            {insurance.description || '-'}
+            {insurance.remarks || '-'}
           </Descriptions.Item>
         </Descriptions>
       </Card>

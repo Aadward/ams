@@ -8,10 +8,8 @@ const { TextArea } = Input;
 
 const insuranceTypeOptions = [
   { label: '财产险', value: 'PROPERTY' },
-  { label: '责任险', value: 'LIABILITY' },
-  { label: '意外险', value: 'ACCIDENT' },
-  { label: '车险', value: 'AUTO' },
-  { label: '其他', value: 'OTHER' },
+  { label: '综合险', value: 'COMPREHENSIVE' },
+  { label: '盗抢险', value: 'THEFT' },
 ];
 
 const statusOptions = [
@@ -101,7 +99,7 @@ export default function InsuranceForm() {
             </Col>
             <Col span={12}>
               <Form.Item
-                name="insuranceNo"
+                name="policyNumber"
                 label="保单号"
                 rules={[{ required: true, message: '请输入保单号' }]}
               >
@@ -193,7 +191,7 @@ export default function InsuranceForm() {
             </Col>
           </Row>
 
-          <Form.Item name="description" label="备注">
+          <Form.Item name="remarks" label="备注">
             <TextArea rows={3} placeholder="请输入备注（可选）" />
           </Form.Item>
 

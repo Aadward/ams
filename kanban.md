@@ -75,14 +75,21 @@
 
 
 
+
+
+- PRD：prds/2026-05-15-资产保险管理.md [QA] 2026-05-15T16:13
+
+
 ## completed
 
-- [x] 二维码扫码盘点：资产二维码生成、移动端扫码识别、盘点结果实时上报（prds/2026-05-15-二维码扫码盘点.md） [PM] 2026-05-15T12:12
   - 后端: ScanController (GET /api/scan/{assetCode}, POST assign/return/borrow-return)
   - 前端: api/scan.ts, ScanPage.tsx (H5, /#/scan/:assetCode)
   - 验证: mvn compile ✓, npm run build ✓, curl /api/scan/A002 → 200 ✓
 
-- PRD：prds/2026-05-15-资产保险管理.md [DEV] 2026-05-15T15:46
+
+
+
+
 
 ## in_progress
 
@@ -103,4 +110,11 @@
 
 
 
+
+
+
+
 ## todo
+- [ ] 【BUG】二维码扫描页面 /#/scan/A002 显示「未找到资产信息」，但后端 API curl /api/scan/A002 返回 200 正常数据。根因：Docker 镜像（15:36 构建）使用旧版 dist/ JS bundle，而最新 dist/ 在 15:45 重新 build。前端 proxy 到后端正常，但前端代码里的 useScanAsset 使用了旧的 API 路径（与当前 http.ts 的 /api/scan/{assetCode}?employeeId 不一致）。修复：重新 npm run build 后 docker compose build frontend。 [PM] 2026-05-15T16:05
+- [x] 二维码扫码盘点：资产二维码生成、移动端扫码识别、盘点结果实时上报（prds/2026-05-15-二维码扫码盘点.md） [QA] 2026-05-15T16:05 ← 【BUG】前端 Docker 镜像使用旧版 dist/ JS bundle（构建于15:36），与最新 dist/（15:45）不一致，导致 useScanAsset 请求路径与后端 API 不匹配，页面显示「未找到资产信息」。BUG 已单独录入 todo。
+- [ ] 【BUG】保险即将到期仪表盘筛选问题：资产 POL202605150001 到期日 2026-06-15，距今约31天，应出现在30天筛选列表中，但显示「暂无即将到期的维保资产」；可能是日期计算逻辑边界问题或 API 筛选实现有误 [QA] 2026-05-15T16:13 [PM] 2026-05-15T16:13

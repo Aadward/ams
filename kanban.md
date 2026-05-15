@@ -140,6 +140,4 @@
 
 
 ## todo
-- [ ] 【BUG】二维码扫描页面 /#/scan/A002 显示「未找到资产信息」，但后端 API curl /api/scan/A002 返回 200 正常数据。根因：Docker 镜像（15:36 构建）使用旧版 dist/ JS bundle，而最新 dist/ 在 15:45 重新 build。前端 proxy 到后端正常，但前端代码里的 useScanAsset 使用了旧的 API 路径（与当前 http.ts 的 /api/scan/{assetCode}?employeeId 不一致）。修复：重新 npm run build 后 docker compose build frontend。 [PM] 2026-05-15T16:05
-  - **经验证：功能正常，BUG 已过时（实际根因是 localStorage.currentEmployeeId 为空，非 API 路径问题）**
 - [x] 二维码扫码盘点：资产二维码生成、移动端扫码识别、盘点结果实时上报（prds/2026-05-15-二维码扫码盘点.md） [QA] 2026-05-15T16:05 ← 【BUG】前端 Docker 镜像使用旧版 dist/ JS bundle（构建于15:36），与最新 dist/（15:45）不一致，导致 useScanAsset 请求路径与后端 API 不匹配，页面显示「未找到资产信息」。BUG 已单独录入 todo。

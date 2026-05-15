@@ -73,22 +73,16 @@
 
 - [ ] 供应商管理：供应商增删改查、供应商评级、联系方式管理（prds/2026-05-15-供应商管理.md） [QA] 2026-05-15T14:20 ← BUG: 详情页缺少供应商编码/类型/状态/评级字段; BUG: 新增表单提交按钮点击无响应; BUG: EQUIPMENT类型标签显示为易耗品供应商应为设备供应商 [QA] 2026-05-15T14:32
 
+
+
 ## completed
 
+- [x] 二维码扫码盘点：资产二维码生成、移动端扫码识别、盘点结果实时上报（prds/2026-05-15-二维码扫码盘点.md） [PM] 2026-05-15T12:12
+  - 后端: ScanController (GET /api/scan/{assetCode}, POST assign/return/borrow-return)
+  - 前端: api/scan.ts, ScanPage.tsx (H5, /#/scan/:assetCode)
+  - 验证: mvn compile ✓, npm run build ✓, curl /api/scan/A002 → 200 ✓
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+- PRD：prds/2026-05-15-资产保险管理.md [DEV] 2026-05-15T15:46
 
 ## in_progress
 
@@ -107,13 +101,6 @@
 
 
 
+
+
 ## todo
-
-  - PRD：prds/2026-05-15-资产保险管理.md [PM] 2026-05-15T11:26
-
-## completed
-
-- [x] 二维码扫码盘点：资产二维码生成、移动端扫码识别、盘点结果实时上报（prds/2026-05-15-二维码扫码盘点.md） [PM] 2026-05-15T12:12
-  - 后端: ScanController (GET /api/scan/{assetCode}, POST assign/return/borrow-return)
-  - 前端: api/scan.ts, ScanPage.tsx (H5, /#/scan/:assetCode)
-  - 验证: mvn compile ✓, npm run build ✓, curl /api/scan/A002 → 200 ✓

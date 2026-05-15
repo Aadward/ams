@@ -83,7 +83,7 @@ public class WarrantyNotificationService {
 
     public List<Asset> getExpiringWarrantyAssets(int days) {
         LocalDate today = LocalDate.now();
-        LocalDate endDate = today.plusDays(days);
+        LocalDate endDate = today.plusDays(days + 1);
         return assetRepository.findByDeletedFalseAndWarrantyEndBetween(today, endDate);
     }
 }

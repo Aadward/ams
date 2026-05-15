@@ -64,7 +64,7 @@ public class SupplierService {
 
     @Transactional
     public Supplier updateSupplier(Long id, String name, String type, String status,
-                                   String contact, String phone, String email, String address, String remark) {
+                                   String contact, String phone, String email, String address, String remark, Double rating) {
         Supplier supplier = supplierRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new RuntimeException("供应商不存在"));
 
@@ -91,6 +91,9 @@ public class SupplierService {
         }
         if (remark != null) {
             supplier.setRemark(remark);
+        }
+        if (rating != null) {
+            supplier.setRating(rating);
         }
 
         return supplierRepository.save(supplier);

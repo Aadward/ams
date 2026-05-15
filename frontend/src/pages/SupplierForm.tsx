@@ -40,11 +40,17 @@ export default function SupplierForm() {
 
   const handleSubmit = async (values: any) => {
     try {
+      // Transform contactPerson -> contact (backend field name)
+      const payload = {
+        ...values,
+        contact: values.contactPerson,
+      };
+      delete payload.contactPerson;
       if (isEdit) {
-        await supplierApi.update(Number(id), values);
+        await supplierApi.update(Number(id), payload);
         message.success('更新成功');
       } else {
-        await supplierApi.create(values);
+        await supplierApi.create(payload);
         message.success('创建成功');
       }
       navigate('/suppliers');

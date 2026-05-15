@@ -29,6 +29,8 @@ export default function SupplierForm() {
           email: data.email,
           address: data.address,
           remark: data.remark,
+          status: data.status,
+          rating: data.rating,
         });
       }).catch(() => {
         message.error('加载数据失败');
@@ -77,6 +79,18 @@ export default function SupplierForm() {
         </Form.Item>
         <Form.Item name="remark" label="备注">
           <Input.TextArea rows={3} />
+        </Form.Item>
+        <Form.Item name="status" label="状态" rules={[{ required: true, message: '请选择状态' }]}>
+          <Select options={[{ value: 'ACTIVE', label: '启用' }, { value: 'INACTIVE', label: '停用' }]} />
+        </Form.Item>
+        <Form.Item name="rating" label="评级">
+          <Select options={[
+            { value: 1, label: '★' },
+            { value: 2, label: '★★' },
+            { value: 3, label: '★★★' },
+            { value: 4, label: '★★★★' },
+            { value: 5, label: '★★★★★' },
+          ]} />
         </Form.Item>
         <Button type="primary" htmlType="submit">提交</Button>
       </Form>

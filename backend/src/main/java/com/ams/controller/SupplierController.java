@@ -55,11 +55,13 @@ public class SupplierController {
                     request.get("supplierCode"),
                     request.get("name"),
                     request.get("type"),
+                    request.get("status"),
                     request.get("contact"),
                     request.get("phone"),
                     request.get("email"),
                     request.get("address"),
-                    request.get("remark")
+                    request.get("remark"),
+                    request.get("rating") != null ? Double.parseDouble(request.get("rating")) : null
             );
             return ResponseEntity.ok(supplier);
         } catch (RuntimeException e) {

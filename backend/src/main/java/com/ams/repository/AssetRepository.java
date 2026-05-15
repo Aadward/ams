@@ -34,6 +34,8 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
 
     Optional<Asset> findByIdAndDeletedFalse(Long id);
 
+    Optional<Asset> findByAssetCodeAndDeletedFalse(String assetCode);
+
     List<Asset> findByAssigneeId(Long assigneeId);
 
     long countByStatus(AssetStatus status);

@@ -29,8 +29,8 @@ public class SupplierService {
     private final MaintenanceRecordRepository maintenanceRecordRepository;
 
     @Transactional
-    public Supplier createSupplier(String supplierCode, String name, String type, String contact,
-                                   String phone, String email, String address, String remark) {
+    public Supplier createSupplier(String supplierCode, String name, String type, String status,
+                                   String contact, String phone, String email, String address, String remark, Double rating) {
         // Auto-generate supplierCode if not provided
         if (supplierCode == null || supplierCode.isBlank()) {
             long count = supplierRepository.count() + 1;
@@ -50,12 +50,13 @@ public class SupplierService {
                 .supplierCode(supplierCode)
                 .name(name)
                 .type(SupplierType.valueOf(type))
-                .status(SupplierStatus.ACTIVE)
+                .status(status != null ? SupplierStatus.valueOf(status) : SupplierStatus.ACTIVE)
                 .contact(contact)
                 .phone(phone)
                 .email(email)
                 .address(address)
                 .remark(remark)
+                .rating(rating)
                 .deleted(false)
                 .build();
         return supplierRepository.save(supplier);

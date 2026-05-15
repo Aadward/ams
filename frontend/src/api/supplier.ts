@@ -21,11 +21,13 @@ interface SupplierFormData {
   supplierCode: string;
   name: string;
   type: string;
+  status?: string;
   contact?: string;
   phone?: string;
   email?: string;
   address?: string;
   remark?: string;
+  rating?: number;
 }
 
 export const supplierApi = {

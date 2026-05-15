@@ -20,4 +20,6 @@ public interface BorrowRecordRepository extends JpaRepository<BorrowRecord, Long
     List<BorrowRecord> findByStatusAndExpectedReturnDateBefore(BorrowStatus status, LocalDate date);
 
     List<BorrowRecord> findByBorrowerIdAndStatus(Long borrowerId, BorrowStatus status);
+
+    List<BorrowRecord> findByAssetIdAndBorrowerId(Long assetId, Long borrowerId);
 }

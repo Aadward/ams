@@ -34,8 +34,19 @@ export default function SupplierList() {
 
   const columns = [
     { title: 'ID', dataIndex: 'id' },
+    { title: '编码', dataIndex: 'supplierCode' },
     { title: '供应商名称', dataIndex: 'name' },
-    { title: '联系人', dataIndex: 'contactPerson' },
+    {
+      title: '类型',
+      dataIndex: 'type',
+      render: (v: string) => v === 'EQUIPMENT' ? '设备供应商' : v === 'CONSUMABLE' ? '易耗品供应商' : v === 'MAINTENANCE' ? '维修服务商' : v === 'MULTI' ? '多元化供应商' : '-',
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      render: (v: string) => v === 'ACTIVE' ? '启用' : '停用',
+    },
+    { title: '联系人', dataIndex: 'contact' },
     { title: '电话', dataIndex: 'phone' },
     { title: '邮箱', dataIndex: 'email' },
     {

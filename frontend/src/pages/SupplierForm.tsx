@@ -4,10 +4,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { supplierApi } from '../api/supplier';
 
 const SUPPLIER_TYPE_OPTIONS = [
-  { value: 'EQUIPMENT', label: 'EQUIPMENT/易耗品供应商' },
-  { value: 'CONSUMABLE', label: 'CONSUMABLE/易耗品供应商' },
-  { value: 'MAINTENANCE', label: 'MAINTENANCE/维修服务商' },
-  { value: 'MULTI', label: 'MULTI/多元化供应商' },
+  { value: 'EQUIPMENT', label: '设备供应商' },
+  { value: 'CONSUMABLE', label: '易耗品供应商' },
+  { value: 'MAINTENANCE', label: '维修服务商' },
+  { value: 'MULTI', label: '多元化供应商' },
 ];
 
 export default function SupplierForm() {
@@ -24,7 +24,7 @@ export default function SupplierForm() {
           supplierCode: data.supplierCode,
           name: data.name,
           type: data.type,
-          contactPerson: data.contactPerson,
+          contactPerson: data.contact,
           phone: data.phone,
           email: data.email,
           address: data.address,

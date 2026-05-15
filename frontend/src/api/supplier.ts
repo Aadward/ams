@@ -6,11 +6,13 @@ export interface Supplier {
   supplierCode: string;
   name: string;
   type: string;
-  contactPerson?: string;
+  status: string;
+  contact?: string;
   phone?: string;
   email?: string;
   address?: string;
   remark?: string;
+  rating?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -19,7 +21,7 @@ interface SupplierFormData {
   supplierCode: string;
   name: string;
   type: string;
-  contactPerson?: string;
+  contact?: string;
   phone?: string;
   email?: string;
   address?: string;

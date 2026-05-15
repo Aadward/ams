@@ -1,5 +1,9 @@
 ## done（已验收）
 
+- [x] 资产转移调拨：支持资产在部门/员工之间调拨申请、审批、调拨历史追溯（prds/2026-05-15-资产转移调拨.md）
+  - 后端：AssetTransferRecord + AssetTransferService + AssetTransferController
+  - 前端：TransferList（待我审批/我发起的/全部记录Tab）/ TransferApply（申请表单）/ TransferDetail（详情）
+  - QA验证：调拨管理菜单正常、列表页Tab切换正常、申请表单字段完整、表单验证正常、无JS错误
 - [x] MVP Phase 1: 项目骨架 + Docker Compose
 - [x] MVP Phase 1: Asset / Employee CRUD API + 页面
 - [x] MVP Phase 1: 领用/归还 API + 页面

@@ -12,8 +12,8 @@ echo ""
 echo "=== Building Backend (Java21 + Maven) ==="
 cd "$PROJECT_DIR/backend"
 
-# 本地执行 mvn package（利用本机 .m2 缓存）
-mvn package -DskipTests -B -q
+# 强制重新编译（clean + package），确保 JAR 是最新代码
+mvn clean package -DskipTests -B -q
 
 # --- Frontend: 本地 npm 构建 ---
 echo ""

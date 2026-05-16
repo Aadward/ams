@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAsset, useCreateAsset, useUpdateAsset, useUploadAssetPhoto } from '../api/asset';
 import { UploadOutlined } from '@ant-design/icons';
 import type { RcFile } from 'antd/es/upload';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
@@ -29,9 +30,9 @@ export default function AssetForm() {
         category: asset.category,
         spec: asset.spec,
         location: asset.location,
-        purchaseDate: asset.purchaseDate,
+        purchaseDate: asset.purchaseDate ? dayjs(asset.purchaseDate) : undefined,
         purchasePrice: asset.purchasePrice,
-        warrantyEnd: asset.warrantyEnd,
+        warrantyEnd: asset.warrantyEnd ? dayjs(asset.warrantyEnd) : undefined,
         supplier: asset.supplier,
       });
       setPhotoUrl(asset.photoUrl);

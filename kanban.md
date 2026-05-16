@@ -66,8 +66,72 @@
 - [x] 资产保险管理：保险单增删改查、保险与资产关联、保险到期提醒、索赔记录、仪表盘视图（prds/2026-05-15-资产保险管理.md） [DEV] 2026-05-15 → [QA] 2026-05-16 验证通过：列表保险类型"财产险"✅，详情页保险类型"财产险"✅，理赔状态✅
 - [x] 前端: api/scan.ts, ScanPage.tsx (H5, /#/scan/:assetCode) [DEV] 2026-05-15 → [QA] 2026-05-16 验证通过：扫描A002显示资产信息✅，领用/查看详情按钮✅，修复 employeeId 默认值为1
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## completed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## in_progress
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## todo
+- [x] BUG: 构建脚本scripts/build.sh未执行clean导致代码变更后JAR未更新（mvn package改为mvn clean package） [DEV] 2026-05-16
+- [ ] BUG: 新建资产表单提交无反应（warrantyEndDate字段名与API不匹配） [PM] 2026-05-16T03:56
+- [x] BUG: 供应商管理列表接口500错误（Supplier.contact列不存在→contact_person） [DEV] 2026-05-16
+- [x] BUG: 资产编辑页面（/#/assets/:id/edit）点击编辑按钮后页面变空白，JS报错：t.isValid is not a function [DEV] 2026-05-16
+- [ ] BUG: 新建部门对话框打开后自动关闭（DepartmentForm组件问题） [PM] 2026-05-16T03:56
+- [ ] BUG: 多个API端点返回403（Spring Security方法级别配置缺失） [PM] 2026-05-16T03:57
+- [ ] BUG: 多个路由导航失效（maintenance-records、inventory/plans、consumables等跳转到仪表盘） [PM] 2026-05-16T03:57
+  - 通过URL直接访问以下路由均跳转到仪表盘：/#/maintenance-records、/#/inventory/plans、/#/consumables（低值易耗品模块子路由）
+  - 已验证正常的路由：/#/reports、/#/insurance、/#/depreciation、/#/transfers、/#/borrows、/#/scan/:code
+  - 原因：App.tsx中这些路由配置缺失或被错误覆盖
+- [ ] BUG: 新增易耗品API返回403（POST /api/consumables方法未permitAll） [PM] 2026-05-16T03:58
+- [ ] BUG: 新建易耗品后currentStock显示为0而非传入值（API返回200但库存未正确保存） [QA] 2026-05-16 [PM] 2026-05-16T09:42
+- [ ] BUG: 定期盘点菜单点击无反应（子菜单无法展开，inventory/plans等子路由全部跳转仪表盘） [QA] 2026-05-16 [PM] 2026-05-16T09:42
+- [ ] BUG: 折旧台账API返回403错误（控制台报错Failed to load depreciation ledger，cURL测试/api/depreciation/ledger返回空数组但前端显示403） [QA] 2026-05-16 [PM] 2026-05-16T09:42
+- [ ] 资产详情页直接URL访问（如http://localhost:80/#/assets/TEST001）数据为空，通过列表页查看按钮则正常。疑似前端路由参数解析问题 [QA+PM] 2026-05-16T09:48 [PM] 2026-05-16T09:47
+- [ ] 易耗品多个子路由（stock-in、stock-out、report）通过URL直接访问均跳转到仪表盘而非对应页面 [QA+PM] 2026-05-16T09:48 [PM] 2026-05-16T09:47
+- [ ] 备份管理（/#/backups）通过URL直接访问跳转到仪表盘而非备份管理页面 [QA+PM] 2026-05-16T09:52 [PM] 2026-05-16T09:52
+- [ ] 资产编辑页面（/#/assets/:id/edit）点击编辑按钮后页面变空白，JS报错：t.isValid is not a function [QA+PM] 2026-05-16T09:52 [PM] 2026-05-16T09:52
+- [ ] 多个API端点返回403（reports/summary、notifications等），SecurityConfig虽然配置了api/**但可能存在顺序问题或JWT过滤器拦截 [QA+PM] 2026-05-16T09:53 [PM] 2026-05-16T09:53

@@ -33,7 +33,7 @@ public class Supplier {
     @Column(nullable = false, length = 30)
     private SupplierStatus status;
 
-    @Column(length = 500)
+    @Column(name = "contact_person", length = 500)
     private String contact;
 
     @Column(length = 100)

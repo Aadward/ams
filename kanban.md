@@ -97,7 +97,12 @@
 
 
 
+
 ## completed
+
+- [ ] 【BUG】登录成功后路由跳转失效：token 已存入 localStorage，但 ProtectedRoute 未识别已登录状态，手动刷新或导航到 /dashboard 时仍跳转回 /login [QA] 2026-05-19T06:04 ← BUG仍存在：直接设置token后访问/#/dashboard，跳转回/#/login。根因：ProtectedRoute在AuthContext isLoading=true 时已判断!isAuthenticated并重定向，未等到useEffect恢复token。修复：if (!isAuthenticated && !isLoading) [DEV] 2026-05-19T06:37
+
+
 
 
 
@@ -163,7 +168,7 @@
 
 
 
-- [ ] 【BUG】登录成功后路由跳转失效：token 已存入 localStorage，但 ProtectedRoute 未识别已登录状态，手动刷新或导航到 /dashboard 时仍跳转回 /login [QA] 2026-05-19T06:04 ← BUG仍存在：直接设置token后访问/#/dashboard，跳转回/#/login。根因：ProtectedRoute在AuthContext isLoading=true 时已判断!isAuthenticated并重定向，未等到useEffect恢复token。修复：if (!isAuthenticated && !isLoading) [DEV] 2026-05-19T06:36
+
 
 ## todo
 

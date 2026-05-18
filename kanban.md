@@ -93,6 +93,8 @@
 
 
 
+- [ ] **采购审批完整实现**：ProcurementRequest Entity + ProcurementService + ProcurementController + 前端 ProcurementList/ProcurementApply/ProcurementDetail 页面 + AppMenu 菜单入口 [QA] 2026-05-19T04:39
+
 ## completed
 
 
@@ -118,9 +120,10 @@
 
 
 
-- [ ] **采购审批完整实现**：ProcurementRequest Entity + ProcurementService + ProcurementController + 前端 ProcurementList/ProcurementApply/ProcurementDetail 页面 + AppMenu 菜单入口 [DEV] 2026-05-19T04:11
+
 
 ## in_progress
+
 
 
 

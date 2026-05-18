@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from 'antd';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AssetList from './pages/AssetList';
 import AssetDetail from './pages/AssetDetail';
 import AssetForm from './pages/AssetForm';
@@ -35,12 +36,30 @@ import InsuranceList from './pages/InsuranceList';
 import InsuranceForm from './pages/InsuranceForm';
 import InsuranceDetail from './pages/InsuranceDetail';
 import ClaimForm from './pages/ClaimForm';
+import Login from './pages/Login';
 import AppMenu from './components/AppMenu';
 import NotificationBell from './components/NotificationBell';
 
 const { Header, Sider, Content } = Layout;
 
-export default function App() {
+// Protected route wrapper
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null; // or a loading spinner
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function MainLayout() {
+  const { userId, logout, username } = useAuth();
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider width={200} theme="dark" collapsible>
@@ -52,7 +71,11 @@ export default function App() {
       <Layout>
         <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff', fontSize: 18, paddingLeft: 24, paddingRight: 24 }}>
           <span>AMS 资产管理系统</span>
-          <NotificationBell userId={1} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <span style={{ fontSize: 14 }}>{username}</span>
+            <NotificationBell userId={userId ?? 1} />
+            <a style={{ color: '#fff', fontSize: 14 }} onClick={logout}>退出</a>
+          </div>
         </Header>
         <Content style={{ padding: '24px 48px' }}>
           <Routes>
@@ -101,5 +124,23 @@ export default function App() {
         </Content>
       </Layout>
     </Layout>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </AuthProvider>
   );
 }

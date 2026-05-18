@@ -81,7 +81,9 @@
 
 
 
+
 ## completed
+
 
 
 
@@ -115,4 +117,56 @@
 
 
 
+- [ ] **JWT 登录认证真正落地**：AuthController.login() 返回 Token，前端 api/index.ts 请求拦截器自动带上 Authorization header，App.tsx 从 localStorage 读取 userId，NotificationBell 使用真实 userId（不再是硬编码 1） [DEV] 2026-05-19T00:31
+
 ## todo
+
+### P0 — 登录认证 & 采购审批闭环
+
+  - 后端：AuthController, JWT Filter, SecurityConfig
+  - 前端：AuthProvider, login 页面, api 拦截器, 受保护路由
+  - 验证：登录后 curl 带 token 能访问受保护 API，未登录返回 401
+  - PRD: `prds/2026-05-19-功能优化方案PRD.md` §2.2
+
+- [ ] **采购审批完整实现**：ProcurementRequest Entity + ProcurementService + ProcurementController + 前端 ProcurementList/ProcurementApply/ProcurementDetail 页面 + AppMenu 菜单入口
+  - 申请提交 → 发送 APPROVAL_REQUIRED 通知
+  - 审批通过 → 自动在 asset 表创建记录（状态 IN_STOCK）
+  - 审批拒绝 → 发送 APPROVAL_REJECTED 通知
+  - 验证：mvn compile ✓, npm run build ✓, Docker 重建后 API 正常
+  - PRD: `prds/2026-05-19-功能优化方案PRD.md` §2.1
+
+### P1 — 审批统一 & 员工自助
+
+- [ ] **统一审批工作流**：抽象 ApprovalWorkflow 引擎，BorrowService 和 AssetTransferService 的内部审批逻辑迁移到通用 Workflow，所有审批统一走 ApprovalList 页面
+  - 新建 ApprovalWorkflow.java 通用审批引擎
+  - 改造 BorrowService / AssetTransferService，移除内部审批
+  - 改造 BorrowController / AssetTransferController，移除 approve/reject 端点
+  - 验证：所有审批类型（领用/借用/调拨/维修/采购）都出现在统一审批列表
+  - PRD: `prds/2026-05-19-功能优化方案PRD.md` §3.1
+
+- [ ] **员工自助首页**：Dashboard 增加"我的资产/我的申请/我的待审批"专区，API 新增 GET /api/assets/my、GET /api/approvals/my-requests、GET /api/approvals/pending-count
+  - 前端：Dashboard 增加卡片区块
+  - 验证：员工登录后首页显示个人相关数据，快捷入口跳转正确
+  - PRD: `prds/2026-05-19-功能优化方案PRD.md` §3.2
+
+### P2 — 信息架构优化
+
+- [ ] **菜单按业务域重构**：资产域（资产管理/借用/调拨/报废）、运维域（维修/盘点/维保）、供应链域（采购/供应商/易耗品）、财务域（折旧/保险/备份）、系统域（部门/员工/审批/通知/报表）；补全缺失图标
+  - AppMenu.tsx 重组菜单结构
+  - 验证：菜单结构清晰，图标完整无缺
+
+- [ ] **借用 vs 调拨边界优化**：将借用和调拨合并为"资产变动申请"模块，子类型区分（临时借用/永久调拨），统一列表 + 筛选器
+  - 合并 BorrowList + TransferList 为 AssetTransferList
+  - 合并 BorrowApply + TransferApply 为 AssetTransferApply
+  - 验证：合并后功能不丢失，列表筛选正常
+
+### P3 — 体验打磨
+
+- [ ] **标签打印完善**：支持选择标签模板（公司名+资产名称+编码 或 仅编码），浏览器打印预览优化，支持批量打印
+  - 后端：AssetTagPrintController 扩展模板选项
+  - 前端：AssetList 批量选择 + 打印
+  - 验证：打印预览显示正确格式
+
+- [ ] **移动端 H5 体验**：扫码盘点页面适配手机屏幕，简化操作流程（扫码→选择操作→确认）
+  - ScanPage.tsx 响应式布局
+  - 验证：iOS/Android 手机上操作流畅

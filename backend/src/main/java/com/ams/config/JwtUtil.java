@@ -22,7 +22,7 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    public String generateToken(String username, String role, long expirationMs) {
+    public String generateToken(String username, String role, Long userId, long expirationMs) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationMs);
 
@@ -31,6 +31,7 @@ public class JwtUtil {
         String token = Jwts.builder()
                 .subject(username)
                 .claim("role", role)
+                .claim("userId", userId)
                 .issuedAt(now)
                 .expiration(expiration)
                 .signWith(key)
@@ -85,5 +86,17 @@ public class JwtUtil {
         String role = claims.get("role", String.class);
         log.debug("Extracted role from token: {}", role);
         return role;
+    }
+
+    public Long getUserIdFromToken(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        Integer userId = claims.get("userId", Integer.class);
+        log.debug("Extracted userId from token: {}", userId);
+        return userId != null ? userId.longValue() : null;
     }
 }

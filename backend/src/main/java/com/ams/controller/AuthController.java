@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @Slf4j
@@ -33,13 +34,15 @@ public class AuthController {
         log.info("Login attempt for user: {}", request.getUsername());
 
         if (ADMIN_USERNAME.equals(request.getUsername()) && ADMIN_PASSWORD.equals(request.getPassword())) {
-            String token = jwtUtil.generateToken(ADMIN_USERNAME, ADMIN_ROLE, TOKEN_EXPIRATION_MS);
+            Long userId = 1L; // TODO: lookup from employee table by username
+            String token = jwtUtil.generateToken(ADMIN_USERNAME, ADMIN_ROLE, userId, TOKEN_EXPIRATION_MS);
 
             LoginResponse response = LoginResponse.builder()
                     .token(token)
                     .expiresIn(TOKEN_EXPIRATION_MS / 1000)
                     .role(ADMIN_ROLE)
                     .username(ADMIN_USERNAME)
+                    .userId(userId)
                     .build();
 
             log.info("Login successful for user: {}", request.getUsername());
@@ -52,7 +55,7 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> me(Authentication authentication) {
+    public ResponseEntity<?> me(Authentication authentication, HttpServletRequest request) {
         if (authentication == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Not authenticated"));
@@ -63,9 +66,19 @@ public class AuthController {
                 .map(GrantedAuthority::getAuthority)
                 .map(auth -> auth.replace("ROLE_", ""))
                 .orElse("UNKNOWN");
+
+        // Extract userId from JWT token
+        Long userId = null;
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            userId = jwtUtil.getUserIdFromToken(token);
+        }
+
         return ResponseEntity.ok(Map.of(
                 "username", username,
                 "role", role,
+                "userId", userId != null ? userId : 0,
                 "authorities", authentication.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .toList()

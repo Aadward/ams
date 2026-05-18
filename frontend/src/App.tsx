@@ -54,7 +54,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  if (!isAuthenticated && !isLoading) {
+  // Only redirect if not authenticated AND loading is complete
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 

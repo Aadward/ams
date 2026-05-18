@@ -87,6 +87,8 @@
 
 
 
+
+
 ## completed
 
 
@@ -109,6 +111,8 @@
 
 
 
+- [ ] 【BUG】登录成功后路由跳转失效：token 已存入 localStorage，但 ProtectedRoute 未识别已登录状态，手动刷新或导航到 /dashboard 时仍跳转回 /login [DEV] 2026-05-19T03:37
+
 ## in_progress
 
 
@@ -130,7 +134,9 @@
 
 
 
-- [ ] 【BUG】登录成功后路由跳转失效：token 已存入 localStorage，但 ProtectedRoute 未识别已登录状态，手动刷新或导航到 /dashboard 时仍跳转回 /login [DEV] 2026-05-19T03:00
+
+
+
 
 ## todo
 

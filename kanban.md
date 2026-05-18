@@ -91,6 +91,8 @@
 
 - [ ] 【BUG】登录成功后路由跳转失效：token 已存入 localStorage，但 ProtectedRoute 未识别已登录状态，手动刷新或导航到 /dashboard 时仍跳转回 /login [QA] 2026-05-19T03:38
 
+
+
 ## completed
 
 
@@ -115,7 +117,12 @@
 
 
 
+
+- [ ] **采购审批完整实现**：ProcurementRequest Entity + ProcurementService + ProcurementController + 前端 ProcurementList/ProcurementApply/ProcurementDetail 页面 + AppMenu 菜单入口 [DEV] 2026-05-19T04:11
+
 ## in_progress
+
+
 
 
 
@@ -150,7 +157,6 @@
   - 验证：登录后 curl 带 token 能访问受保护 API，未登录返回 401
   - PRD: `prds/2026-05-19-功能优化方案PRD.md` §2.2
 
-- [ ] **采购审批完整实现**：ProcurementRequest Entity + ProcurementService + ProcurementController + 前端 ProcurementList/ProcurementApply/ProcurementDetail 页面 + AppMenu 菜单入口
   - 申请提交 → 发送 APPROVAL_REQUIRED 通知
   - 审批通过 → 自动在 asset 表创建记录（状态 IN_STOCK）
   - 审批拒绝 → 发送 APPROVAL_REJECTED 通知

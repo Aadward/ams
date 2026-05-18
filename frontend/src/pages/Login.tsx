@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { authApi } from '../api/auth';
@@ -12,6 +13,7 @@ interface LoginFormValues {
 export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const onFinish = async (values: LoginFormValues) => {
     setLoading(true);
@@ -22,8 +24,8 @@ export default function Login() {
       // Update AuthContext state (which also persists to localStorage)
       login(token, userId, username, role);
 
-      // Navigate to home (use hash routing)
-      window.location.hash = '#/';
+      // Navigate to home via React Router (not window.location.hash)
+      navigate('/');
     } catch {
       message.error('用户名或密码错误');
     } finally {

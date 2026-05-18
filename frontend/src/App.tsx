@@ -49,11 +49,12 @@ const { Header, Sider, Content } = Layout;
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
 
+  // Wait for AuthContext to restore token from localStorage before redirecting
   if (isLoading) {
-    return null; // or a loading spinner
+    return null;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !isLoading) {
     return <Navigate to="/login" replace />;
   }
 

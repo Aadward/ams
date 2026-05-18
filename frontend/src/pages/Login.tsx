@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { authApi } from '../api/auth';
+import { useAuth } from '../contexts/AuthContext';
 
 interface LoginFormValues {
   username: string;
@@ -10,6 +11,7 @@ interface LoginFormValues {
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const onFinish = async (values: LoginFormValues) => {
     setLoading(true);
@@ -17,11 +19,8 @@ export default function Login() {
       const res = await authApi.login(values);
       const { token, userId, username, role } = res.data;
 
-      // Persist auth data
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', String(userId));
-      localStorage.setItem('username', username);
-      localStorage.setItem('role', role);
+      // Update AuthContext state (which also persists to localStorage)
+      login(token, userId, username, role);
 
       // Navigate to home (use hash routing)
       window.location.hash = '#/';

@@ -46,11 +46,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Auth endpoints - public
+                        // Auth endpoints - public (login, register, etc.)
                         .requestMatchers("/api/auth/**").permitAll()
-
-                        // MVP mode: all API endpoints permit all (authentication handled at service level if needed)
-                        .requestMatchers("/api/**").permitAll()
 
                         // Actuator health - public
                         .requestMatchers("/actuator/**").permitAll()
@@ -61,8 +58,8 @@ public class SecurityConfig {
                         // Swagger docs - public
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll()
 
-                        // All other requests require authentication
-                        .anyRequest().authenticated()
+                        // All other API requests require authentication (JWT)
+                        .requestMatchers("/api/**").authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

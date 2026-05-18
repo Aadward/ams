@@ -82,6 +82,7 @@
 
 
 
+
 ## completed
 
 
@@ -100,6 +101,8 @@
 
 
 
+- [ ] **JWT 登录认证真正落地**：AuthController.login() 返回 Token，前端 api/index.ts 请求拦截器自动带上 Authorization header，App.tsx 从 localStorage 读取 userId，NotificationBell 使用真实 userId（不再是硬编码 1） [DEV] 2026-05-19T02:05
+
 ## in_progress
 
 
@@ -117,7 +120,7 @@
 
 
 
-- [ ] **JWT 登录认证真正落地**：AuthController.login() 返回 Token，前端 api/index.ts 请求拦截器自动带上 Authorization header，App.tsx 从 localStorage 读取 userId，NotificationBell 使用真实 userId（不再是硬编码 1） [DEV] 2026-05-19T00:31
+
 
 ## todo
 

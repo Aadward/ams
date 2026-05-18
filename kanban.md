@@ -83,6 +83,9 @@
 
 
 
+- [ ] **JWT 登录认证真正落地**：AuthController.login() 返回 Token，前端 api/index.ts 请求拦截器自动带上 Authorization header，App.tsx 从 localStorage 读取 userId，NotificationBell 使用真实 userId（不再是硬编码 1） [QA] 2026-05-19T02:38
+
+
 ## completed
 
 
@@ -101,9 +104,12 @@
 
 
 
-- [ ] **JWT 登录认证真正落地**：AuthController.login() 返回 Token，前端 api/index.ts 请求拦截器自动带上 Authorization header，App.tsx 从 localStorage 读取 userId，NotificationBell 使用真实 userId（不再是硬编码 1） [DEV] 2026-05-19T02:05
+
+
 
 ## in_progress
+
+
 
 
 
@@ -173,3 +179,4 @@
 - [ ] **移动端 H5 体验**：扫码盘点页面适配手机屏幕，简化操作流程（扫码→选择操作→确认）
   - ScanPage.tsx 响应式布局
   - 验证：iOS/Android 手机上操作流畅
+- [ ] 【BUG】登录成功后路由跳转失效：token 已存入 localStorage，但 ProtectedRoute 未识别已登录状态，手动刷新或导航到 /dashboard 时仍跳转回 /login [QA] 2026-05-19T02:38 [PM] 2026-05-19T02:38

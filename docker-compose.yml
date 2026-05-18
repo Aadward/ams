@@ -86,9 +86,16 @@ services:
     container_name: ams-frontend
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    networks:
+      - ams_default
     ports:
       - "80:80"
+
+networks:
+  ams_default:
+    external: true
 
 volumes:
   mysql_data:

@@ -115,6 +115,9 @@ export default function NotificationBell({ userId = 1 }: NotificationBellProps) 
     TRANSFER_REQUIRED: '调拨待审批',
     TRANSFER_APPROVED: '调拨已批准',
     TRANSFER_REJECTED: '调拨已拒绝',
+    PROCUREMENT_REQUIRED: '采购待审批',
+    PROCUREMENT_APPROVED: '采购已批准',
+    PROCUREMENT_REJECTED: '采购已拒绝',
   };
 
   const typeColors: Record<string, string> = {
@@ -136,6 +139,9 @@ export default function NotificationBell({ userId = 1 }: NotificationBellProps) 
     TRANSFER_REQUIRED: 'blue',
     TRANSFER_APPROVED: 'green',
     TRANSFER_REJECTED: 'red',
+    PROCUREMENT_REQUIRED: 'blue',
+    PROCUREMENT_APPROVED: 'green',
+    PROCUREMENT_REJECTED: 'red',
   };
 
   const content = (

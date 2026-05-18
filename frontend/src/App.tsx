@@ -31,6 +31,9 @@ import BorrowApply from './pages/BorrowApply';
 import TransferList from './pages/TransferList';
 import TransferApply from './pages/TransferApply';
 import TransferDetail from './pages/TransferDetail';
+import ProcurementList from './pages/ProcurementList';
+import ProcurementApply from './pages/ProcurementApply';
+import ProcurementDetail from './pages/ProcurementDetail';
 import ScanPage from './pages/ScanPage';
 import InsuranceList from './pages/InsuranceList';
 import InsuranceForm from './pages/InsuranceForm';
@@ -96,6 +99,9 @@ function MainLayout() {
             <Route path="/transfers" element={<TransferList />} />
             <Route path="/transfers/apply" element={<TransferApply />} />
             <Route path="/transfers/:id" element={<TransferDetail />} />
+            <Route path="/procurements" element={<ProcurementList />} />
+            <Route path="/procurements/apply" element={<ProcurementApply />} />
+            <Route path="/procurements/:id" element={<ProcurementDetail />} />
             <Route path="/scan/:assetCode" element={<ScanPage />} />
             <Route path="/maintenance" element={<MaintenanceList />} />
             <Route path="/backup" element={<BackupList />} />

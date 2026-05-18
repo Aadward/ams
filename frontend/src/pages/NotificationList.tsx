@@ -66,6 +66,9 @@ export default function NotificationList() {
       TRANSFER_APPROVED: 'green',
       TRANSFER_REJECTED: 'red',
       ASSET_EXPIRING_INSURANCE: 'orange',
+      PROCUREMENT_REQUIRED: 'blue',
+      PROCUREMENT_APPROVED: 'green',
+      PROCUREMENT_REJECTED: 'red',
     };
     const labels: Record<string, string> = {
       ASSET_EXPIRING_WARRANTY: '维保到期',
@@ -86,6 +89,9 @@ export default function NotificationList() {
       TRANSFER_APPROVED: '调拨已批准',
       TRANSFER_REJECTED: '调拨已拒绝',
       ASSET_EXPIRING_INSURANCE: '保险到期提醒',
+      PROCUREMENT_REQUIRED: '采购待审批',
+      PROCUREMENT_APPROVED: '采购已批准',
+      PROCUREMENT_REJECTED: '采购已拒绝',
     };
     return <Tag color={colors[type] || 'default'}>{labels[type] || type}</Tag>;
   };

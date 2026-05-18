@@ -1,6 +1,6 @@
 import { Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined, CloudUploadOutlined, ToolOutlined, BarChartOutlined, InboxOutlined, AuditOutlined, SwapOutlined, ArrowsAltOutlined, SafetyOutlined, ShopOutlined } from '@ant-design/icons';
+import { PieChartOutlined, DesktopOutlined, TeamOutlined, ClusterOutlined, BellOutlined, FileTextOutlined, CloudUploadOutlined, ToolOutlined, BarChartOutlined, InboxOutlined, AuditOutlined, SwapOutlined, ArrowsAltOutlined, SafetyOutlined, ShopOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 
 export default function AppMenu() {
   const navigate = useNavigate();
@@ -56,6 +56,15 @@ export default function AppMenu() {
       children: [
         { key: '/transfers', label: '调拨记录' },
         { key: '/transfers/apply', label: '申请调拨' },
+      ],
+    },
+    {
+      key: '/procurements',
+      icon: <ShoppingCartOutlined />,
+      label: '采购管理',
+      children: [
+        { key: '/procurements', label: '采购记录' },
+        { key: '/procurements/apply', label: '申请采购' },
       ],
     },
     {

@@ -5,5 +5,6 @@ public enum ApprovalType {
     ASSET_RETURN,
     MAINTENANCE,
     ASSET_BORROW,
-    TRANSFER
+    TRANSFER,
+    PROCUREMENT
 }

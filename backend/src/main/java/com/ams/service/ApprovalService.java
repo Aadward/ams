@@ -93,6 +93,7 @@ public class ApprovalService {
             case MAINTENANCE -> "维修";
             case ASSET_BORROW -> "借用";
             case TRANSFER -> "转移";
+            case PROCUREMENT -> "采购";
         };
 
         String title = "新的" + typeLabel + "申请";

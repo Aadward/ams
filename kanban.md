@@ -101,6 +101,8 @@
 
 
 
+
+
 ## completed
 
 
@@ -140,7 +142,12 @@
 
 
 
+
+- 后端：AuthController, JWT Filter, SecurityConfig [DEV] 2026-05-19T09:47
+
 ## in_progress
+
+
 
 
 
@@ -183,7 +190,6 @@
 
 ### P0 — 登录认证 & 采购审批闭环
 
-  - 后端：AuthController, JWT Filter, SecurityConfig
   - 前端：AuthProvider, login 页面, api 拦截器, 受保护路由
   - 验证：登录后 curl 带 token 能访问受保护 API，未登录返回 401
   - PRD: `prds/2026-05-19-功能优化方案PRD.md` §2.2

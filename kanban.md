@@ -158,6 +158,7 @@
 
 
 ## in_progress
+### P1 — 审批统一 & 员工自助
 
 
 
@@ -216,7 +217,6 @@
   - 验证：mvn compile ✓, npm run build ✓, Docker 重建后 API 正常
   - PRD: `prds/2026-05-19-功能优化方案PRD.md` §2.1
 
-### P1 — 审批统一 & 员工自助
 
   - 新建 ApprovalWorkflow.java 通用审批引擎
   - 改造 BorrowService / AssetTransferService，移除内部审批

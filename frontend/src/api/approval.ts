@@ -1,4 +1,5 @@
 import http from './http';
+import type { Asset } from '../types';
 
 export interface ApprovalRequest {
   id: number;
@@ -22,6 +23,12 @@ export const approvalApi = {
 
   listMy: (requesterId: number) =>
     http.get<ApprovalRequest[]>('/approvals/my', { params: { requesterId } }),
+
+  getPendingCount: () =>
+    http.get<{ count: number }>('/approvals/pending-count'),
+
+  getMyAssets: () =>
+    http.get<Asset[]>('/assets/my'),
 
   create: (data: { requesterId: number; assetId: number; departmentId: number; type: string; reason: string }) =>
     http.post<ApprovalRequest>('/approvals', data),

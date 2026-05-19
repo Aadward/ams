@@ -86,6 +86,12 @@ public class ApprovalService {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public long getPendingCount() {
+        log.info("Fetching count of pending approval requests");
+        return approvalRequestRepository.findByStatus(ApprovalStatus.PENDING).size();
+    }
+
     /**
      * Approve an approval request. Delegates to workflow; business callbacks handle
      * MAINTENANCE (sync MaintenanceRecord), ASSET_BORROW (create BorrowRecord),

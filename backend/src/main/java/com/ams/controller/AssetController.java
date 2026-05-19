@@ -13,8 +13,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,6 +25,21 @@ import java.util.Map;
 public class AssetController {
 
     private final AssetService assetService;
+
+    private Long getCurrentEmployeeId() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("用户未登录");
+        }
+        String username = authentication.getName();
+        // In our system, username is actually the userId for the JWT token
+        // The JwtAuthenticationFilter stores userId as the "username" claim
+        try {
+            return Long.valueOf(username);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("无效的用户信息");
+        }
+    }
 
     @GetMapping
     public ResponseEntity<?> listAssets(
@@ -173,6 +190,17 @@ public class AssetController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<?> getMyAssets() {
+        try {
+            Long employeeId = getCurrentEmployeeId();
+            List<AssetResponse> result = assetService.getMyAssets(employeeId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 

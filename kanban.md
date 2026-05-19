@@ -154,12 +154,12 @@
 
 
 
-- 后端：AuthController, JWT Filter, SecurityConfig [DEV] 2026-05-19T09:47
 
 
 
 
 ## in_progress
+- [ ] **员工自助首页**：Dashboard 增加"我的资产/我的申请/我的待审批"专区，API 新增 GET /api/assets/my、GET /api/approvals/my-requests、GET /api/approvals/pending-count
 
 
 
@@ -225,7 +225,6 @@
   - 验证：所有审批类型（领用/借用/调拨/维修/采购）都出现在统一审批列表
   - PRD: `prds/2026-05-19-功能优化方案PRD.md` §3.1
 
-- [ ] **员工自助首页**：Dashboard 增加"我的资产/我的申请/我的待审批"专区，API 新增 GET /api/assets/my、GET /api/approvals/my-requests、GET /api/approvals/pending-count
   - 前端：Dashboard 增加卡片区块
   - 验证：员工登录后首页显示个人相关数据，快捷入口跳转正确
   - PRD: `prds/2026-05-19-功能优化方案PRD.md` §3.2

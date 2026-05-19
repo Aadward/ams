@@ -285,6 +285,12 @@ public class AssetService {
         return assets.map(this::toResponse);
     }
 
+    @Transactional(readOnly = true)
+    public List<AssetResponse> getMyAssets(Long assigneeId) {
+        List<Asset> assets = assetRepository.findByAssigneeId(assigneeId);
+        return assets.stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
     private AssetResponse toResponse(Asset asset) {
         return AssetResponse.builder()
                 .id(asset.getId())

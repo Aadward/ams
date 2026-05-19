@@ -1,6 +1,10 @@
 import { Row, Col, Card, Statistic, Progress, Tag, Segmented } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useDashboardStats, useExpiringWarranty, useExpiringInsurance } from '../api/asset';
+import { approvalApi } from '../api/approval';
+import { useAuth } from '../contexts/AuthContext';
+import type { ApprovalRequest } from '../api/approval';
 
 export default function Dashboard() {
   const { data, isLoading } = useDashboardStats();
@@ -8,6 +12,35 @@ export default function Dashboard() {
   const { data: expiringAssets } = useExpiringWarranty(warrantyDays);
   const [insuranceDays, setInsuranceDays] = useState<number>(30);
   const { data: expiringInsurances } = useExpiringInsurance(insuranceDays);
+  const { userId, role } = useAuth();
+
+  const [myAssetCount, setMyAssetCount] = useState<number>(0);
+  const [myRequests, setMyRequests] = useState<ApprovalRequest[]>([]);
+  const [pendingCount, setPendingCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (userId) {
+      approvalApi.getMyAssets().then(res => {
+        setMyAssetCount(res.data.length);
+      }).catch(() => {});
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      approvalApi.listMy(userId).then(res => {
+        setMyRequests(res.data.slice(0, 5));
+      }).catch(() => {});
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (role === 'ADMIN' || role === 'MANAGER') {
+      approvalApi.getPendingCount().then(res => {
+        setPendingCount(res.data.count);
+      }).catch(() => {});
+    }
+  }, [role]);
 
   const categoryLabels: Record<string, string> = {
     HARDWARE: '硬件设备',
@@ -265,6 +298,42 @@ export default function Dashboard() {
             )}
           </Card>
         </Col>
+      </Row>
+      <h3 style={{ marginTop: 24, marginBottom: 16 }}>我的</h3>
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col span={8}>
+          <Card>
+            <Statistic title="我的资产" value={myAssetCount} />
+            <Link to="/assets" style={{ fontSize: 12 }}>查看全部 →</Link>
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card title="我的申请">
+            {myRequests.length > 0 ? (
+              <div style={{ maxHeight: 150, overflow: 'auto' }}>
+                {myRequests.map(req => (
+                  <div key={req.id} style={{ padding: '4px 0', borderBottom: '1px solid #f0f0f0' }}>
+                    <div style={{ fontSize: 12 }}>{req.assetName || '资产#' + req.assetId}</div>
+                    <Tag color={req.status === 'PENDING' ? 'gold' : req.status === 'APPROVED' ? 'green' : 'red'}>
+                      {req.status === 'PENDING' ? '待审批' : req.status === 'APPROVED' ? '已通过' : '已拒绝'}
+                    </Tag>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ color: '#666', fontSize: 12 }}>暂无申请</div>
+            )}
+            <Link to="/approvals" style={{ fontSize: 12 }}>查看全部 →</Link>
+          </Card>
+        </Col>
+        {(role === 'ADMIN' || role === 'MANAGER') && (
+          <Col span={8}>
+            <Card>
+              <Statistic title="我的待审批" value={pendingCount} />
+              <Link to="/approvals" style={{ fontSize: 12 }}>查看全部 →</Link>
+            </Card>
+          </Col>
+        )}
       </Row>
     </div>
   );

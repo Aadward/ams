@@ -57,6 +57,17 @@ public class ApprovalController {
         }
     }
 
+    @GetMapping("/pending-count")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<?> getPendingCount() {
+        try {
+            long count = approvalService.getPendingCount();
+            return ResponseEntity.ok(Map.of("count", count));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<?> approve(@PathVariable Long id, @RequestBody Map<String, String> request) {

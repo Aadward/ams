@@ -93,12 +93,11 @@
 
 
 
-- [ ] **JWT 登录认证真正落地**：AuthController.login() 返回 Token，前端 api/index.ts 请求拦截器自动带上 Authorization header，App.tsx 从 localStorage 读取 userId，NotificationBell 使用真实 userId（不再是硬编码 1） [QA] 2026-05-19T06:04
 
 
 
 
-- [ ] 【BUG】登录成功后路由跳转失效：token 已存入 localStorage，但 ProtectedRoute 未识别已登录状态，手动刷新或导航到 /dashboard 时仍跳转回 /login [QA] 2026-05-19T06:04 ← BUG仍存在：直接设置token后访问/#/dashboard，跳转回/#/login。根因：ProtectedRoute在AuthContext isLoading=true 时已判断!isAuthenticated并重定向，未等到useEffect恢复token。修复：if (!isAuthenticated && !isLoading) [QA] 2026-05-19T07:35
+
 
 ## completed
 
@@ -135,6 +134,9 @@
 
 
 
+
+- [ ] **JWT 登录认证真正落地**：AuthController.login() 返回 Token，前端 api/index.ts 请求拦截器自动带上 Authorization header，App.tsx 从 localStorage 读取 userId，NotificationBell 使用真实 userId（不再是硬编码 1） [QA] 2026-05-19T06:04
+- [ ] 【BUG】登录成功后路由跳转失效：token 已存入 localStorage，但 ProtectedRoute 未识别已登录状态，手动刷新或导航到 /dashboard 时仍跳转回 /login [QA] 2026-05-19T06:04 ← BUG仍存在：直接设置token后访问/#/dashboard，跳转回/#/login。根因：ProtectedRoute在AuthContext isLoading=true 时已判断!isAuthenticated并重定向，未等到useEffect恢复token。修复：if (!isAuthenticated && !isLoading) [QA] 2026-05-19T07:35
 
 ## in_progress
 

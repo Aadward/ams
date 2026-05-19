@@ -105,7 +105,7 @@
 
 
 
-- [ ] **统一审批工作流**：抽象 ApprovalWorkflow 引擎，BorrowService 和 AssetTransferService 的内部审批逻辑迁移到通用 Workflow，所有审批统一走 ApprovalList 页面 [QA] 2026-05-19T10:12
+- [x] **统一审批工作流**：抽象 ApprovalWorkflow 引擎，BorrowService 和 AssetTransferService 的内部审批逻辑迁移到通用 Workflow，所有审批统一走 ApprovalList 页面 [QA] 2026-05-19T10:12
 
 ## completed
 

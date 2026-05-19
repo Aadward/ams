@@ -19,4 +19,6 @@ public interface AssetTransferRecordRepository extends JpaRepository<AssetTransf
     List<AssetTransferRecord> findByStatus(TransferStatus status);
 
     List<AssetTransferRecord> findByFromDepartmentIdOrToDepartmentId(Long fromDepartmentId, Long toDepartmentId);
+
+    List<AssetTransferRecord> findByApprovalId(Long approvalId);
 }

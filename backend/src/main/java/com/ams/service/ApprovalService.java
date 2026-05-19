@@ -14,9 +14,12 @@ import com.ams.repository.BorrowRecordRepository;
 import com.ams.repository.DepartmentRepository;
 import com.ams.repository.EmployeeRepository;
 import com.ams.repository.MaintenanceRecordRepository;
+import com.ams.repository.AssetTransferRecordRepository;
 import com.ams.entity.Asset;
 import com.ams.entity.MaintenanceRecord;
 import com.ams.entity.BorrowRecord;
+import com.ams.entity.AssetTransferRecord;
+import com.ams.enums.TransferStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,6 +42,7 @@ public class ApprovalService {
     private final NotificationService notificationService;
     private final MaintenanceRecordRepository maintenanceRecordRepository;
     private final BorrowRecordRepository borrowRecordRepository;
+    private final AssetTransferRecordRepository assetTransferRecordRepository;
 
     private ApprovalRequestDTO toDTO(ApprovalRequest r) {
         String assetName = assetRepository.findById(r.getAssetId())
@@ -206,6 +210,25 @@ public class ApprovalService {
             log.info("Created borrow record for asset {} borrowed by {}", saved.getAssetId(), saved.getRequesterId());
         }
 
+        // Sync transfer record if this is a TRANSFER approval
+        if (saved.getType() == ApprovalType.TRANSFER) {
+            List<AssetTransferRecord> transferRecords = assetTransferRecordRepository.findByApprovalId(saved.getId());
+            for (AssetTransferRecord record : transferRecords) {
+                record.setStatus(TransferStatus.APPROVED);
+                record.setManagerComment(managerComment);
+                record.setResolvedAt(LocalDateTime.now());
+                // Update asset assignee to the transfer recipient
+                Asset asset = assetRepository.findById(saved.getAssetId()).orElse(null);
+                if (asset != null) {
+                    asset.setAssignee(employeeRepository.findById(record.getToEmployeeId()).orElse(null));
+                    assetRepository.save(asset);
+                    log.info("Asset {} transferred to employee {} via transfer record {}",
+                            asset.getId(), record.getToEmployeeId(), record.getId());
+                }
+                assetTransferRecordRepository.save(record);
+            }
+        }
+
         // Notify the requester
         NotificationType notifyType = (saved.getType() == ApprovalType.ASSET_BORROW)
                 ? NotificationType.BORROW_APPROVED
@@ -245,6 +268,18 @@ public class ApprovalService {
                 record.setStatus(MaintenanceStatus.REJECTED);
                 maintenanceRecordRepository.save(record);
                 log.info("Synced maintenance record {} to REJECTED", record.getId());
+            }
+        }
+
+        // Sync transfer record if this is a TRANSFER rejection
+        if (saved.getType() == ApprovalType.TRANSFER) {
+            List<AssetTransferRecord> transferRecords = assetTransferRecordRepository.findByApprovalId(saved.getId());
+            for (AssetTransferRecord record : transferRecords) {
+                record.setStatus(TransferStatus.REJECTED);
+                record.setManagerComment(managerComment);
+                record.setResolvedAt(LocalDateTime.now());
+                assetTransferRecordRepository.save(record);
+                log.info("Synced transfer record {} to REJECTED", record.getId());
             }
         }
 

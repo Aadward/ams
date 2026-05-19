@@ -44,18 +44,4 @@ public class AssetTransferController {
     public ResponseEntity<TransferRecordResponse> getTransferById(@PathVariable Long id) {
         return ResponseEntity.ok(assetTransferService.getTransferById(id));
     }
-
-    @PutMapping("/{id}/approve")
-    public ResponseEntity<AssetTransferRecord> approveTransfer(
-            @PathVariable Long id,
-            @RequestParam(required = false) String managerComment) {
-        return ResponseEntity.ok(assetTransferService.approveTransfer(id, managerComment));
-    }
-
-    @PutMapping("/{id}/reject")
-    public ResponseEntity<AssetTransferRecord> rejectTransfer(
-            @PathVariable Long id,
-            @RequestParam(required = false) String managerComment) {
-        return ResponseEntity.ok(assetTransferService.rejectTransfer(id, managerComment));
-    }
 }

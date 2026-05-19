@@ -5,7 +5,6 @@ import com.ams.dto.TransferRecordResponse;
 import com.ams.entity.Asset;
 import com.ams.entity.AssetTransferRecord;
 import com.ams.enums.TransferStatus;
-import com.ams.enums.NotificationType;
 import com.ams.enums.ApprovalType;
 import com.ams.repository.AssetRepository;
 import com.ams.repository.AssetTransferRecordRepository;
@@ -29,7 +28,7 @@ public class AssetTransferService {
     private final AssetRepository assetRepository;
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
-    private final NotificationService notificationService;
+    private final ApprovalService approvalService;
 
     private TransferRecordResponse toResponse(AssetTransferRecord r) {
         String assetName = assetRepository.findById(r.getAssetId())
@@ -80,6 +79,7 @@ public class AssetTransferService {
                 ? asset.getAssignee().getDepartment().getId()
                 : request.getToDepartmentId();
 
+        // First create the transfer record as PENDING
         AssetTransferRecord record = AssetTransferRecord.builder()
                 .assetId(request.getAssetId())
                 .fromEmployeeId(fromEmployeeId)
@@ -92,18 +92,18 @@ public class AssetTransferService {
 
         AssetTransferRecord saved = transferRecordRepository.save(record);
 
-        // Notify managers about transfer request
-        String assetName = asset.getName();
-        String requesterName = employeeRepository.findById(requesterId).map(e -> e.getName()).orElse("未知");
-        String message = requesterName + " 申请将资产「" + assetName + "」转移给「"
-                + employeeRepository.findById(request.getToEmployeeId()).map(e -> e.getName()).orElse("未知") + "」，请尽快审批";
+        // Then create an approval request via ApprovalService
+        var approval = approvalService.createRequest(
+                requesterId,
+                request.getAssetId(),
+                fromDepartmentId,
+                ApprovalType.TRANSFER,
+                request.getReason()
+        );
 
-        employeeRepository.findByRole(com.ams.enums.UserRole.MANAGER).forEach(manager -> {
-            notificationService.createNotification(manager.getId(), "资产转移申请", message, NotificationType.TRANSFER_REQUIRED);
-        });
-        employeeRepository.findByRole(com.ams.enums.UserRole.ADMIN).forEach(admin -> {
-            notificationService.createNotification(admin.getId(), "资产转移申请", message, NotificationType.TRANSFER_REQUIRED);
-        });
+        // Link the transfer record to the approval request
+        saved.setApprovalId(approval.getId());
+        transferRecordRepository.save(saved);
 
         return saved;
     }
@@ -124,68 +124,6 @@ public class AssetTransferService {
     public List<TransferRecordResponse> getTransfersByAsset(Long assetId) {
         return transferRecordRepository.findByAssetId(assetId)
                 .stream().map(this::toResponse).collect(Collectors.toList());
-    }
-
-    @Transactional
-    public AssetTransferRecord approveTransfer(Long id, String managerComment) {
-        log.info("Approving transfer id={}, comment={}", id, managerComment);
-
-        AssetTransferRecord record = transferRecordRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Transfer record not found"));
-
-        if (record.getStatus() != TransferStatus.PENDING) {
-            throw new RuntimeException("Only pending transfers can be approved");
-        }
-
-        record.setStatus(TransferStatus.APPROVED);
-        record.setManagerComment(managerComment);
-        record.setResolvedAt(LocalDateTime.now());
-        AssetTransferRecord saved = transferRecordRepository.save(record);
-
-        // Update asset assignee
-        Asset asset = assetRepository.findById(saved.getAssetId()).orElse(null);
-        if (asset != null) {
-            asset.setAssignee(employeeRepository.findById(saved.getToEmployeeId()).orElse(null));
-            assetRepository.save(asset);
-            log.info("Asset {} transferred to employee {}", saved.getAssetId(), saved.getToEmployeeId());
-        }
-
-        // Notify requester
-        notificationService.createNotification(
-                saved.getFromEmployeeId(),
-                "资产转移已通过",
-                "您申请的资产「" + assetRepository.findById(saved.getAssetId()).map(a -> a.getName()).orElse("") + "」已转移审批通过",
-                NotificationType.TRANSFER_APPROVED
-        );
-
-        return saved;
-    }
-
-    @Transactional
-    public AssetTransferRecord rejectTransfer(Long id, String managerComment) {
-        log.info("Rejecting transfer id={}, comment={}", id, managerComment);
-
-        AssetTransferRecord record = transferRecordRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Transfer record not found"));
-
-        if (record.getStatus() != TransferStatus.PENDING) {
-            throw new RuntimeException("Only pending transfers can be rejected");
-        }
-
-        record.setStatus(TransferStatus.REJECTED);
-        record.setManagerComment(managerComment);
-        record.setResolvedAt(LocalDateTime.now());
-        AssetTransferRecord saved = transferRecordRepository.save(record);
-
-        // Notify requester
-        notificationService.createNotification(
-                saved.getFromEmployeeId(),
-                "资产转移已拒绝",
-                "您申请的资产「" + assetRepository.findById(saved.getAssetId()).map(a -> a.getName()).orElse("") + "」已被拒绝",
-                NotificationType.TRANSFER_REJECTED
-        );
-
-        return saved;
     }
 
     @Transactional(readOnly = true)

@@ -51,8 +51,11 @@ export default function ApprovalList() {
       ASSET_ASSIGNMENT: '领用',
       ASSET_RETURN: '归还',
       MAINTENANCE: '维修',
+      ASSET_BORROW: '借用',
+      TRANSFER: '调拨',
+      PROCUREMENT: '采购',
     };
-    return <Tag>{map[type] || type}</Tag>;
+    return <Tag color="blue">{map[type] || type}</Tag>;
   };
 
   const openActionModal = (id: number, type: 'approve' | 'reject') => {

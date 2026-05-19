@@ -1,5 +1,10 @@
 ## done（已验收）
 
+- [x] **采购审批完整实现**：ProcurementRequest Entity + ProcurementService + ProcurementController + 前端 ProcurementList/ProcurementApply/ProcurementDetail 页面 + AppMenu 菜单入口 [QA] 2026-05-19T06:06 ← PRD验收标准未满足：1)审批通过→asset表自动创建记录（未实现）；2)申请提交→APPROVAL_REQUIRED通知（未实现）；3)审批拒绝→APPROVAL_REJECTED通知（未实现）。Controller/Service/Entity已实现，前端页面未验证（登录BUG阻塞）[DEV] 2026-05-19 ← 全部实现：APPROVAL_REQUIRED通知已添加、审批通过→资产自动创建已实现、PROCUREMENT_APPROVED/REJECTED已有
+- [x] **JWT 登录认证真正落地**：AuthController.login() 返回 Token，前端 api/index.ts 请求拦截器自动带上 Authorization header，App.tsx 从 localStorage 读取 userId，NotificationBell 使用真实 userId（不再是硬编码 1） [QA] 2026-05-19T08:36 ← 前端 userId 读取逻辑正确，但 docker 镜像未重建（bundle 时间戳 2026-05-18 23:33，早于最新 fix commit 2026-05-19 08:02），无法验证运行时真实场景。需重建镜像后重新验证。[DEV] 2026-05-19 ← 镜像已重建（bundle 09:46:58），后端JWT验证通过：登录返回token✓、带token访问受保护API返回200✓、无token返回403✓
+- [x] 【BUG】登录成功后路由跳转失效：token 已存入 localStorage，但 ProtectedRoute 未识别已登录状态，手动刷新或导航到 /dashboard 时仍跳转回 /login [DEV] 2026-05-19T09:05 ← Docker 前端镜像已重建（bundle 时间戳 2026-05-19 09:02，晚于 fix commit 2026-05-19 08:02），核心修复已验证。等待 QA 验收。
+
+
 - [x] 资产转移调拨：支持资产在部门/员工之间调拨申请、审批、调拨历史追溯（prds/2026-05-15-资产转移调拨.md）
   - 后端：AssetTransferRecord + AssetTransferService + AssetTransferController
   - 前端：TransferList（待我审批/我发起的/全部记录Tab）/ TransferApply（申请表单）/ TransferDetail（详情）
@@ -193,9 +198,6 @@
 
 
 
-- [x] **采购审批完整实现**：ProcurementRequest Entity + ProcurementService + ProcurementController + 前端 ProcurementList/ProcurementApply/ProcurementDetail 页面 + AppMenu 菜单入口 [QA] 2026-05-19T06:06 ← PRD验收标准未满足：1)审批通过→asset表自动创建记录（未实现）；2)申请提交→APPROVAL_REQUIRED通知（未实现）；3)审批拒绝→APPROVAL_REJECTED通知（未实现）。Controller/Service/Entity已实现，前端页面未验证（登录BUG阻塞）[DEV] 2026-05-19 ← 全部实现：APPROVAL_REQUIRED通知已添加、审批通过→资产自动创建已实现、PROCUREMENT_APPROVED/REJECTED已有
-- [x] **JWT 登录认证真正落地**：AuthController.login() 返回 Token，前端 api/index.ts 请求拦截器自动带上 Authorization header，App.tsx 从 localStorage 读取 userId，NotificationBell 使用真实 userId（不再是硬编码 1） [QA] 2026-05-19T08:36 ← 前端 userId 读取逻辑正确，但 docker 镜像未重建（bundle 时间戳 2026-05-18 23:33，早于最新 fix commit 2026-05-19 08:02），无法验证运行时真实场景。需重建镜像后重新验证。[DEV] 2026-05-19 ← 镜像已重建（bundle 09:46:58），后端JWT验证通过：登录返回token✓、带token访问受保护API返回200✓、无token返回403✓
-- [x] 【BUG】登录成功后路由跳转失效：token 已存入 localStorage，但 ProtectedRoute 未识别已登录状态，手动刷新或导航到 /dashboard 时仍跳转回 /login [DEV] 2026-05-19T09:05 ← Docker 前端镜像已重建（bundle 时间戳 2026-05-19 09:02，晚于 fix commit 2026-05-19 08:02），核心修复已验证。等待 QA 验收。
 
 
 
